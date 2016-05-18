@@ -59,3 +59,34 @@ group by
 						abc.Description
 limit 0, 10000000000
 
+<<<<<<<<<<<<<<<<<< Thong ke nguoi dung + nganh nghe + truong + so luong rate >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+SELECT 					
+						UserName,
+						account.Email,						
+						category.Description as NganhNghe,						
+						education.SchoolName as TenTruong,
+						count(job_recommended.JobId) as SoLuongRate
+						
+
+FROM 					education, resume, account, job_recommended, category, care
+
+where	 				care.CategoryId = category.CategoryId
+and						account.AccountId = care.AccountId
+
+and		  				job_recommended.Rating > 0
+and						job_recommended.AccountId = account.AccountId
+
+and						account.AccountId = resume.AccountId
+and						resume.ResumeId = education.ResumeId
+
+group by 
+
+						UserName,
+						account.Email,
+						NganhNghe,
+						TenTruong
+limit 0, 10000000000
+
+<<<<<<<<<<<<<<< Thong tin chi tiet nguoi dung >>>>>>>>>>>>>>>>>>
+select * from resume right join account on resume.AccountId = account.AccountId group by account.AccountId
