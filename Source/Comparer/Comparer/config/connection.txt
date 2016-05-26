@@ -1,0 +1,3 @@
+database:recsys
+username:root
+password:

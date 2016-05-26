@@ -1,5 +1,11 @@
 package recsys.datapreparer;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -7,14 +13,34 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class MysqlConnection {
-	public final String mysqlHost = "jdbc:mysql://localhost:3306/recsys?useUnicode=true&characterEncoding=UTF-8";
-	public final String userName = "root";
-	public final String password = "123456";
+	public String mysqlHost = "";
+	public String database = "";
+	public String userName = "";
+	public String password = "";
 	private Connection connection = null;
 	private PreparedStatement preStatement = null;
 
 	public MysqlConnection() {
-
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader((new File("config/connection.txt"))));
+			String currentLine = "";
+			while ((currentLine = reader.readLine()) != null) {
+				if (currentLine.contains("database"))
+					database = currentLine.replaceAll("database:", "");
+				else if (currentLine.contains("username"))
+					userName = currentLine.replaceAll("username:", "");
+				else
+					password = currentLine.replaceAll("password:", "");
+			}
+			reader.close();
+			mysqlHost = "jdbc:mysql://localhost:3306/" + database + "?useUnicode=true&characterEncoding=UTF-8";
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public Connection getConnection() {
@@ -32,8 +58,7 @@ public class MysqlConnection {
 	public Boolean connect() {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			connection = DriverManager.getConnection(mysqlHost, userName,
-					password);
+			connection = DriverManager.getConnection(mysqlHost, userName, password);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
