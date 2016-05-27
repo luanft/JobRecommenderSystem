@@ -17,7 +17,6 @@ public class MysqlConnection {
 	public String database = "";
 	public String userName = "";
 	public String password = "";
-
 	private Connection connection = null;
 	private PreparedStatement preStatement = null;
 
@@ -59,18 +58,14 @@ public class MysqlConnection {
 	public Boolean connect() {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-<<<<<<< HEAD
-			connection = DriverManager.getConnection(mysqlHost, userName,
-					password);
-		} catch (ClassNotFoundException e) {			
-=======
 			connection = DriverManager.getConnection(mysqlHost, userName, password);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
->>>>>>> c88218cf71bf47d700ad76f026dbe5709835ef90
 			return false;
 		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 			return false;
 		}
 		return true;
@@ -83,7 +78,9 @@ public class MysqlConnection {
 			data = cmd.executeQuery(sql);
 
 		} catch (SQLException e) {
-			return null;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			// TODO Auto-generated catch block
 		}
 		return data;
 	}
