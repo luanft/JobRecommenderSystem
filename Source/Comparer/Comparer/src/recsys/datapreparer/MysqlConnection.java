@@ -9,7 +9,7 @@ import java.sql.SQLException;
 public class MysqlConnection {
 	public final String mysqlHost = "jdbc:mysql://localhost:3306/recsys?useUnicode=true&characterEncoding=UTF-8";
 	public final String userName = "root";
-	public final String password = "123456";
+	public final String password = "kh0ngbietnua";
 	private Connection connection = null;
 	private PreparedStatement preStatement = null;
 
@@ -34,13 +34,9 @@ public class MysqlConnection {
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection(mysqlHost, userName,
 					password);
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (ClassNotFoundException e) {			
 			return false;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 			return false;
 		}
 		return true;
@@ -53,9 +49,7 @@ public class MysqlConnection {
 			data = cmd.executeQuery(sql);
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			// TODO Auto-generated catch block
+			return null;
 		}
 		return data;
 	}
