@@ -34,4 +34,59 @@ public class DataPreparer {
 			}
 		}
 	}
+	
+	public void CreateFileData(String outputFileName) {
+		MysqlConnection connection = new MysqlConnection();
+		if (connection.connect()) {
+			String sql = "SELECT AccountId, JobId, Rating FROM job_recommended WHERE Rating > 0";
+			ResultSet rs = connection.readStream(sql);
+			try {
+				FileWriter writer = new FileWriter(outputFileName);
+				while (rs.next()) {
+					writer.append(rs.getString("AccountId"));
+					writer.append(',');
+					writer.append(rs.getString("JobId"));
+					writer.append(',');
+					writer.append(rs.getString("Rating"));
+					writer.append('\n');
+				}
+				rs.close();
+				writer.close();
+				connection.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void CreateFileFromDataBase(String outputFileName, String sql) {
+		MysqlConnection connection = new MysqlConnection();
+		if (connection.connect()) {			
+			ResultSet rs = connection.readStream(sql);
+			try {
+				FileWriter writer = new FileWriter(outputFileName);
+				while (rs.next()) {
+					writer.append(rs.getString("AccountId"));
+					writer.append(',');
+					writer.append(rs.getString("JobId"));
+					writer.append(',');
+					writer.append(rs.getString("Rating"));
+					writer.append('\n');
+				}
+				rs.close();
+				writer.close();
+				connection.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 }
