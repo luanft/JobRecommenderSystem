@@ -2,7 +2,6 @@ package recsys.datapreparer;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -75,6 +74,21 @@ public class MysqlConnection {
 		ResultSet data = null;
 		try {
 			java.sql.Statement cmd = connection.createStatement();
+			data = cmd.executeQuery(sql);
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			// TODO Auto-generated catch block
+		}
+		return data;
+	}
+	
+	public ResultSet readStream(String sql) {
+		ResultSet data = null;
+		try {
+			java.sql.Statement cmd = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			cmd.setFetchSize(Integer.MIN_VALUE);
 			data = cmd.executeQuery(sql);
 
 		} catch (SQLException e) {

@@ -1,10 +1,13 @@
 package recsys.algorithms.cf;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.apache.mahout.cf.taste.common.TasteException;
+import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.model.jdbc.MySQLJDBCDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
@@ -33,9 +36,26 @@ public class CollaborativeFiltering {
 	ItemSimilarity itemSimilarity;
 	UserNeighborhood userNeightborhood;
 
-	public CollaborativeFiltering() throws TasteException {
-		dataSource = MyDataSourceFactory.getMySQLDataSource();
-		dataModel = new MySQLJDBCDataModel(dataSource, "job_recommended", "AccountID", "JobID", "Rating", "Time");
+	public CollaborativeFiltering() throws TasteException, IOException {
+		dataModel = new FileDataModel(new File("data/JobRating.csv"));
+	}
+
+	/**
+	 * 
+	 * @param typeOfModel {@value = 0 for FileDataModel and others for MySQLJDBCDataModel}
+	 * @throws TasteException
+	 * @throws IOException
+	 */
+	public CollaborativeFiltering(int typeOfModel) throws TasteException, IOException {
+		switch (typeOfModel) {
+		case 0:
+			dataSource = MyDataSourceFactory.getMySQLDataSource();
+			dataModel = new MySQLJDBCDataModel(dataSource, "job_recommended", "AccountID", "JobID", "Rating", "Time");
+			break;
+		default:
+			dataModel = new FileDataModel(new File("data/JobRating.csv"));
+			break;
+		}
 	}
 
 	/**
