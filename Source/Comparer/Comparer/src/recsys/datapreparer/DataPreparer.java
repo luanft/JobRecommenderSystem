@@ -1,92 +1,22 @@
 package recsys.datapreparer;
 
-import java.io.FileWriter;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Properties;
 
 public class DataPreparer {
 
-	public void InitData(String outputFileName) {
-		MysqlConnection connection = new MysqlConnection();
-		if (connection.connect()) {
-			String sql = "SELECT SQL_CALC_FOUND_ROWS account.AccountId, xx.JobId, COALESCE(xx.Rating, 0) as Rating FROM account JOIN ( SELECT job.JobId, job_recommended.Rating FROM job LEFT JOIN job_recommended ON job.JobId = job_recommended.JobId ) as xx";
-			ResultSet rs = connection.readStream(sql);
-			try {
-				FileWriter writer = new FileWriter(outputFileName);
-				while (rs.next()) {
-					writer.append(rs.getString("AccountId"));
-					writer.append(',');
-					writer.append(rs.getString("JobId"));
-					writer.append(',');
-					writer.append(rs.getString("Rating"));
-					writer.append('\n');
-				}
-				rs.close();
-				writer.close();
-				connection.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	public void CreateFileData(String outputFileName) {
-		MysqlConnection connection = new MysqlConnection();
-		if (connection.connect()) {
-			String sql = "SELECT AccountId, JobId, Rating FROM job_recommended WHERE Rating > 0";
-			ResultSet rs = connection.readStream(sql);
-			try {
-				FileWriter writer = new FileWriter(outputFileName);
-				while (rs.next()) {
-					writer.append(rs.getString("AccountId"));
-					writer.append(',');
-					writer.append(rs.getString("JobId"));
-					writer.append(',');
-					writer.append(rs.getString("Rating"));
-					writer.append('\n');
-				}
-				rs.close();
-				writer.close();
-				connection.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	public void CreateFileFromDataBase(String outputFileName, String sql) {
-		MysqlConnection connection = new MysqlConnection();
-		if (connection.connect()) {			
-			ResultSet rs = connection.readStream(sql);
-			try {
-				FileWriter writer = new FileWriter(outputFileName);
-				while (rs.next()) {
-					writer.append(rs.getString("AccountId"));
-					writer.append(',');
-					writer.append(rs.getString("JobId"));
-					writer.append(',');
-					writer.append(rs.getString("Rating"));
-					writer.append('\n');
-				}
-				rs.close();
-				writer.close();
-				connection.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+	protected MysqlConnection connection;
+
+	public DataPreparer() {
+		Properties props = new Properties();
+		try {
+			props.load(new FileInputStream("config/dbConfig.properties"));
+			connection = new MysqlConnection(props.getProperty("MYSQL_DB_URL"), props.getProperty("MYSQL_DB_USERNAME"),
+					props.getProperty("MYSQL_DB_PASSWORD"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }
