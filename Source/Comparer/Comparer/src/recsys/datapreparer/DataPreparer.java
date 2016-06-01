@@ -7,7 +7,6 @@ import java.util.Properties;
 public class DataPreparer {
 
 	protected MysqlConnection connection;
-
 	public DataPreparer() {
 		Properties props = new Properties();
 		try {
