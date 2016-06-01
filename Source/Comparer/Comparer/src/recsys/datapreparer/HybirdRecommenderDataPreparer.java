@@ -14,7 +14,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-
+import org.apache.lucene.search.similarities.TFIDFSimilarity ;
 public class HybirdRecommenderDataPreparer extends DataPreparer {
 
 	
@@ -60,6 +60,7 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 		Directory dir = FSDirectory.open(index_directory_path);
 		IndexWriterConfig iwr_config = new IndexWriterConfig(new StandardAnalyzer());
 		iwr_config.setOpenMode(OpenMode.CREATE);
+		//iwr_config.setSimilarity(new )
 
 
 		//check connection to database
@@ -74,10 +75,11 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 				String data = "";
 				FieldType type = new FieldType();
 				type.setStoreTermVectors(true);			
-				type.setStored(true);
-				type.setTokenized(false);
+				type.setStored(true);				
+				type.setTokenized(true);
 				type.setOmitNorms(false);
-				type.setIndexOptions(IndexOptions.DOCS_AND_FREQS);				
+				type.setIndexOptions(IndexOptions.DOCS_AND_FREQS);	
+				
 				Document doc = new Document();				
 				data = rs.getString("JobName");
 				Field field = new Field("JobName",data , type);				
