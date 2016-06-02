@@ -22,12 +22,10 @@ public class App {
 
 			Directory dir = FSDirectory.open(index_directory_path);
 
-		IndexReader r = DirectoryReader.open(dir);
+			IndexReader r = DirectoryReader.open(dir);
 
 			IndexSearcher iSeach = new IndexSearcher(r);
 			Term t = new Term("JobName", "Lập trình java");
-			// QueryParser parser = new QueryParser("JobName", new
-			// StandardAnalyzer());
 			Query query = new TermQuery(t);
 
 			int n = r.maxDoc();
@@ -38,9 +36,7 @@ public class App {
 				Document doc = iSeach.doc(d);
 				System.out.println(doc.get("JobName") + rs.scoreDocs[i].score);
 				Thread.sleep(1000);
-
 			}
-
 			for (int i = 0; i < n; i++) {
 				Document d = r.document(i);
 				System.out.println(d.get("JobName"));
