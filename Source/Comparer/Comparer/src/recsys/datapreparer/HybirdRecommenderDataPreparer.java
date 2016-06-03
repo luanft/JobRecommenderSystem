@@ -8,13 +8,16 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.FieldInfo.DocValuesType;
+import org.apache.lucene.index.FieldInfo.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-
+import org.apache.lucene.util.Version;
+import org.apache.lucene.search.similarities.DefaultSimilarity;
+import org.apache.lucene.search.similarities.TFIDFSimilarity ;
 public class HybirdRecommenderDataPreparer extends DataPreparer {
 
 	
@@ -38,11 +41,11 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 
 	}
 	
-	MysqlConnection _connection = new MysqlConnection();
+	//MysqlConnection _connection = new MysqlConnection();
 	
 	public void Init()
 	{
-		index_directory_path = FileSystems.getDefault().getPath("HybridIndex");
+		index_directory_path = FileSystems.getDefault().getPath("HybridIndex");		
 		if(!this.hasIndexDirectory(index_directory_path))
 		{
 			File dir = new File("HybridIndex");
@@ -57,16 +60,15 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 		//Initialize the running environment.
 		this.Init();
 		
-		Directory dir = FSDirectory.open(index_directory_path);
-		IndexWriterConfig iwr_config = new IndexWriterConfig(new StandardAnalyzer());
+		Directory dir = FSDirectory.open(index_directory_path.toFile());
+		IndexWriterConfig iwr_config = new IndexWriterConfig(Version.LUCENE_45, new StandardAnalyzer(Version.LUCENE_45));
 		iwr_config.setOpenMode(OpenMode.CREATE);
-
-
+		iwr_config.setSimilarity(new DefaultSimilarity());
 		//check connection to database
-		if(_connection.connect())
+		if(connection.connect())
 		{
 			IndexWriter index_wr = new IndexWriter(dir, iwr_config);
-			ResultSet rs = _connection.read("SELECT JobName,Location,Salary,job.Description,Tags, Requirement,Benifit, category.Description as Category FROM job, category WHERE job.CategoryId = category.CategoryId");
+			ResultSet rs = connection.read("SELECT JobName,Location,Salary,job.Description,Tags, Requirement,Benifit, category.Description as Category FROM job, category WHERE job.CategoryId = category.CategoryId");
 			int count = 0;
 			while(rs.next())
 			{	
@@ -74,10 +76,12 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 				String data = "";
 				FieldType type = new FieldType();
 				type.setStoreTermVectors(true);			
-				type.setStored(true);
-				type.setTokenized(false);
+				type.setStored(true);				
+				type.setTokenized(true);
 				type.setOmitNorms(false);
-				type.setIndexOptions(IndexOptions.DOCS_AND_FREQS);				
+				type.setIndexOptions(IndexOptions.DOCS_AND_FREQS);
+				type.setIndexed(true);
+				
 				Document doc = new Document();				
 				data = rs.getString("JobName");
 				Field field = new Field("JobName",data , type);				
@@ -106,7 +110,7 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 				index_wr.addDocument(doc);
 			}
 			index_wr.close();
-			this._connection.close();			
+			this.connection.close();			
 		}
 		else
 		{
