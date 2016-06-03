@@ -8,7 +8,9 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
+
 import org.apache.lucene.index.FieldInfo.DocValuesType;
+
 import org.apache.lucene.index.FieldInfo.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -39,9 +41,11 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 
 		return f1.list().length == 0;
 
+
 	}
 	
-	//MysqlConnection _connection = new MysqlConnection();
+
+		
 	
 	public void Init()
 	{
@@ -65,10 +69,11 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 		iwr_config.setOpenMode(OpenMode.CREATE);
 		iwr_config.setSimilarity(new DefaultSimilarity());
 		//check connection to database
-		if(connection.connect())
+
+		if(this.connection.connect())
 		{
 			IndexWriter index_wr = new IndexWriter(dir, iwr_config);
-			ResultSet rs = connection.read("SELECT JobName,Location,Salary,job.Description,Tags, Requirement,Benifit, category.Description as Category FROM job, category WHERE job.CategoryId = category.CategoryId");
+			ResultSet rs = this.connection.read("SELECT JobName,Location,Salary,job.Description,Tags, Requirement,Benifit, category.Description as Category FROM job, category WHERE job.CategoryId = category.CategoryId");
 			int count = 0;
 			while(rs.next())
 			{	
@@ -79,7 +84,8 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 				type.setStored(true);				
 				type.setTokenized(true);
 				type.setOmitNorms(false);
-				type.setIndexOptions(IndexOptions.DOCS_AND_FREQS);
+				type.setStoreTermVectorPositions(true);
+				type.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
 				type.setIndexed(true);
 				
 				Document doc = new Document();				
