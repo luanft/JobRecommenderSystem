@@ -8,7 +8,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.FieldInfo.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
@@ -36,9 +36,7 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 
 		return f1.list().length == 0;
 
-	}
-	
-	MysqlConnection _connection = new MysqlConnection();
+	}	
 	
 	public void Init()
 	{
@@ -63,10 +61,10 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 
 
 		//check connection to database
-		if(_connection.connect())
+		if(this.connection.connect())
 		{
 			IndexWriter index_wr = new IndexWriter(dir, iwr_config);
-			ResultSet rs = _connection.read("SELECT JobName,Location,Salary,job.Description,Tags, Requirement,Benifit, category.Description as Category FROM job, category WHERE job.CategoryId = category.CategoryId");
+			ResultSet rs = this.connection.read("SELECT JobName,Location,Salary,job.Description,Tags, Requirement,Benifit, category.Description as Category FROM job, category WHERE job.CategoryId = category.CategoryId");
 			int count = 0;
 			while(rs.next())
 			{	
@@ -106,7 +104,7 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 				index_wr.addDocument(doc);
 			}
 			index_wr.close();
-			this._connection.close();			
+			this.connection.close();			
 		}
 		else
 		{

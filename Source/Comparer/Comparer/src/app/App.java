@@ -13,6 +13,8 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
+import recsys.datapreparer.HybirdRecommenderDataPreparer;
+
 public class App {
 
 	public static void main(String[] args) {
@@ -45,6 +47,15 @@ public class App {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+		
+		 HybirdRecommenderDataPreparer tesst = new
+		 HybirdRecommenderDataPreparer();
+		 try {
+		 tesst.IndexData();
+		 System.out.println("Done!");
+		 } catch (Exception ex) {
+		 ex.printStackTrace();
+		 }
 
 	}
 
