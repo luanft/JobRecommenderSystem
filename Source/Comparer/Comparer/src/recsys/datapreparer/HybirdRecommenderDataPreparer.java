@@ -43,10 +43,7 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 
 
 	}
-	
-
 		
-	
 	public void Init()
 	{
 		index_directory_path = FileSystems.getDefault().getPath("HybridIndex");		
