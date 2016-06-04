@@ -2,6 +2,7 @@ package app;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.sql.SQLException;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.DirectoryReader;
@@ -61,8 +62,15 @@ public class App {
 	public static void main(String[] args) {
 
 
+		HybirdRecommenderDataPreparer tt = new HybirdRecommenderDataPreparer();
+		try {
+			tt.buildUserProfile();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//index();
-		test();
+		//test();
 
 
 	}

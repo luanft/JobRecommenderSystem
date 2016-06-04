@@ -4,13 +4,14 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
-
-import org.apache.lucene.index.FieldInfo.DocValuesType;
-
 import org.apache.lucene.index.FieldInfo.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -18,8 +19,10 @@ import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
+
+import recsys.algorithms.UserProfile;
+
 import org.apache.lucene.search.similarities.DefaultSimilarity;
-import org.apache.lucene.search.similarities.TFIDFSimilarity ;
 public class HybirdRecommenderDataPreparer extends DataPreparer {
 
 	
@@ -44,6 +47,40 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 
 	}
 		
+	
+	public List<UserProfile> buildUserProfile() throws SQLException
+	{
+		List<UserProfile> usersprofile = new ArrayList<UserProfile>();
+		UserProfile dto;
+		
+		String sql ="call get_user_profile()";
+		
+		if(this.connection.connect())
+		{
+			ResultSet rs = this.connection.read(sql);	
+			
+			while (rs.next()) {
+				dto = new UserProfile();
+				dto.accountId = rs.getString("AccountId");
+				dto.CvName = rs.getString("Title");
+				dto.gender = rs.getString("Gender");
+				dto.location =  rs.getString("Address");
+				dto.target =  rs.getString("Objective");
+				dto.salary =  rs.getString("Salary");
+				dto.location =  rs.getString("Location");
+				dto.catetory =  rs.getString("Description");
+				//String edu = "call get_education(+"+dto.+"+)";
+				
+				
+
+			}
+			this.connection.close();
+		}
+		
+		return null;
+	}
+	
+	
 	public void Init()
 	{
 		index_directory_path = FileSystems.getDefault().getPath("HybridIndex");		
@@ -70,7 +107,7 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 		if(this.connection.connect())
 		{
 			IndexWriter index_wr = new IndexWriter(dir, iwr_config);
-			ResultSet rs = this.connection.read("SELECT JobName,Location,Salary,job.Description,Tags, Requirement,Benifit, category.Description as Category FROM job, category WHERE job.CategoryId = category.CategoryId");
+			ResultSet rs = this.connection.read("SELECT JobId,JobName,Location,Salary,job.Description,Tags, Requirement,Benifit, category.Description as Category FROM job, category WHERE job.CategoryId = category.CategoryId");
 			int count = 0;
 			while(rs.next())
 			{	
@@ -85,9 +122,12 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 				type.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS);
 				type.setIndexed(true);
 				
-				Document doc = new Document();				
+				Document doc = new Document();
+				data = rs.getString("JobId");
+				Field field = new Field("JobId",data , type);				
+				doc.add(field);
 				data = rs.getString("JobName");
-				Field field = new Field("JobName",data , type);				
+				field = new Field("JobName",data , type);				
 				doc.add(field);
 				data = rs.getString("Location");
 				field = new Field("Location",data , type);
