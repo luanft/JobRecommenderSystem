@@ -1,61 +1,66 @@
 package app;
 
+
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import org.apache.lucene.document.Document;
+import java.sql.SQLException;
+import java.util.List;
+
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.Term;
+import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.QueryBuilder;
+import org.apache.lucene.util.Version;
 
+import recsys.algorithms.HybirdRecommeder;
+import recsys.algorithms.UserProfile;
 import recsys.datapreparer.HybirdRecommenderDataPreparer;
 
 public class App {
 
-	public static void main(String[] args) {
+	public static void index() {
+		HybirdRecommenderDataPreparer tesst = new HybirdRecommenderDataPreparer();
+		try {
+			tesst.IndexData();
+			System.out.println("Done!");
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	public static void test() {
 
 		try {
 			Path index_directory_path = FileSystems.getDefault().getPath("HybridIndex");
-
-			Directory dir = FSDirectory.open(index_directory_path);
-
+			Directory dir = FSDirectory.open((index_directory_path.toFile()));
 			IndexReader r = DirectoryReader.open(dir);
-
 			IndexSearcher iSeach = new IndexSearcher(r);
-			Term t = new Term("JobName", "Lập trình java");
-			Query query = new TermQuery(t);
-
 			int n = r.maxDoc();
 
-			TopDocs rs = iSeach.search(query, n);
-			for (int i = 0; i < rs.scoreDocs.length; i++) {
-				int d = rs.scoreDocs[i].doc;
-				Document doc = iSeach.doc(d);
-				System.out.println(doc.get("JobName") + rs.scoreDocs[i].score);
-				Thread.sleep(1000);
-			}
-			for (int i = 0; i < n; i++) {
-				Document d = r.document(i);
-				System.out.println(d.get("JobName"));
+			QueryBuilder q = new QueryBuilder(new StandardAnalyzer(Version.LUCENE_45));
+			Query qwer = q.createBooleanQuery("JobName", "Việc làm java");
 
+			for (int i = 0; i < n; i++) {
+
+				Explanation explain = iSeach.explain(qwer, i);
+				if (explain.getValue() > 0)
+					System.out.println(iSeach.doc(i).get("JobName") + "--------" + explain.getValue() + "--------"
+							+ explain.getDescription());
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		
-		 HybirdRecommenderDataPreparer tesst = new
-		 HybirdRecommenderDataPreparer();
-		 try {
-		 tesst.IndexData();
-		 System.out.println("Done!");
-		 } catch (Exception ex) {
-		 ex.printStackTrace();
-		 }
+	}
+
+	public static void main(String[] args) {
+
+		HybirdRecommeder hybirdRecommeder = new HybirdRecommeder();
+		hybirdRecommeder.contentBasedFiltering();
 
 	}
 

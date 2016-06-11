@@ -42,7 +42,7 @@ public class CollaborativeFiltering {
 
 	/**
 	 * 
-	 * @param typeOfModel {@value = 0 for FileDataModel and others for MySQLJDBCDataModel}
+	 * @param typeOfModel {@value = 0 for MySQLJDBCDataModel  and others for FileDataModel}
 	 * @throws TasteException
 	 * @throws IOException
 	 */
@@ -50,10 +50,11 @@ public class CollaborativeFiltering {
 		switch (typeOfModel) {
 		case 0:
 			dataSource = MyDataSourceFactory.getMySQLDataSource();
-			dataModel = new MySQLJDBCDataModel(dataSource, "job_recommended", "AccountID", "JobID", "Rating", "Time");
+//			dataModel = new MySQLJDBCDataModel(dataSource, "job_recommended", "AccountID", "JobID", "Rating", "Time");
+			dataModel = new MySQLJDBCDataModel(dataSource, "results", "AccountID", "JobID", "Rating", "Time");
 			break;
 		default:
-			dataModel = new FileDataModel(new File("data/JobRating.csv"));
+			dataModel = new FileDataModel(new File("data/cc.txt"));
 			break;
 		}
 	}
