@@ -8,15 +8,15 @@ import java.sql.SQLException;
 public class DataPreparerCollaborativeFiltering extends DataPreparer{
 	public void InitData(String outputFileName) {		
 		if (connection.connect()) {
-			String sql = "SELECT SQL_CALC_FOUND_ROWS account.AccountId, xx.JobId, COALESCE(xx.Rating, 0) as Rating FROM account JOIN ( SELECT job.JobId, job_recommended.Rating FROM job LEFT JOIN job_recommended ON job.JobId = job_recommended.JobId ) as xx";
+			String sql = "SELECT account.AccountId, xx.JobId, COALESCE(xx.Rating, 0) as Rating FROM account JOIN ( SELECT job.JobId, job_recommended.Rating FROM job LEFT JOIN job_recommended ON job.JobId = job_recommended.JobId) as xx where Rating > 0 order by account.AccountId asc";
 			ResultSet rs = connection.readStream(sql);
 			try {
 				FileWriter writer = new FileWriter(outputFileName);
 				while (rs.next()) {
 					writer.append(rs.getString("AccountId"));
-					writer.append(',');
+					writer.append('\t');
 					writer.append(rs.getString("JobId"));
-					writer.append(',');
+					writer.append('\t');
 					writer.append(rs.getString("Rating"));
 					writer.append('\n');
 				}
