@@ -15,6 +15,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.similarities.DefaultSimilarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.QueryBuilder;
@@ -39,7 +40,6 @@ public class HybirdRecommeder extends RecommendationAlgorithm {
 
 	public void contentBasedFiltering() {
 		try {
-			// index data
 			int numdoc = dataPreparation.IndexData();
 			System.out.println("Indexed " + numdoc + " documents");
 			// prepare user's profile
@@ -51,6 +51,7 @@ public class HybirdRecommeder extends RecommendationAlgorithm {
 			Directory dir = FSDirectory.open((index_directory_path.toFile()));
 			IndexReader r = DirectoryReader.open(dir);
 			IndexSearcher iSeach = new IndexSearcher(r);
+			iSeach.setSimilarity(new DefaultSimilarity());
 			System.out.println("Create query builder");
 			// TF-IDF calculate
 			QueryBuilder queryBuilder = new QueryBuilder(new StandardAnalyzer(Version.LUCENE_45));
