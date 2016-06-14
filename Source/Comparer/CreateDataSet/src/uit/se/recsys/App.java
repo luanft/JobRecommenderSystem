@@ -216,7 +216,6 @@ public class App {
 		WriteCVFile("cv.txt");		
 		WriteJobFile("job.txt");
 		WriteRatingFile("rating.txt");
-
 	}
 
 }
