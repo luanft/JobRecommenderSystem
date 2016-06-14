@@ -182,7 +182,7 @@ public class App {
 				data += eliminate(getEducation(rs.getString("ResumeId")))+ '\t';
 				data += eliminate(getLanguage(rs.getString("ResumeId")))+ '\t';
 				data += eliminate(getSkill(rs.getString("ResumeId")))+ '\t';
-				data += eliminate(getLanguage(rs.getString("ResumeId")))+ '\t';
+//				data += eliminate(getLanguage(rs.getString("ResumeId")))+ '\t';
 				String objective = eliminate(rs.getString("CareerObjective")).trim();
 				data += objective == "" ? "Thăng tiến trong sự nghiệp" + '\t' : objective +  '\t';		
 				writer.println(data);

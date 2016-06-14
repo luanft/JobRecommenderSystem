@@ -40,7 +40,6 @@ public class HybirdRecommeder extends RecommendationAlgorithm {
 
 	public void contentBasedFiltering() {
 		try {
-			// index data
 			int numdoc = dataPreparation.IndexData();
 			System.out.println("Indexed " + numdoc + " documents");
 			// prepare user's profile
