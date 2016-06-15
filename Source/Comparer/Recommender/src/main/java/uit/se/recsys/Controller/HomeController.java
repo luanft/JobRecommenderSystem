@@ -30,7 +30,7 @@ public class HomeController {
 	/**
 	 * Simply selects the home view to render by returning its name.
 	 */
-	@RequestMapping(value = "/", method = RequestMethod.GET)
+	@RequestMapping(value = {"/", "/trang-chu"}, method = RequestMethod.GET)
 	public String home(Model model) {
 
 		return "home";

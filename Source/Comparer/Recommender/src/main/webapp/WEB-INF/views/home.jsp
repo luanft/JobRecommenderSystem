@@ -20,20 +20,11 @@
 <script type="text/javascript"
 	src="resources/libs/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
 
-<!-- bootstrap upload file style -->
-<script type="text/javascript"
-	src="resources/js/bootstrap-filestyle.min.js"></script>
-
-<!-- datatable -->
-<link
-	href="resources/libs/DataTables-1.10.9/css/jquery.dataTables.min.css"
-	rel="stylesheet">
-<script type="text/javascript"
-	src="resources/libs/DataTables-1.10.9/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript"
-	src="resources/libs/DataTables-1.10.9/js/jquery.dataTables.js"></script>
 <!-- custom css -->
 <link rel="stylesheet" href="resources/css/main.css">
+
+<!-- jquery -->
+<script type="text/javascript" src="resources/js/home.js"></script>
 
 </head>
 <body>
@@ -42,69 +33,136 @@
 
 	<div class="container">
 		<div class="row" style="margin: 0 auto;">
-			<pre class="text-info" style="font-size: 15px;">
-<h3 class="text-primary">Để chạy được thuật toán cần cung cấp đầy đủ các file dataset có định dạng như sau:</h3>
-- File upload có định dạng là file text (*.txt)
-- Các cột cách nhau bằng ký tự tab (\t). Các file có thứ tự các cột đúng theo thứ tự bên dưới.
-- File Job.txt gồm: JobId, JobName, Location, Salary, Category, Requirement, Tag, Description.
-- File CV.txt gồm: UserId, CVId, UserName, CVName, UserAddress, ExpectedSalary, Category, Education, Language, Skill, CareerObjective.
-- File Score.txt gồm: UserId, JobId, Score.</pre>
-			<form class="form" role="form" action="excute" method="post"
-				enctype="multipart/form-data">
-				<label for="db">Chọn File Job.txt</label> <input type="file"
-					class="filestyle" data-buttonName="btn-primary" name="file"
-					data-buttonText="Chọn file" data-buttonBefore="true" id="score">
-				<label for="db">Chọn File CV.txt</label> <input type="file"
-					class="filestyle" data-buttonName="btn-primary" name="file"
-					data-buttonText="Chọn file" data-buttonBefore="true" id="score">
-				<label for="db">Chọn File Score.txt</label> <input type="file"
-					class="filestyle" data-buttonName="btn-primary" name="file"
-					data-buttonText="Chọn file" data-buttonBefore="true" id="score">
-				<br> <label>Chọn thuật toán</label>
-				<div class="radio">
-					<label> <input checked="checked" type="radio"
-						name="algorithm" value="cf">Collaborative Filtering
-					</label>
+			<div class="panel-group">
+				<div class="panel panel-primary">
+					<div class="panel-heading" data-toggle="collapse"
+						data-target="#panel-content">
+						<label class="text-uppercase">Trạng thái tasks</label>
+					</div>
+					<div id="panel-content" class="panel-collapse collapse in">
+						<div class="panel-body">
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>STT</th>
+										<th>Tên task</th>
+										<th>Ngày tạo</th>
+										<th>Thuật toán</th>
+										<th>Dataset</th>
+										<th>Trạng thái</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>1</td>
+										<td>Task 1</td>
+										<td>20-6-2016</td>
+										<td>Collaborative Filtering</td>
+										<td>scoring.txt</td>
+										<td>Đã xong</td>
+									</tr>
+									<tr>
+										<td>2</td>
+										<td>Task 2</td>
+										<td>20-6-2016</td>
+										<td>Content Base</td>
+										<td>scoring.txt, job.txt, cv.txt</td>
+										<td>Lỗi</td>
+									</tr>
+									<tr>
+										<td>3</td>
+										<td>Task 3</td>
+										<td>20-6-2016</td>
+										<td>Hybrid</td>
+										<td>scoring.txt, job.txt, cv.txt</td>
+										<td>Đang chạy</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
 				</div>
-				<div class="radio">
-					<label> <input type="radio" name="algorithm" value="cb">Content
-						Base
-					</label>
+
+
+				<div class="panel panel-primary">
+					<div class="panel-heading" data-toggle="collapse"
+						data-target="#panel-content2">
+						<label class="text-uppercase">Tạo task mới</label>
+					</div>
+					<div id="panel-content2" class="panel-collapse collapse in">
+						<div class="panel-body">
+							<div class="row">
+								<div class="col-md-6">
+									<form class="form">
+										<div class="form-group">
+											<label for="task">Tên task</label><input type="text" required="required"
+												class="form-control" id="task" id="task">
+										</div>
+										<div class="form-group">
+											<label for="algorithm">Chọn thuật toán</label><select
+												class="form-control" id="algorithm" name="algorithm">
+												<option value="cf">Collaborative Filtering</option>
+												<option value="cb">Content Base</option>
+												<option value="hb">Hybrid</option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label for="dataset">Chọn dataset</label>
+											<table class="table table-hover">
+												<thead>
+													<tr>
+														<th width="20%">Chọn</th>
+														<th width="40%">Tên dataset</th>
+														<th width="40%">Ngày tạo</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td><input class="form-control" type="checkbox"></td>
+														<td>job.txt</td>
+														<td>20-6-2016</td>
+													</tr>
+													<tr>
+														<td><input class="form-control" type="checkbox"></td>
+														<td>cv.txt</td>
+														<td>20-6-2016</td>
+													</tr>
+													<tr>
+														<td><input class="form-control" type="checkbox"></td>
+														<td>score.txt</td>
+														<td>20-6-2016</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+										<button type="submit" class="btn btn-primary">Xử lý</button>
+									</form>
+								</div>
+								<div class="col-md-6">
+									<div class="panel panel-primary">
+										<div class="panel-heading" data-toggle="collapse"
+											data-target="#note">
+											<label>LƯU Ý QUAN TRỌNG</label>
+										</div>
+										<div class="panel-collapse collapse in" id="note">
+											<div class="panel-body">
+												<ul>
+													<li><p class="text-danger">Để chạy thuật toán Collaborative Filtering
+															vui lòng chọn loại file dataset là score.txt</p></li>
+													<li><p class="text-danger">Để chạy thuật toán Content Base hoặc Hybrid
+															vui lòng chọn 3 loại file dataset: score.txt, job.txt và
+															cv.txt</p></li>
+												</ul>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
-				<div class="radio">
-					<label> <input type="radio" name="algorithm" value="hb">Hybrid
-					</label>
-				</div>
-				<br> <input class="btn btn-primary" type="submit" value="Xử lý">
-			</form>
-			<br>
-			<div class="result">
-				<label>Kết quả thực nghiệm</label>
-				<table id="result"
-				class="table table-striped table-bordered table-hover " width="100%">
-				<thead>
-					<tr>
-						<th>UserId</th>
-						<th>JobId</th>
-						<td>Score</td>						
-					</tr>
-				</thead>
-				<tbody>
-					<%
-						if(request.getAttribute("recommendedItems") != null)							
-						for(RecommendedItem ri : (List<RecommendedItem>)request.getAttribute("recommendedItems")){
-							out.write("<tr>");
-							out.write("<td>" + 1 + "</td>");
-							out.write("<td>" + String.valueOf(ri.getItemID()) + "</td>");
-							out.write("<td>" + String.valueOf(ri.getValue()) + "</td>");
-							out.write("</tr>");
-						}
-					%>
-				</tbody>
-			</table>
 			</div>
 		</div>
 	</div>
-	<script type="text/javascript" src="resources/js/datatable.js"></script>
 </body>
 </html>
