@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DataPreparerCollaborativeFiltering extends DataPreparer{
-	public void InitData(String outputFileName) {		
+public class DataPreparerCollaborativeFiltering extends DataPreparer {
+	public void InitData(String outputFileName) {
 		if (connection.connect()) {
 			String sql = "SELECT account.AccountId, xx.JobId, COALESCE(xx.Rating, 0) as Rating FROM account JOIN ( SELECT job.JobId, job_recommended.Rating FROM job LEFT JOIN job_recommended ON job.JobId = job_recommended.JobId) as xx where Rating > 0 order by account.AccountId asc";
 			ResultSet rs = connection.readStream(sql);
@@ -32,19 +32,32 @@ public class DataPreparerCollaborativeFiltering extends DataPreparer{
 			}
 		}
 	}
-	
+
 	public void CreateFileData(String outputFileName) {
 		if (connection.connect()) {
-			String sql = "SELECT AccountId, JobId, Rating FROM job_recommended WHERE Rating > 0";
+			// String sql = "SELECT AccountId, JobId, Rating FROM
+			// job_recommended WHERE Rating > 0";
+			String sql = "SELECT * FROM job limit 0, 1000";
 			ResultSet rs = connection.readStream(sql);
 			try {
 				FileWriter writer = new FileWriter(outputFileName);
 				while (rs.next()) {
-					writer.append(rs.getString("AccountId"));
-					writer.append(',');
+					String xx = "";
+					if (rs.getString("JobId").equals("15348"))
+						xx = rs.getString("JobId");
 					writer.append(rs.getString("JobId"));
-					writer.append(',');
-					writer.append(rs.getString("Rating"));
+					writer.append('\t');
+					writer.append(RemoveStopWord(rs.getString("JobName")));
+					writer.append('\t');
+					writer.append(RemoveStopWord(rs.getString("Location")));
+					writer.append('\t');
+					writer.append(RemoveStopWord(rs.getString("Salary")));
+					writer.append('\t');
+					writer.append(RemoveStopWord(rs.getString("Tags")));
+					writer.append('\t');
+					writer.append(RemoveStopWord(rs.getString("Description")));
+					writer.append('\t');
+					writer.append(RemoveStopWord(rs.getString("Requirement")));
 					writer.append('\n');
 				}
 				rs.close();
@@ -58,6 +71,10 @@ public class DataPreparerCollaborativeFiltering extends DataPreparer{
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private String RemoveStopWord(String txt) {
+		return txt.replaceAll("\r\n", " ").replaceAll("\n", " ").replaceAll("\r", " ").replaceAll("\t", " ").trim();
 	}
 
 	public void CreateFileFromDataBase(String outputFileName, String sql) {

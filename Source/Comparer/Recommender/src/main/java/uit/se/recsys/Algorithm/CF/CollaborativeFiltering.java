@@ -8,7 +8,6 @@ import javax.sql.DataSource;
 
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
-import org.apache.mahout.cf.taste.impl.model.jdbc.MySQLJDBCDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
@@ -25,9 +24,9 @@ import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 
-import uit.se.recsys.DataPreparation.MyDataSourceFactory;
+import uit.se.recsys.Algorithm.RecommendationAlgorithm;
 
-public class CollaborativeFiltering {
+public class CollaborativeFiltering extends RecommendationAlgorithm {
 
 	DataSource dataSource;
 	DataModel dataModel;
@@ -36,27 +35,11 @@ public class CollaborativeFiltering {
 	ItemSimilarity itemSimilarity;
 	UserNeighborhood userNeightborhood;
 
-	public CollaborativeFiltering() throws TasteException, IOException {
-		dataModel = new FileDataModel(new File("data/JobRating.csv"));
+	public CollaborativeFiltering() {
 	}
 
-	/**
-	 * 
-	 * @param typeOfModel {@value = 0 for MySQLJDBCDataModel  and others for FileDataModel}
-	 * @throws TasteException
-	 * @throws IOException
-	 */
-	public CollaborativeFiltering(int typeOfModel) throws TasteException, IOException {
-		switch (typeOfModel) {
-		case 0:
-			dataSource = MyDataSourceFactory.getMySQLDataSource();
-//			dataModel = new MySQLJDBCDataModel(dataSource, "job_recommended", "AccountID", "JobID", "Rating", "Time");
-			dataModel = new MySQLJDBCDataModel(dataSource, "results", "AccountID", "JobID", "Rating", "Time");
-			break;
-		default:
-			dataModel = new FileDataModel(new File("data/cc.txt"));
-			break;
-		}
+	public CollaborativeFiltering(String dataset) throws IOException {
+		dataModel = new FileDataModel(new File(dataset));
 	}
 
 	/**

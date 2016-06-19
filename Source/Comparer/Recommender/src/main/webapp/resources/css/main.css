@@ -1,6 +1,6 @@
 .custom_navbar_color {
 	color: #ffffff;
-	background-color: #115D9D;
+	background-color: #337AB7;
 }
 
 .navbar-default .navbar-nav>li>a {
@@ -11,4 +11,27 @@
 	.navbar-default .navbar-nav>.active>a:hover {
 	background-color: white;
 	color: #555;
+}
+
+/* START customize pre tag */
+pre {
+	white-space: pre-wrap; /* CSS 3 */
+	white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+	white-space: -pre-wrap; /* Opera 4-6 */
+	white-space: -o-pre-wrap; /* Opera 7 */
+	word-wrap: break-word; /* Internet Explorer 5.5+ */
+	padding: 0px 15px;
+	border: none;
+	margin: 0px;
+	border-radius: 0px;
+	word-break: normal;
+}
+/* END customize pre tag */
+.panel-heading {
+	cursor: pointer;
+}
+
+.error{
+	color: red;
+	font-style: italic;
 }
