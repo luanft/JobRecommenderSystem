@@ -23,7 +23,7 @@
 <!-- custom css -->
 <link rel="stylesheet" href="resources/css/main.css">
 
-<!-- jquery -->
+<!-- custom query -->
 <script type="text/javascript" src="resources/js/home.js"></script>
 
 </head>
@@ -32,6 +32,7 @@
 	<jsp:include page="header.jsp"></jsp:include>
 
 	<div class="container">
+	
 		<div class="row" style="margin: 0 auto;">
 			<div class="panel-group">
 				<div class="panel panel-primary">
@@ -55,7 +56,7 @@
 								<tbody>
 									<tr>
 										<td>1</td>
-										<td>Task 1</td>
+										<td><a href="#">Task 1</a></td>
 										<td>20-6-2016</td>
 										<td>Collaborative Filtering</td>
 										<td>scoring.txt</td>
@@ -63,7 +64,7 @@
 									</tr>
 									<tr>
 										<td>2</td>
-										<td>Task 2</td>
+										<td><a href="#">Task 2</a></td>
 										<td>20-6-2016</td>
 										<td>Content Base</td>
 										<td>scoring.txt, job.txt, cv.txt</td>
@@ -71,7 +72,7 @@
 									</tr>
 									<tr>
 										<td>3</td>
-										<td>Task 3</td>
+										<td><a href="#">Task 3</a></td>
 										<td>20-6-2016</td>
 										<td>Hybrid</td>
 										<td>scoring.txt, job.txt, cv.txt</td>

@@ -27,7 +27,7 @@
 <!-- custom css -->
 <link rel="stylesheet" href="resources/css/main.css">
 
-<!-- jquery -->
+<!-- custom query -->
 <script type="text/javascript" src="resources/js/home.js"></script>
 
 </head>
@@ -110,25 +110,28 @@
 											<label class="text-uppercase">Lưu ý quan trọng</label>
 										</div>
 										<div class="panel-collapse collapse in" id="note">
-											<ul>
-												<li><p class="text-danger">Để chạy được các thuật
-														toán cần upload đủ 3 file dataset như yêu cầu</p></li>
-												<li><p class="text-danger">Mỗi lần upload dataset
-														mới cần đặt tên khác tên dataset cũ để khỏi bị ghi đè</p></li>
-												<li><p class="text-danger">File upload có định dạng
-														là file text (*.txt)</p></li>
-												<li><p class="text-danger">Các cột cách nhau bằng
-														ký tự tab (\t). Các file có thứ tự các cột đúng theo thứ
-														tự bên dưới.</p></li>
-												<li><p class="text-danger">File Score.txt gồm:
-														UserId, JobId, Score.</p></li>
-												<li><p class="text-danger">File Job.txt gồm: JobId,
-														JobName, Location, Salary, Category, Requirement, Tag,
-														Description.</p></li>
-												<li><p class="text-danger">File CV.txt gồm: UserId,
-														CVId, UserName, CVName, UserAddress, ExpectedSalary,
-														Category, Education, Language, Skill, CareerObjective.</p></li>
-											</ul>
+											<div class="panel-body">
+												<ul>
+													<li><p class="text-danger">Để chạy được các thuật
+															toán cần upload đủ 3 file dataset như yêu cầu</p></li>
+													<li><p class="text-danger">Mỗi lần upload dataset
+															mới cần đặt tên khác tên dataset cũ để khỏi bị ghi đè</p></li>
+													<li><p class="text-danger">File upload có định
+															dạng là file text (*.txt)</p></li>
+													<li><p class="text-danger">Các cột cách nhau bằng
+															ký tự tab (\t). Các file có thứ tự các cột đúng theo thứ
+															tự bên dưới.</p></li>
+													<li><p class="text-danger">File Score.txt gồm:
+															UserId, JobId, Score.</p></li>
+													<li><p class="text-danger">File Job.txt gồm:
+															JobId, JobName, Location, Salary, Category, Requirement,
+															Tag, Description.</p></li>
+													<li><p class="text-danger">File CV.txt gồm:
+															UserId, CVId, UserName, CVName, UserAddress,
+															ExpectedSalary, Category, Education, Language, Skill,
+															CareerObjective.</p></li>
+												</ul>
+											</div>
 										</div>
 									</div>
 								</div>

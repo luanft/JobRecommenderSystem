@@ -30,3 +30,8 @@ pre {
 .panel-heading {
 	cursor: pointer;
 }
+
+.error{
+	color: red;
+	font-style: italic;
+}

@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,8 @@ import org.springframework.web.servlet.ModelAndView;
 import uit.se.recsys.Algorithm.CF.CollaborativeFiltering;
 import uit.se.recsys.Algorithm.CF.SimilarityMeasure;
 import uit.se.recsys.Algorithm.CF.TypeOfNeighborhood;
+import uit.se.recsys.Bean.UserBean;
+import uit.se.recsys.Service.UserService;
 
 /**
  * Handles requests for the application home page.
@@ -27,14 +30,13 @@ import uit.se.recsys.Algorithm.CF.TypeOfNeighborhood;
 @Controller
 public class HomeController {
 
-	/**
-	 * Simply selects the home view to render by returning its name.
-	 */
-	@RequestMapping(value = {"/", "/trang-chu"}, method = RequestMethod.GET)
-	public String home(Model model) {
+	@Autowired
+	UserService userService;
 
-		return "home";
-	}
+	@RequestMapping(value = { "/", "/trang-chu" }, method = RequestMethod.GET)
+	public String home(Model model) {
+			return "home";		
+	}	
 
 	@RequestMapping(value = "/excute", method = RequestMethod.POST)
 	public ModelAndView excute(@RequestParam("file") MultipartFile[] files,
@@ -79,10 +81,11 @@ public class HomeController {
 		if (uploadStatus) {
 			switch (algorithm) {
 			case "cf":
-				try {					
+				try {
 					CollaborativeFiltering cf = new CollaborativeFiltering(datasets.get(0).replace("\"", ""));
-					recommendedItems = cf.UserBase(SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, TypeOfNeighborhood.NEARESTNUSER, 5, 1, 5);
-					for(RecommendedItem ri : recommendedItems){
+					recommendedItems = cf.UserBase(SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY,
+							TypeOfNeighborhood.NEARESTNUSER, 5, 1, 5);
+					for (RecommendedItem ri : recommendedItems) {
 						System.out.println(ri.toString());
 					}
 				} catch (IOException e) {

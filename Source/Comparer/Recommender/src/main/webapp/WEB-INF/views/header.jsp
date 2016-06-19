@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
-<nav class="navbar navbar-default navbar-static-top custom_navbar_color">
+<nav class="navbar navbar-default navbar-static-top custom_navbar_color" >
 	<div class="container">
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle collapsed"
@@ -15,7 +15,7 @@
 		</div>
 		<div id="navbar3" class="navbar-collapse collapse text-uppercase">
 			<ul class="nav navbar-nav navbar-right">				
-				<li class="active"><a href="<%=request.getContextPath()%>/trang-chu">Chạy thuật toán</a></li>
+				<li class="active"><a href="<%=request.getContextPath()%>">Chạy thuật toán</a></li>
 				<li><a href="<%=request.getContextPath()%>/quan-ly-dataset">Quản lý dataset</a></li>
 				<li><a href="<%=request.getContextPath()%>/danh-gia-thuat-toan">Đánh giá thuật toán</a></li>
 				<li><a href="<%=request.getContextPath()%>/thong-ke-du-lieu">Thống kê dữ liệu</a></li>

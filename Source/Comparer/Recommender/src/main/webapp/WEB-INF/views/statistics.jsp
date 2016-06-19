@@ -23,7 +23,7 @@
 <!-- custom css -->
 <link rel="stylesheet" href="resources/css/main.css">
 
-<!-- jquery -->
+<!-- custom query -->
 <script type="text/javascript" src="resources/js/home.js"></script>
 
 </head>
