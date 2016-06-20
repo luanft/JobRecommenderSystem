@@ -10,7 +10,7 @@
 	<properties>
 		<java-version>1.8</java-version>
 		<spring.version>4.3.0.RELEASE</spring.version>
-        <spring-security.version>4.0.2.RELEASE</spring-security.version>
+		<spring-security.version>4.0.2.RELEASE</spring-security.version>
 		<org.aspectj-version>1.6.10</org.aspectj-version>
 		<org.slf4j-version>1.6.6</org.slf4j-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -111,24 +111,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- mahout core -->
-		<dependency>
-			<groupId>org.apache.mahout</groupId>
-			<artifactId>mahout-mr-0.12.1-job</artifactId>
-			<version>0.12.1</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/mahout-mr-0.12.1-job.jar</systemPath>
-		</dependency>
-
-		<!-- mahout intergration -->
-		<dependency>
-			<groupId>org.apache.mahout</groupId>
-			<artifactId>mahout-integration</artifactId>
-			<version>0.12.1</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/mahout-integration-0.12.1.jar</systemPath>
-		</dependency>
-
 		<!-- Spring JDBC Support -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -136,14 +118,13 @@
 			<version>${spring.version}</version>
 		</dependency>
 
-		<!-- mysql connector -->
+		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.36-bin</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/src/main/resources/mysql-connector-java-5.1.36-bin.jar</systemPath>
+			<version>5.1.38</version>
 		</dependency>
+
 
 		<!-- commons io -->
 		<dependency>
