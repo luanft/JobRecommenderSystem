@@ -1,5 +1,5 @@
 <%@page import="java.util.List"%>
-<%@page import="org.apache.mahout.cf.taste.recommender.RecommendedItem"%>
+
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
@@ -56,7 +56,7 @@
 								<tbody>
 									<tr>
 										<td>1</td>
-										<td><a href="#">Task 1</a></td>
+										<td><a href="<%=request.getContextPath()%>/ket-qua">Task 1</a></td>
 										<td>20-6-2016</td>
 										<td>Collaborative Filtering</td>
 										<td>scoring.txt</td>
