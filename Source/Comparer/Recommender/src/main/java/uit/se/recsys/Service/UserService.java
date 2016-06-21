@@ -24,17 +24,15 @@ public class UserService {
 			error.rejectValue("password", "error.mismatch.user.password");
 	}
 
-	public boolean validateLogin(UserBean user, BindingResult error) {
+	public UserBean validateLogin(UserBean user, BindingResult error) {
 		UserBean userDB = userDAO.getUserByEmail(user.getEmail());
 		if (userDB == null)
 			error.rejectValue("email", "error.user.email.notExist");
 		else {
 			if (!bcrypt.matches(user.getPassword(), userDB.getPassword()))
 				error.rejectValue("password", "error.mismatch.user.password");
-			else
-				return true;
 		}
-		return false;
+		return userDB;
 	}
 
 	public boolean addUser(UserBean user, BindingResult error) {

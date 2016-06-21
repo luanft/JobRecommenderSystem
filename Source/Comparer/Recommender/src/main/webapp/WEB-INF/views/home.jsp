@@ -1,3 +1,4 @@
+<%@page import="uit.se.recsys.Bean.UserBean"%>
 <%@page import="java.util.List"%>
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
@@ -27,11 +28,12 @@
 
 </head>
 <body>
+
 	<!-- include header file -->
 	<jsp:include page="header.jsp"></jsp:include>
+	
 
 	<div class="container">
-	
 		<div class="row" style="margin: 0 auto;">
 			<div class="panel-group">
 				<div class="panel panel-primary">
@@ -95,8 +97,8 @@
 								<div class="col-md-6">
 									<form class="form">
 										<div class="form-group">
-											<label for="task">Tên task</label><input type="text" required="required"
-												class="form-control" id="task" id="task">
+											<label for="task">Tên task</label><input type="text"
+												required="required" class="form-control" id="task" id="task">
 										</div>
 										<div class="form-group">
 											<label for="algorithm">Chọn thuật toán</label><select
@@ -147,11 +149,12 @@
 										<div class="panel-collapse collapse in" id="note">
 											<div class="panel-body">
 												<ul>
-													<li><p class="text-danger">Để chạy thuật toán Collaborative Filtering
-															vui lòng chọn loại file dataset là score.txt</p></li>
-													<li><p class="text-danger">Để chạy thuật toán Content Base hoặc Hybrid
-															vui lòng chọn 3 loại file dataset: score.txt, job.txt và
-															cv.txt</p></li>
+													<li><p class="text-danger">Để chạy thuật toán
+															Collaborative Filtering vui lòng chọn loại file dataset
+															là score.txt</p></li>
+													<li><p class="text-danger">Để chạy thuật toán
+															Content Base hoặc Hybrid vui lòng chọn 3 loại file
+															dataset: score.txt, job.txt và cv.txt</p></li>
 												</ul>
 											</div>
 										</div>

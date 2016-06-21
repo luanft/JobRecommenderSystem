@@ -13,3 +13,11 @@ $(document).ready(function(){
         }
     });
 });
+
+//function loadMenu(id){
+//	if(id === 0){
+//		$(".menu").load("header.jsp");alert("not");
+//	}else{
+//		$(".menu").load("loggedInHeader.jsp");alert("i'm here");
+//	}
+//}
