@@ -4,9 +4,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-public class DataPreparer {
-
+public class DataPreparer {			
 	protected MysqlConnection connection;
+	protected DataSetReader dataReader = null;
+	public DataPreparer(String dir)
+	{
+		dataReader = new DataSetReader(dir);
+	}
 	public DataPreparer() {
 		Properties props = new Properties();
 		try {

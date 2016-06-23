@@ -5,7 +5,7 @@ public class CvDTO {
 	private int accountId;
 	private int resumeId;
 	private String userName;
-	private String jobName;
+	private String cvName;
 	private String address;
 	private String expectedSalary;
 	private String category;
@@ -28,15 +28,17 @@ public class CvDTO {
 	public String getUserName() {
 		return userName;
 	}
+	public String getCvName() {
+		return cvName;
+	}
+	public void setCvName(String cvName) {
+		this.cvName = cvName;
+	}
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
-	public String getJobName() {
-		return jobName;
-	}
-	public void setJobName(String jobName) {
-		this.jobName = jobName;
-	}
+
+
 	public String getAddress() {
 		return address;
 	}

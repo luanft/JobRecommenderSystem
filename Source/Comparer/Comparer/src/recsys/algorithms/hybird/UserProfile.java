@@ -1,4 +1,4 @@
-package recsys.algorithms;
+package recsys.algorithms.hybird;
 
 import java.util.ArrayList;
 

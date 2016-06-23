@@ -1,11 +1,15 @@
 package recsys.algorithms;
 
-public class RecommendationAlgorithm {
-	
+
+public abstract class RecommendationAlgorithm {
+		
 	protected String inputDirectory;
 	protected String outputDirectory;
 	
-	
+	public void init()
+	{
+		
+	}
 	
 	public String getInputDirectory() {
 		return inputDirectory;
