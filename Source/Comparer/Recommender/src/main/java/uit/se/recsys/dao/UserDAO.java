@@ -1,4 +1,4 @@
-package uit.se.recsys.DAO;
+package uit.se.recsys.dao;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,7 +9,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import uit.se.recsys.Bean.UserBean;
+import uit.se.recsys.bean.UserBean;
 
 @Repository
 public class UserDAO {

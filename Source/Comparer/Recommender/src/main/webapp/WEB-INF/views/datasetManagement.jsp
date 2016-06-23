@@ -49,24 +49,28 @@
 									<tr>
 										<th>STT</th>
 										<th>Tên dataset</th>
-										<th>Ngày đăng</th>
+										<th>Ngày tạo</th>
+										<th>Xem thống kê</th>
 									</tr>
 								</thead>
 								<tbody>
 									<tr>
 										<td>1</td>
-										<td>job.txt</td>
+										<td>dataset 1</td>
 										<td>20-6-2016</td>
+										<td><a href="#">Xem thống kê</a></td>
 									</tr>
 									<tr>
 										<td>1</td>
-										<td>cv.txt</td>
+										<td>dataset 2</td>
 										<td>20-6-2016</td>
+										<td><a href="#">Xem thống kê</a></td>
 									</tr>
 									<tr>
 										<td>1</td>
-										<td>score.txt</td>
+										<td>dataset 3</td>
 										<td>20-6-2016</td>
+										<td><a href="#">Xem thống kê</a></td>
 									</tr>
 								</tbody>
 							</table>
@@ -86,20 +90,32 @@
 								<div class="col-md-6">
 									<form class="form" role="form" action="excute" method="post"
 										enctype="multipart/form-data">
-										<label for="db">Chọn File Score.txt</label> <input type="file"
-											class="filestyle" required="required"
-											data-buttonName="btn-primary" name="file"
-											data-buttonText="Chọn file" data-buttonBefore="true"
-											id="score"> <label for="db">Chọn File Job.txt</label>
-										<input type="file" class="filestyle"
-											data-buttonName="btn-primary" name="file"
-											data-buttonText="Chọn file" data-buttonBefore="true"
-											id="score"> <label for="db">Chọn File CV.txt</label>
-										<input type="file" class="filestyle"
-											data-buttonName="btn-primary" name="file"
-											data-buttonText="Chọn file" data-buttonBefore="true"
-											id="score"> <br> <input class="btn btn-primary"
-											type="submit" value="Upload">
+										<div class="form-group">
+											<label for="dataset">Tên dataset:</label>
+											<input type="text" required="required"
+												class="form-control" id="dataset" />
+										</div>
+										<div class="form-group">
+											<label for="db">Chọn File Score.txt</label> <input
+												type="file" class="filestyle form-control"
+												required="required" data-buttonName="btn-primary"
+												name="file" data-buttonText="Chọn file"
+												data-buttonBefore="true" id="score">
+										</div>
+										<div class="form-group">
+											<label for="db">Chọn File Job.txt</label> <input type="file"
+												class="filestyle form-control" data-buttonName="btn-primary" name="file"
+												data-buttonText="Chọn file" data-buttonBefore="true"
+												id="job">
+										</div>
+										<div class="form-group">
+											<label for="db">Chọn File CV.txt</label> <input type="file"
+												class="filestyle form-control" data-buttonName="btn-primary" name="file"
+												data-buttonText="Chọn file" data-buttonBefore="true"
+												id="cv">
+										</div>
+										<br> <input class="btn btn-primary" type="submit"
+											value="Upload">
 									</form>
 								</div>
 								<div class="col-md-6">

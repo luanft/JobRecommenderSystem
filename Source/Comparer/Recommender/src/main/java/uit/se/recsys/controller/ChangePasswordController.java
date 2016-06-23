@@ -1,4 +1,4 @@
-package uit.se.recsys.Controller;
+package uit.se.recsys.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import uit.se.recsys.Bean.UserBean;
+import uit.se.recsys.bean.UserBean;
 
 @Controller
 public class ChangePasswordController {

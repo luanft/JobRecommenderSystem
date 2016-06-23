@@ -1,4 +1,4 @@
-package uit.se.recsys.Controller;
+package uit.se.recsys.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

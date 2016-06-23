@@ -60,6 +60,7 @@ public class HybirdRecommeder extends RecommendationAlgorithm {
 			System.out.println("Please run init method first!");
 			return;
 		}
+		
 		try {
 			System.out.println("Create data index");
 			dataPreparation.createDataIndex();

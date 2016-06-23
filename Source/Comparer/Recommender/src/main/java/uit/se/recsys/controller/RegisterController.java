@@ -1,4 +1,4 @@
-package uit.se.recsys.Controller;
+package uit.se.recsys.controller;
 
 import javax.validation.Valid;
 
@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import uit.se.recsys.Bean.UserBean;
-import uit.se.recsys.Service.UserService;
+import uit.se.recsys.bean.UserBean;
+import uit.se.recsys.service.UserService;
 
 @Controller
 public class RegisterController {
