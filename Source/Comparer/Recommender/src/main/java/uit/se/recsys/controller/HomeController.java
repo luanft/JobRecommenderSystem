@@ -1,4 +1,4 @@
-package uit.se.recsys.Controller;
+package uit.se.recsys.controller;
 
 import javax.servlet.http.HttpSession;
 
@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import uit.se.recsys.Bean.UserBean;
-import uit.se.recsys.Service.UserService;
+import uit.se.recsys.bean.UserBean;
+import uit.se.recsys.service.UserService;
 
 /**
  * Handles requests for the application home page.

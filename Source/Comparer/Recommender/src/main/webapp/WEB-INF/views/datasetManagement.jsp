@@ -49,24 +49,28 @@
 									<tr>
 										<th>STT</th>
 										<th>Tên dataset</th>
-										<th>Ngày đăng</th>
+										<th>Ngày tạo</th>
+										<th>Xem thống kê</th>
 									</tr>
 								</thead>
 								<tbody>
 									<tr>
 										<td>1</td>
-										<td>job.txt</td>
+										<td>dataset 1</td>
 										<td>20-6-2016</td>
+										<td><a href="#">Xem thống kê</a></td>
 									</tr>
 									<tr>
 										<td>1</td>
-										<td>cv.txt</td>
+										<td>dataset 2</td>
 										<td>20-6-2016</td>
+										<td><a href="#">Xem thống kê</a></td>
 									</tr>
 									<tr>
 										<td>1</td>
-										<td>score.txt</td>
+										<td>dataset 3</td>
 										<td>20-6-2016</td>
+										<td><a href="#">Xem thống kê</a></td>
 									</tr>
 								</tbody>
 							</table>

@@ -1,9 +1,5 @@
 <%@page import="uit.se.recsys.Bean.UserBean"%>
 <%@page import="java.util.List"%>
-<<<<<<< HEAD
-
-=======
->>>>>>> bd6f8eb69e440134bcc91b9cd7c8d4e0c7a9b1ae
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
@@ -35,7 +31,7 @@
 
 	<!-- include header file -->
 	<jsp:include page="header.jsp"></jsp:include>
-	
+
 
 	<div class="container">
 		<div class="row" style="margin: 0 auto;">
@@ -61,10 +57,11 @@
 								<tbody>
 									<tr>
 										<td>1</td>
-										<td><a href="<%=request.getContextPath()%>/ket-qua">Task 1</a></td>
+										<td><a href="<%=request.getContextPath()%>/ket-qua">Task
+												1</a></td>
 										<td>20-6-2016</td>
 										<td>Collaborative Filtering</td>
-										<td>scoring.txt</td>
+										<td>dataset 2</td>
 										<td>Đã xong</td>
 									</tr>
 									<tr>
@@ -72,7 +69,7 @@
 										<td><a href="#">Task 2</a></td>
 										<td>20-6-2016</td>
 										<td>Content Base</td>
-										<td>scoring.txt, job.txt, cv.txt</td>
+										<td>dataset 1</td>
 										<td>Lỗi</td>
 									</tr>
 									<tr>
@@ -80,7 +77,7 @@
 										<td><a href="#">Task 3</a></td>
 										<td>20-6-2016</td>
 										<td>Hybrid</td>
-										<td>scoring.txt, job.txt, cv.txt</td>
+										<td>dataset 3</td>
 										<td>Đang chạy</td>
 									</tr>
 								</tbody>
@@ -98,6 +95,7 @@
 					<div id="panel-content2" class="panel-collapse collapse in">
 						<div class="panel-body">
 							<div class="row">
+								<div class="col-md-3"></div>
 								<div class="col-md-6">
 									<form class="form">
 										<div class="form-group">
@@ -113,57 +111,18 @@
 											</select>
 										</div>
 										<div class="form-group">
-											<label for="dataset">Chọn dataset</label>
-											<table class="table table-hover">
-												<thead>
-													<tr>
-														<th width="20%">Chọn</th>
-														<th width="40%">Tên dataset</th>
-														<th width="40%">Ngày tạo</th>
-													</tr>
-												</thead>
-												<tbody>
-													<tr>
-														<td><input class="form-control" type="checkbox"></td>
-														<td>job.txt</td>
-														<td>20-6-2016</td>
-													</tr>
-													<tr>
-														<td><input class="form-control" type="checkbox"></td>
-														<td>cv.txt</td>
-														<td>20-6-2016</td>
-													</tr>
-													<tr>
-														<td><input class="form-control" type="checkbox"></td>
-														<td>score.txt</td>
-														<td>20-6-2016</td>
-													</tr>
-												</tbody>
-											</table>
+											<label for="algorithm">Chọn hoặc <a href="<%= request.getContextPath()%>/quan-ly-dataset">nhập</a>
+												dataset
+											</label><select class="form-control" id="algorithm" name="algorithm">
+												<option value="cf">dataset 1</option>
+												<option value="cb">dataset 2</option>
+												<option value="hb">dataset 3</option>
+											</select>
 										</div>
 										<button type="submit" class="btn btn-primary">Xử lý</button>
 									</form>
 								</div>
-								<div class="col-md-6">
-									<div class="panel panel-primary">
-										<div class="panel-heading" data-toggle="collapse"
-											data-target="#note">
-											<label>LƯU Ý QUAN TRỌNG</label>
-										</div>
-										<div class="panel-collapse collapse in" id="note">
-											<div class="panel-body">
-												<ul>
-													<li><p class="text-danger">Để chạy thuật toán
-															Collaborative Filtering vui lòng chọn loại file dataset
-															là score.txt</p></li>
-													<li><p class="text-danger">Để chạy thuật toán
-															Content Base hoặc Hybrid vui lòng chọn 3 loại file
-															dataset: score.txt, job.txt và cv.txt</p></li>
-												</ul>
-											</div>
-										</div>
-									</div>
-								</div>
+								<div class="col-md-3"></div>
 							</div>
 						</div>
 					</div>

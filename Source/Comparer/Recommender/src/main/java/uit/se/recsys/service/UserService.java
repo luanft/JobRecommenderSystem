@@ -1,12 +1,12 @@
-package uit.se.recsys.Service;
+package uit.se.recsys.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
-import uit.se.recsys.Bean.UserBean;
-import uit.se.recsys.DAO.UserDAO;
+import uit.se.recsys.bean.UserBean;
+import uit.se.recsys.dao.UserDAO;
 
 @Service
 public class UserService {

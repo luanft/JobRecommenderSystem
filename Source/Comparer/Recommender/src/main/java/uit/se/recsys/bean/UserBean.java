@@ -1,4 +1,4 @@
-package uit.se.recsys.Bean;
+package uit.se.recsys.bean;
 
 import javax.validation.constraints.NotNull;
 
