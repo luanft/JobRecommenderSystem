@@ -51,6 +51,8 @@ public class DataSetReader {
 		case Job:
 			file = "Job.txt";
 			break;
+		default:
+			break;
 		}
 		try {
 			buf = new BufferedReader(new InputStreamReader(new FileInputStream(source + file), "UTF-8"));

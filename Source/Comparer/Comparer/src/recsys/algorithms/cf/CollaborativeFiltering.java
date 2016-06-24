@@ -1,6 +1,8 @@
 package recsys.algorithms.cf;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -8,7 +10,6 @@ import javax.sql.DataSource;
 
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
-import org.apache.mahout.cf.taste.impl.model.jdbc.MySQLJDBCDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
@@ -25,7 +26,7 @@ import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 
-import recsys.datapreparer.MyDataSourceFactory;
+import recsys.datapreparer.CollaborativeFilteringDataPreparer;
 
 public class CollaborativeFiltering {
 
@@ -35,26 +36,42 @@ public class CollaborativeFiltering {
 	UserSimilarity userSimilarity;
 	ItemSimilarity itemSimilarity;
 	UserNeighborhood userNeightborhood;
+	List<Integer> listUserIds;
+	String outputDirectory;
 
-	public CollaborativeFiltering() throws TasteException, IOException {
-		dataModel = new FileDataModel(new File("data/JobRating.csv"));
+	public CollaborativeFiltering(String inputDir, String outputDir){
+		try {
+			dataModel = new FileDataModel(new File(inputDir + "Score.txt"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		outputDirectory = outputDir;
+		listUserIds = new CollaborativeFilteringDataPreparer(inputDir).getListUserId();
 	}
 
-	/**
-	 * 
-	 * @param typeOfModel {@value = 0 for MySQLJDBCDataModel  and others for FileDataModel}
-	 * @throws TasteException
-	 * @throws IOException
-	 */
-	public CollaborativeFiltering(int typeOfModel) throws TasteException, IOException {
-		switch (typeOfModel) {
-		case 0:
-			dataSource = MyDataSourceFactory.getMySQLDataSource();
-//			dataModel = new MySQLJDBCDataModel(dataSource, "job_recommended", "AccountID", "JobID", "Rating", "Time");
-			dataModel = new MySQLJDBCDataModel(dataSource, "results", "AccountID", "JobID", "Rating", "Time");
+	public void recommend(CFAlgorithm algorithm, int numberOfRecItems) {
+		switch (algorithm) {
+		case UserBase:
+			for (Integer userId : listUserIds) {
+				try {
+					UserBase(SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, TypeOfNeighborhood.NEARESTNUSER, 10, userId,
+							numberOfRecItems);
+				} catch (TasteException e) {
+					e.printStackTrace();
+				}
+			}
 			break;
+		case ItemBase:
+			for (Integer userId : listUserIds) {
+				try {
+					ItemBase(SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, userId, numberOfRecItems);
+				} catch (TasteException e) {
+					e.printStackTrace();
+				}
+			}
+			break;
+
 		default:
-			dataModel = new FileDataModel(new File("data/cc.txt"));
 			break;
 		}
 	}
@@ -68,22 +85,21 @@ public class CollaborativeFiltering {
 	 *            {@link TypeOfNeighborhood}
 	 * @param numberOfNeighbor
 	 *            {@link Integer}
-	 * @param UserIDToRecommend
+	 * @param userIDToRecommend
 	 *            {@link Integer} {@code UserID to receive recommender}
 	 * @param numberOfRecItems
 	 *            {@link Integer} {@code Number of recommender items}
-	 * @return {@code List<RecommendedItem>: List recommended items for the UserID}
 	 * @throws TasteException
 	 */
-	public List<RecommendedItem> UserBase(SimilarityMeasure sm, TypeOfNeighborhood type, int numberOfNeighbor,
-			int UserIDToRecommend, int numberOfRecItems) throws TasteException {
+	public void UserBase(SimilarityMeasure sm, TypeOfNeighborhood type, int numberOfNeighbor, int userIDToRecommend,
+			int numberOfRecItems) throws TasteException {
 		// initialize user'similarity
 		InitUserSimilaritymeasure(sm);
 		// initialize user neighborhood
 		InitUserNeighborhood(type, numberOfNeighbor);
 		// initialize recommender
 		recommender = new GenericUserBasedRecommender(dataModel, userNeightborhood, userSimilarity);
-		return recommender.recommend(UserIDToRecommend, numberOfRecItems);
+		writeOutput(userIDToRecommend, recommender.recommend(userIDToRecommend, numberOfRecItems));
 	}
 
 	/**
@@ -91,20 +107,18 @@ public class CollaborativeFiltering {
 	 * 
 	 * @param sm
 	 *            {@link SimilarityMeasure}
-	 * @param UserIDToRecommend
+	 * @param userIDToRecommend
 	 *            {@link Integer}
 	 * @param numberOfRecItems
 	 *            {@link Integer}
-	 * @return {@code List<RecommendedItem>: List recommended items for UserID}
 	 * @throws TasteException
 	 */
-	public List<RecommendedItem> ItemBase(SimilarityMeasure sm, int UserIDToRecommend, int numberOfRecItems)
-			throws TasteException {
+	public void ItemBase(SimilarityMeasure sm, int userIDToRecommend, int numberOfRecItems) throws TasteException {
 		// initialize item's similarity
 		InitItemSimilarityMeasure(sm);
 		// initialize recommender
 		recommender = new GenericItemBasedRecommender(dataModel, itemSimilarity);
-		return recommender.recommend(UserIDToRecommend, numberOfRecItems);
+		writeOutput(userIDToRecommend, recommender.recommend(userIDToRecommend, numberOfRecItems));
 	}
 
 	/**
@@ -181,6 +195,23 @@ public class CollaborativeFiltering {
 			break;
 		default:
 			break;
+		}
+	}
+
+	private void writeOutput(int userId, List<RecommendedItem> recommendedItems) {
+		FileWriter fwr;
+		try {
+			fwr = new FileWriter(new File(outputDirectory + "CF_REC.txt"), true);
+			BufferedWriter wr = new BufferedWriter(fwr);
+			System.out.println("start writing data");
+			for (RecommendedItem rec : recommendedItems) {
+				wr.write(userId + "," + rec.getItemID() + "," + rec.getValue());
+				System.out.println("Result: " + userId + "," + rec.getItemID() + "," + rec.getValue());
+				wr.newLine();
+			}
+			wr.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
