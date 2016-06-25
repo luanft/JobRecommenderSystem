@@ -171,7 +171,7 @@ public class HybirdRecommeder extends RecommendationAlgorithm {
 						tf_idf[i] = ((tf_idf[i] - min)) / based;
 						// normalize to 1 - 5
 						tf_idf[i] = (tf_idf[i] * 4) + 1;
-						wr.write(cv.getAccountId() + "," + iSeach.doc(i).get("JobId") + "," + tf_idf[i]);
+						wr.write(cv.getAccountId() + "\t" + iSeach.doc(i).get("JobId") + "\t" + tf_idf[i]);
 						System.out.println(
 								"Result: " + cv.getAccountId() + "," + iSeach.doc(i).get("JobId") + "," + tf_idf[i]);
 						wr.newLine();
