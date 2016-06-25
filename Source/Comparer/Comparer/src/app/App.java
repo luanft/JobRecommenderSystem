@@ -1,7 +1,7 @@
 package app;
 
-import recsys.algorithms.cf.CFAlgorithm;
-import recsys.algorithms.cf.CollaborativeFiltering;
+import recsys.algorithms.collaborativeFiltering.CFAlgorithm;
+import recsys.algorithms.collaborativeFiltering.CollaborativeFiltering;
 import recsys.algorithms.hybird.HybirdRecommeder;
 public class App {
 
@@ -14,9 +14,8 @@ public class App {
 //		hybirdRecommeder.init();
 //		hybirdRecommeder.contentBasedFiltering();
 		
-		CollaborativeFiltering cf = new CollaborativeFiltering("data/", "data/");
-		cf.recommend(CFAlgorithm.UserBase, 10);
-		cf.recommend(CFAlgorithm.ItemBase, 10);
+		CollaborativeFiltering cf = new CollaborativeFiltering("C:/Users/TUYEN/Desktop/garbage/algorithm/", "C:/Users/TUYEN/Desktop/garbage/algorithm/");
+		cf.recommend(CFAlgorithm.UserBase, 10);		
 	}
 
 }

@@ -1,4 +1,4 @@
-package recsys.algorithms.cf;
+package recsys.algorithms.collaborativeFiltering;
 
 import java.io.BufferedWriter;
 import java.io.File;

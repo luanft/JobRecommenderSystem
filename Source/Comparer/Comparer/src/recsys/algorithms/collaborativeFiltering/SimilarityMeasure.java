@@ -1,4 +1,4 @@
-package recsys.algorithms.cf;
+package recsys.algorithms.collaborativeFiltering;
 
 public enum SimilarityMeasure {
 	PEARSON_CORRELATION, SPEARMAN_CORRELATION, EUCLIDEAN_DISTANCE, TANIMOTO_COOFFICIENT, LOGLIKELIHOOD_SIMILARITY;

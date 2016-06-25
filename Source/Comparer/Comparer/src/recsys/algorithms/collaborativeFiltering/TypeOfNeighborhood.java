@@ -1,4 +1,4 @@
-package recsys.algorithms.cf;
+package recsys.algorithms.collaborativeFiltering;
 
 public enum TypeOfNeighborhood {
 	NEARESTNUSER, THRESHOLDSUSER;
