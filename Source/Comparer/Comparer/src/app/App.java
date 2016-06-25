@@ -16,6 +16,7 @@ public class App {
 		
 		CollaborativeFiltering cf = new CollaborativeFiltering("data/", "data/");
 		cf.recommend(CFAlgorithm.UserBase, 10);
+		cf.recommend(CFAlgorithm.ItemBase, 10);
 	}
 
 }
