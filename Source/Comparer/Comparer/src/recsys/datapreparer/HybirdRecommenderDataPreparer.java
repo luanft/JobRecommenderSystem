@@ -3,6 +3,7 @@ package recsys.datapreparer;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -24,19 +25,26 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 		super(dir);
 	}
 
-	public void init() {
+	public void init() throws Exception {
 		System.out.println("Preparing to create index data!");
 		String dir = this.dataReader.getSource();
-		File file = new File(dir + "INDEX_DATA");
+		File file = new File(dir + "INDEX_DATA");		
 		if (file.exists()) {
-			file.delete();
-		}
+			FileUtils.deleteDirectory(file);			
+		}		
 		file.mkdir();
 		System.out.println("Done!");
 	}
 
 	public void createDataIndex() throws IOException {
-		init();
+		try {
+			init();
+			
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			return;
+		}
 		System.out.println("Starting index data!");
 		this.dataReader.open(DataSetType.Job);
 		JobDTO job = null;

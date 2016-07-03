@@ -1,4 +1,4 @@
-package recsys.algorithms.contentBased;
+package recsys.algorithms.contentbased;
 
 import recsys.algorithms.RecommendationAlgorithm;
 

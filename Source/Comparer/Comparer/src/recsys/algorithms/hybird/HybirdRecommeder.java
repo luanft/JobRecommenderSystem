@@ -64,6 +64,11 @@ public class HybirdRecommeder extends RecommendationAlgorithm {
 		try {
 			System.out.println("Create data index");
 			dataPreparation.createDataIndex();
+			File f = new File(outputDirectory + "CB_REC.txt");
+			if(f.exists())
+			{
+				f.delete();
+			}
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			System.out.println("Create data index fail");
@@ -171,9 +176,10 @@ public class HybirdRecommeder extends RecommendationAlgorithm {
 						tf_idf[i] = ((tf_idf[i] - min)) / based;
 						// normalize to 1 - 5
 						tf_idf[i] = (tf_idf[i] * 4) + 1;
-						wr.write(cv.getAccountId() + "\t" + iSeach.doc(i).get("JobId") + "\t" + tf_idf[i]);
+						
+						wr.write(cv.getAccountId() + "\t" + iSeach.doc(i).get("JobId") + "\t" + Math.round(tf_idf[i]));
 						System.out.println(
-								"Result: " + cv.getAccountId() + "," + iSeach.doc(i).get("JobId") + "," + tf_idf[i]);
+								"Result: " + cv.getAccountId() + "," + iSeach.doc(i).get("JobId") + "," + Math.round(tf_idf[i]));
 						wr.newLine();
 					}
 				} catch (Exception exx) {
@@ -182,7 +188,7 @@ public class HybirdRecommeder extends RecommendationAlgorithm {
 				wr.close();
 
 			}
-
+			System.out.println("Finished");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
