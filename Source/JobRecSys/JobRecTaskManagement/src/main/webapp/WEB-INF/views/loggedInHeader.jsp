@@ -23,7 +23,7 @@
 						giá thuật toán</a></li>
 				<li><a href="<%=request.getContextPath()%>/thong-ke-du-lieu">Thống
 						kê dữ liệu</a></li>
-				<li class="dropdown"><a href="#" class="dropbtn">${user.userName }</a>
+				<li class="dropdown"><a href="#" class="dropbtn glyphicon glyphicon-user"> ${user.userName }</a>
 					<div class="dropdown-content">
 						<a href="<%=request.getContextPath()%>/dang-xuat"><span
 							class="glyphicon glyphicon-log-out"></span> Đăng xuất</a>

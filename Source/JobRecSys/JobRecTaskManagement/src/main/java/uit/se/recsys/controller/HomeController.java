@@ -12,27 +12,25 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import uit.se.recsys.bean.UserBean;
-import uit.se.recsys.bo.UserService;
+import uit.se.recsys.bo.UserBO;
+import uit.se.recsys.utils.SecurityUtil;
 
 /**
  * Handles requests for the application home page.
  */
 @Controller
-@SessionAttributes(value="user")
+
 public class HomeController {
 
-	@Autowired
-	UserService userService;
+    @Autowired
+    UserBO userService;
 
-	@RequestMapping(value = {"/","/trang-chu" }, method = RequestMethod.GET)
-	public String home(Model model, @ModelAttribute("user") UserBean user) {		
-		if(user == null){
-			user = new UserBean();
-			model.addAttribute("user", user);
-			return "dang-nhap";
-		}
-		return "home";
+    @RequestMapping(value = { "/", "/trang-chu" }, method = RequestMethod.GET)
+    public String home(HttpSession session) {
+	if (!SecurityUtil.getInstance().haveUserLoggedIn(session)) {
+	    return "redirect:/dang-nhap";
 	}
+	return "home";
+    }
 
-	
 }

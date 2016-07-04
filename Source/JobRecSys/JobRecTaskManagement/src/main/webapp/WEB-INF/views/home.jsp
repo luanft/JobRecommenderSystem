@@ -3,7 +3,7 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ page session="false"%>
+<%@ page session="true"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <!DOCTYPE html>
 <html>
@@ -30,9 +30,18 @@
 <body>
 
 	<!-- include header file -->
+	<%
+		UserBean user = (UserBean) session.getAttribute("user");
+		if (user == null || user.getUserName() == null) {
+	%>
 	<jsp:include page="header.jsp"></jsp:include>
-
-
+	<%
+		} else {
+	%>
+	<jsp:include page="loggedInHeader.jsp"></jsp:include>
+	<%
+		}
+	%>
 	<div class="container">
 		<div class="row" style="margin: 0 auto;">
 			<div class="panel-group">
@@ -111,7 +120,8 @@
 											</select>
 										</div>
 										<div class="form-group">
-											<label for="algorithm">Chọn hoặc <a href="<%= request.getContextPath()%>/quan-ly-dataset">nhập</a>
+											<label for="algorithm">Chọn hoặc <a
+												href="<%=request.getContextPath()%>/quan-ly-dataset">nhập</a>
 												dataset
 											</label><select class="form-control" id="algorithm" name="algorithm">
 												<option value="cf">dataset 1</option>
