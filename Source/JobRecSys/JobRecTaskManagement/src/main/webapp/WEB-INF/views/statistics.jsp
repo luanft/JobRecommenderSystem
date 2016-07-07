@@ -1,8 +1,9 @@
+<%@page import="uit.se.recsys.bean.UserBean"%>
 <%@page import="java.util.List"%>
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ page session="false"%>
+<%@ page session="true"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <!DOCTYPE html>
 <html>
@@ -31,7 +32,18 @@
 </head>
 <body>
 	<!-- include header file -->
+	<%
+		UserBean user = (UserBean) session.getAttribute("user");
+		if (user == null || user.getUserName() == null) {
+	%>
 	<jsp:include page="header.jsp"></jsp:include>
+	<%
+		} else {
+	%>
+	<jsp:include page="loggedInHeader.jsp"></jsp:include>
+	<%
+		}
+	%>
 
 	<div class="container">
 		<div class="row" style="margin: 0 auto;">

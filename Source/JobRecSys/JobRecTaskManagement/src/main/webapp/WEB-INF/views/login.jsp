@@ -41,6 +41,7 @@
 							nhập</label>
 					</div>
 					<div class="panel-body">
+					<p class="error">${loginError }</p>
 						<form:form role="form" action="dang-nhap" method="POST"
 							modelAttribute="user">
 							<div class="form-group">

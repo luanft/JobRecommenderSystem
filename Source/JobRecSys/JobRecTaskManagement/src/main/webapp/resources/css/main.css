@@ -40,6 +40,11 @@ pre {
 	font-style: italic;
 }
 
+.success{
+	color: #31C63B;
+	font-style: italic;
+}
+
  /* Dropdown Button */
 .dropbtn {
     background-color: #4CAF50;

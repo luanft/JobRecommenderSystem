@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import uit.se.recsys.bean.UserBean;
-import uit.se.recsys.bo.UserService;
+import uit.se.recsys.bo.UserBO;
 
 @Controller
 public class RegisterController {
 
 	@Autowired
-	UserService userService;
+	UserBO userService;
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

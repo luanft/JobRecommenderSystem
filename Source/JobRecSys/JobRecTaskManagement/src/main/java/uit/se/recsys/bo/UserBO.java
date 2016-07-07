@@ -9,7 +9,7 @@ import uit.se.recsys.bean.UserBean;
 import uit.se.recsys.dao.UserDAO;
 
 @Service
-public class UserService {
+public class UserBO {
 	@Autowired
 	UserDAO userDAO;
 

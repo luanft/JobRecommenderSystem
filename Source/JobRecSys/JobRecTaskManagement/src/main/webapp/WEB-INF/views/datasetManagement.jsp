@@ -1,8 +1,9 @@
+<%@page import="uit.se.recsys.bean.UserBean"%>
 <%@page import="java.util.List"%>
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ page session="false"%>
+<%@ page session="true"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <!DOCTYPE html>
 <html>
@@ -32,53 +33,24 @@
 </head>
 <body>
 	<!-- include header file -->
+	<%
+		UserBean user = (UserBean) session.getAttribute("user");
+		if (user == null || user.getUserName() == null) {
+	%>
 	<jsp:include page="header.jsp"></jsp:include>
+	<%
+		} else {
+	%>
+	<jsp:include page="loggedInHeader.jsp"></jsp:include>
+	<%
+		}
+	%>
 
 	<div class="container">
 		<div class="row" style="margin: 0 auto;">
 			<div class="panel-group">
-				<div class="panel panel-primary">
-					<div class="panel-heading" data-toggle="collapse"
-						data-target="#panel-content">
-						<label class="text-uppercase">Danh sách dataset đã upload</label>
-					</div>
-					<div id="panel-content" class="panel-collapse collapse in">
-						<div class="panel-body">
-							<table class="table table-hover">
-								<thead>
-									<tr>
-										<th>STT</th>
-										<th>Tên dataset</th>
-										<th>Ngày tạo</th>
-										<th>Xem thống kê</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td>1</td>
-										<td>dataset 1</td>
-										<td>20-6-2016</td>
-										<td><a href="#">Xem thống kê</a></td>
-									</tr>
-									<tr>
-										<td>1</td>
-										<td>dataset 2</td>
-										<td>20-6-2016</td>
-										<td><a href="#">Xem thống kê</a></td>
-									</tr>
-									<tr>
-										<td>1</td>
-										<td>dataset 3</td>
-										<td>20-6-2016</td>
-										<td><a href="#">Xem thống kê</a></td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
 
-
+				<!-- upload dataset panel -->
 				<div class="panel panel-primary">
 					<div class="panel-heading" data-toggle="collapse"
 						data-target="#panel-content2">
@@ -88,31 +60,33 @@
 						<div class="panel-body">
 							<div class="row">
 								<div class="col-md-6">
-									<form class="form" role="form" action="excute" method="post"
-										enctype="multipart/form-data">
+									<p class="error">${error }</p>
+									<p class="success">${message }</p>
+									<form class="form" role="form" action="quan-ly-dataset"
+										method="post" enctype="multipart/form-data">
 										<div class="form-group">
-											<label for="dataset">Tên dataset:</label>
-											<input type="text" required="required"
-												class="form-control" id="dataset" />
+											<label for="dataset">Tên dataset:</label> <input type="text"
+												required="required" class="form-control" id="dataset"
+												name="dataset" />
+										</div>
+										<div class="form-group">
+											<label for="db">Chọn File Job.txt</label> <input type="file"
+												class="filestyle form-control" data-buttonName="btn-primary"
+												name="files" data-buttonText="Chọn file"
+												data-buttonBefore="true" id="job">
+										</div>
+										<div class="form-group">
+											<label for="db">Chọn File CV.txt</label> <input type="file"
+												class="filestyle form-control" data-buttonName="btn-primary"
+												name="files" data-buttonText="Chọn file"
+												data-buttonBefore="true" id="cv">
 										</div>
 										<div class="form-group">
 											<label for="db">Chọn File Score.txt</label> <input
 												type="file" class="filestyle form-control"
 												required="required" data-buttonName="btn-primary"
-												name="file" data-buttonText="Chọn file"
+												name="files" data-buttonText="Chọn file"
 												data-buttonBefore="true" id="score">
-										</div>
-										<div class="form-group">
-											<label for="db">Chọn File Job.txt</label> <input type="file"
-												class="filestyle form-control" data-buttonName="btn-primary" name="file"
-												data-buttonText="Chọn file" data-buttonBefore="true"
-												id="job">
-										</div>
-										<div class="form-group">
-											<label for="db">Chọn File CV.txt</label> <input type="file"
-												class="filestyle form-control" data-buttonName="btn-primary" name="file"
-												data-buttonText="Chọn file" data-buttonBefore="true"
-												id="cv">
 										</div>
 										<br> <input class="btn btn-primary" type="submit"
 											value="Upload">
@@ -151,6 +125,41 @@
 									</div>
 								</div>
 							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- dataset management panel -->
+				<div class="panel panel-primary">
+					<div class="panel-heading" data-toggle="collapse"
+						data-target="#panel-content">
+						<label class="text-uppercase">Danh sách dataset đã upload</label>
+					</div>
+					<div id="panel-content" class="panel-collapse collapse in">
+						<div class="panel-body">
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>STT</th>
+										<th>Tên dataset</th>
+										<th>Xem thống kê</th>
+									</tr>
+								</thead>
+								<tbody>
+									<%
+										String[] datasets = (String[]) request.getAttribute("datasets");
+										if (datasets != null) {
+											for (int i = 1; i <= datasets.length; i++) {
+												out.write("<tr>");
+												out.write("<td>" + i + "</td>");
+												out.write("<td>" + datasets[i-1] + "</td>");
+												out.write("<td><a href='#'>Xem thống kê</a></td>");
+												out.write("<tr>");
+											}
+										}
+									%>
+								</tbody>
+							</table>
 						</div>
 					</div>
 				</div>

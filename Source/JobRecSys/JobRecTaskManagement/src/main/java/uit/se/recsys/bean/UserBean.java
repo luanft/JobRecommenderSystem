@@ -1,6 +1,7 @@
 package uit.se.recsys.bean;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
 import org.springframework.stereotype.Component;
@@ -31,6 +32,7 @@ public class UserBean {
 	}
 
 	@NotNull
+	@Size(max = 7)
 	public String getUserName() {
 		return userName;
 	}
