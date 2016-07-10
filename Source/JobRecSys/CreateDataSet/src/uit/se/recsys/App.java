@@ -124,7 +124,7 @@ public class App {
 			{
 				String data = eliminate(rs.getString("AccountId")) + '\t';
 				data += eliminate(rs.getString("JobId"))+ '\t';
-				data += eliminate(rs.getString("Rating"))+ '\t';																								
+				data += eliminate(rs.getString("Rating"));																								
 				writer.println(data);
 			}
 			connection.close();

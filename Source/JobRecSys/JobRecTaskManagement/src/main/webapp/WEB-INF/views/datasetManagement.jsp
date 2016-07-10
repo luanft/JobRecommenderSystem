@@ -152,7 +152,7 @@
 											for (int i = 1; i <= datasets.length; i++) {
 												out.write("<tr>");
 												out.write("<td>" + i + "</td>");
-												out.write("<td>" + datasets[i-1] + "</td>");
+												out.write("<td>" + datasets[i - 1] + "</td>");
 												out.write("<td><a href='#'>Xem thống kê</a></td>");
 												out.write("<tr>");
 											}

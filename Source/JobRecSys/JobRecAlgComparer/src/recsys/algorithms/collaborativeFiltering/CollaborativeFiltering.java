@@ -54,7 +54,7 @@ public class CollaborativeFiltering {
 		case UserBase:
 			for (Integer userId : listUserIds) {
 				try {
-					UserBase(SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, TypeOfNeighborhood.THRESHOLDSUSER, 0, userId,
+					UserBase(SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, TypeOfNeighborhood.THRESHOLDSUSER, 0.7f, userId,
 							numberOfRecItems);
 				} catch (TasteException e) {
 					e.printStackTrace();
@@ -201,12 +201,12 @@ public class CollaborativeFiltering {
 	private void writeOutput(int userId, List<RecommendedItem> recommendedItems) {
 		FileWriter fwr;
 		try {
-			fwr = new FileWriter(new File(outputDirectory + "CF_REC.txt"), true);
+			fwr = new FileWriter(new File(outputDirectory + "CF_REC_ITEMS.txt"), true);
 			BufferedWriter wr = new BufferedWriter(fwr);
 			System.out.println("start writing data");
 			for (RecommendedItem rec : recommendedItems) {
-				wr.write(userId + "," + rec.getItemID() + "," + rec.getValue());
-				System.out.println("Result: " + userId + "," + rec.getItemID() + "," + rec.getValue());
+				wr.write(userId + "\t" + rec.getItemID() + "\t" + rec.getValue());
+				System.out.println("Result: " + userId + "\t" + rec.getItemID() + "\t" + rec.getValue());
 				wr.newLine();
 			}
 			wr.close();
