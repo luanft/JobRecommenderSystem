@@ -1,0 +1,20 @@
+2016-07-09 07:56:14,488 [Worker-28] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.maven.ide.eclipse.wtp.WarLifecycleMapping lifecycle mapping for MavenProject: uit.se:recsys:1.0.0-BUILD-SNAPSHOT @ E:\PROJECT\RESEARCH\Source\JobRecSys\JobRecTaskManagement\pom.xml.
+2016-07-09 07:56:36,965 [Worker-28] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2016-07-09 07:56:36,990 [Worker-28] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 3 resources
+2016-07-09 07:56:37,084 [Worker-28] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2016-07-09 07:56:37,085 [Worker-28] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 1 resource
+2016-07-09 07:56:38,081 [Worker-22] INFO  o.e.m.c.i.p.ProjectConfigurationManager - Update started
+2016-07-09 07:56:39,202 [Worker-22] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.maven.ide.eclipse.wtp.WarLifecycleMapping lifecycle mapping for MavenProject: uit.se:recsys:1.0.0-BUILD-SNAPSHOT @ E:\PROJECT\RESEARCH\Source\JobRecSys\JobRecTaskManagement\pom.xml.
+2016-07-09 07:56:41,296 [Worker-22] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding source folder /JobRecTaskManagement/src/main/java
+2016-07-09 07:56:41,297 [Worker-22] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /JobRecTaskManagement/src/main/resources
+2016-07-09 07:56:41,298 [Worker-22] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding source folder /JobRecTaskManagement/src/test/java
+2016-07-09 07:56:41,298 [Worker-22] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /JobRecTaskManagement/src/test/resources
+2016-07-09 07:56:43,225 [Worker-22] INFO  o.e.m.w.i.f.ResourceFilteringBuildParticipant - Cleaning filtered folder for JobRecTaskManagement
+2016-07-09 07:56:43,234 [Worker-22] INFO  o.e.m.c.i.p.ProjectConfigurationManager - Update completed: 5 sec
+2016-07-09 07:56:51,452 [Worker-33] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2016-07-09 07:56:51,453 [Worker-33] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 3 resources
+2016-07-09 07:56:51,471 [Worker-33] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.
+2016-07-09 07:56:51,471 [Worker-33] INFO  o.e.m.c.i.embedder.EclipseLogger - Copying 1 resource
+2016-07-09 07:56:51,488 [Worker-33] INFO  o.e.m.w.i.f.ResourceFilteringBuildParticipant - Changed resources require a complete clean of filtered resources of JobRecTaskManagement
+2016-07-09 07:56:51,489 [Worker-33] INFO  o.e.m.w.i.f.ResourceFilteringBuildParticipant - Executing resource filtering for JobRecTaskManagement
+2016-07-09 07:56:51,496 [Worker-33] INFO  o.e.m.c.i.embedder.EclipseLogger - Using 'UTF-8' encoding to copy filtered resources.

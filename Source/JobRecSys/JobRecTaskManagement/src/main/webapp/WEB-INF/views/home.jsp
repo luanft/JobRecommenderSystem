@@ -1,3 +1,4 @@
+<%@page import="uit.se.recsys.bean.TaskBean"%>
 <%@page import="uit.se.recsys.bean.UserBean"%>
 <%@page import="java.util.List"%>
 <%@ page language="java" contentType="text/html; charset=utf-8"
@@ -64,31 +65,20 @@
 									</tr>
 								</thead>
 								<tbody>
-									<tr>
-										<td>1</td>
-										<td><a href="<%=request.getContextPath()%>/ket-qua">Task
-												1</a></td>
-										<td>20-6-2016</td>
-										<td>Collaborative Filtering</td>
-										<td>dataset 2</td>
-										<td>Đã xong</td>
-									</tr>
-									<tr>
-										<td>2</td>
-										<td><a href="#">Task 2</a></td>
-										<td>20-6-2016</td>
-										<td>Content Base</td>
-										<td>dataset 1</td>
-										<td>Lỗi</td>
-									</tr>
-									<tr>
-										<td>3</td>
-										<td><a href="#">Task 3</a></td>
-										<td>20-6-2016</td>
-										<td>Hybrid</td>
-										<td>dataset 3</td>
-										<td>Đang chạy</td>
-									</tr>
+									<%
+										List<TaskBean> listTask = (List<TaskBean>) request.getAttribute("listTask");
+										int count = 1;
+										for (TaskBean task : listTask) {
+											out.write("<tr>");
+											out.write("<td>" + count++ + "</td>");
+											out.write("<td><a href='" + request.getContextPath() + "/ket-qua?taskid= " + task.getTaskId() + "'>"
+													+ task.getTaskName() + "</a></td>");
+											out.write("<td>" + task.getTimeCreate() + "</td>");
+											out.write("<td>" + task.getAlgorithm() + "</td>");
+											out.write("<td>" + task.getDataset() + "</td>");
+											out.write("<td>" + task.getStatus() + "</td>");
+										}
+									%>
 								</tbody>
 							</table>
 						</div>
@@ -106,31 +96,39 @@
 							<div class="row">
 								<div class="col-md-3"></div>
 								<div class="col-md-6">
-									<form class="form">
+									<form:form class="form" modelAttribute="task" method="POST">
 										<div class="form-group">
-											<label for="task">Tên task</label><input type="text"
-												required="required" class="form-control" id="task" id="task">
+											<label for="task">Tên task</label>
+											<form:input type="text" required="required"
+												class="form-control" path="taskName" id="taskName" />
 										</div>
 										<div class="form-group">
-											<label for="algorithm">Chọn thuật toán</label><select
-												class="form-control" id="algorithm" name="algorithm">
+											<label for="algorithm">Chọn thuật toán</label>
+											<form:select class="form-control" id="algorithm"
+												path="algorithm">
 												<option value="cf">Collaborative Filtering</option>
 												<option value="cb">Content Base</option>
 												<option value="hb">Hybrid</option>
-											</select>
+											</form:select>
 										</div>
 										<div class="form-group">
 											<label for="algorithm">Chọn hoặc <a
 												href="<%=request.getContextPath()%>/quan-ly-dataset">nhập</a>
 												dataset
-											</label><select class="form-control" id="algorithm" name="algorithm">
-												<option value="cf">dataset 1</option>
-												<option value="cb">dataset 2</option>
-												<option value="hb">dataset 3</option>
-											</select>
+											</label>
+											<form:select class="form-control" id="dataset" path="dataset">
+												<%
+													String[] datasets = (String[]) request.getAttribute("datasets");
+															if (datasets != null) {
+																for (int i = 0; i < datasets.length; i++) {
+																	out.write("<option value='" + datasets[i] + "'>" + datasets[i] + "</option>");
+																}
+															}
+												%>
+											</form:select>
 										</div>
 										<button type="submit" class="btn btn-primary">Xử lý</button>
-									</form>
+									</form:form>
 								</div>
 								<div class="col-md-3"></div>
 							</div>

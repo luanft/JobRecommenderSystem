@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import uit.se.recsys.utils.DatasetUtil;
 import uit.se.recsys.utils.SecurityUtil;
 
 @Controller
@@ -29,7 +30,7 @@ public class DatasetManagementController {
 	if (!SecurityUtil.getInstance().haveUserLoggedIn(session)) {
 	    return "redirect:/dang-nhap";
 	} else {
-	    model.addAttribute("datasets", getDatasets());
+	    model.addAttribute("datasets", DatasetUtil.getInstance().getDatasets(ROOT_PATH + SecurityUtil.getInstance().getUserId()));
 	    return "datasetManagement";
 	}
     }
@@ -43,7 +44,7 @@ public class DatasetManagementController {
 	    return "redirect:/dang-nhap";
 	} else {
 	    model.addAttribute("message", saveDataset(files, datasetName));
-	    model.addAttribute("datasets", getDatasets());
+	    model.addAttribute("datasets", DatasetUtil.getInstance().getDatasets(ROOT_PATH + SecurityUtil.getInstance().getUserId()));
 	    return "datasetManagement";
 	}
     }
@@ -53,13 +54,22 @@ public class DatasetManagementController {
 
 	if (files.length == 3) {
 
-	    /* Create directory to save files */
-	    File dir = new File(
+	    /* Create directory to save input files */
+	    File dIn = new File(
 			    ROOT_PATH + SecurityUtil.getInstance().getUserId()
 					    + File.separator + datasetName
 					    + File.separator + "input");
-	    if (!dir.exists()) {
-		dir.mkdirs();
+	    if (!dIn.exists()) {
+		dIn.mkdirs();
+	    }
+	    
+	    /* Create directory to save output files */
+	    File dOut = new File(
+			    ROOT_PATH + SecurityUtil.getInstance().getUserId()
+					    + File.separator + datasetName
+					    + File.separator + "output");
+	    if (!dOut.exists()) {
+		dOut.mkdirs();
 	    }
 
 	    /* Loop through files and save it */
@@ -75,7 +85,7 @@ public class DatasetManagementController {
 			    fileName = "Score.txt";
 			}
 		    }
-		    File serverFile = new File(dir.getAbsolutePath()
+		    File serverFile = new File(dIn.getAbsolutePath()
 				    + File.separator + fileName);
 		    BufferedOutputStream buffer = new BufferedOutputStream(
 				    new FileOutputStream(serverFile));
@@ -91,16 +101,5 @@ public class DatasetManagementController {
 	    message = "Lỗi upload file, vui lòng upload đủ 3 file dataset";
 	}
 	return message;
-    }
-
-    private String[] getDatasets() {
-	File dir = new File(ROOT_PATH + SecurityUtil.getInstance().getUserId());
-	String[] directories = dir.list(new FilenameFilter() {
-	    @Override
-	    public boolean accept(File current, String name) {
-		return new File(current, name).isDirectory();
-	    }
-	});
-	return directories;
     }
 }

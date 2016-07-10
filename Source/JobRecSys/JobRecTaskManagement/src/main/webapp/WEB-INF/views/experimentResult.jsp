@@ -1,3 +1,4 @@
+<%@page import="uit.se.recsys.bean.RecommendedItem"%>
 <%@page import="uit.se.recsys.bean.UserBean"%>
 <%@page import="java.util.List"%>
 <%@ page language="java" contentType="text/html; charset=utf-8"
@@ -9,7 +10,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>Recommender</title>
+<title>Recommender Result</title>
 
 <!-- jquery -->
 <script type="text/javascript" src="resources/js/jquery-2.0.0.min.js"></script>
@@ -64,20 +65,20 @@
 						<div class="panel-body">
 							<div class="row">
 								<div class="col-md-2">
-									<p style="font-weight: bold;">Tên task: </p>
-									<p style="font-weight: bold;">Ngày tạo: </p>
-									<p style="font-weight: bold;">Thuật toán: </p>
-									<p style="font-weight: bold;">Dataset: </p>
-									<p style="font-weight: bold;">Trạng thái: </p>
-									<p style="font-weight: bold;">Kết quả: </p>
+									<p style="font-weight: bold;">Tên task:</p>
+									<p style="font-weight: bold;">Ngày tạo:</p>
+									<p style="font-weight: bold;">Thuật toán:</p>
+									<p style="font-weight: bold;">Dataset:</p>
+									<p style="font-weight: bold;">Trạng thái:</p>
+									<p style="font-weight: bold;">Kết quả:</p>
 								</div>
 								<div class="col-md-4">
-									<p>Task 1</p>
-									<p>20-7-2016</p>
-									<p>Collaborative Filtering</p>
-									<p>score.txt</p>									
-									<p>Đã xong</p>
-									<a href="#">result.txt</a>
+									<p>${task.taskName }</p>
+									<p>${task.timeCreate }</p>
+									<p>${task.algorithm }</p>
+									<p>${task.dataset }</p>
+									<p>${task.status }</p>
+									<a href="<%=request.getContextPath() %>/ket-qua.tai-ve?task=${task.taskId }">result.txt</a>
 								</div>
 								<div class="col-md-6">
 									<div class="result">
@@ -92,20 +93,20 @@
 												</tr>
 											</thead>
 											<tbody>
+												<%
+													List<RecommendedItem> recommendedItems = (List<RecommendedItem>) request.getAttribute("recommendedItems");
+													for (RecommendedItem item : recommendedItems) {
+														out.write("<tr>");
+														out.write("<td>" + item.getUserId() + "</td>");
+														out.write("<td>" + item.getItemId() + "</td>");
+														out.write("<td>" + item.getScore() + "</td>");
+														out.write("</tr>");
+													}
+												%>
 												<tr>
 													<td>1</td>
 													<td>4</td>
 													<td>5</td>
-												</tr>
-												<tr>
-													<td>1</td>
-													<td>3</td>
-													<td>3</td>
-												</tr>
-												<tr>
-													<td>1</td>
-													<td>2</td>
-													<td>4</td>
 												</tr>
 											</tbody>
 										</table>
