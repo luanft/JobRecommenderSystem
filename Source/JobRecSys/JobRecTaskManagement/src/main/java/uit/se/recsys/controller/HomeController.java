@@ -113,6 +113,7 @@ public class HomeController {
 	    bw.write("java -jar " + System.getProperty("catalina.home")
 			    + "\\JobRecAlgComparer.jar " + algorithm + " "
 			    + input + " " + output);
+	    bw.write("\n exit");  
 	    bw.close();
 	    fw.close();
 
