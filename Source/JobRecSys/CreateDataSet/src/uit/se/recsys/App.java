@@ -85,7 +85,7 @@ public class App {
 		MysqlDBConnection connection = new MysqlDBConnection(conf);
 		if (connection.connect()) {
 			ResultSet rs = connection.read(
-					"SELECT JobId,JobName,Location,Salary,job.Description,Tags, Requirement,Benifit, category.Description as Category FROM job, category WHERE job.CategoryId = category.CategoryId and job.JobId not in(select JobId from job_recommended where Rating > 0)");
+					"SELECT JobId,JobName,Location,Salary,job.Description,Tags, Requirement,Benifit, category.Description as Category FROM job, category WHERE job.CategoryId = category.CategoryId");
 			String data = "";
 			PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file_name), "UTF-8"));
 
@@ -131,7 +131,7 @@ public class App {
 			writer.close();
 		}
 	}
-	
+	// and job.JobId not in(select JobId from job_recommended where Rating > 0)
 	public static void WriteCVFile(String file_name) throws Exception
 	{	
         String sql = "SELECT    CV.AccountId, " +
@@ -213,9 +213,9 @@ public class App {
 
 	public static void main(String[] args) throws Exception {
 
-		WriteCVFile("cv.txt");		
-		WriteJobFile("job.txt");
-		WriteRatingFile("rating.txt");
+		WriteCVFile("Cv.txt");		
+		WriteJobFile("Job.txt");
+		WriteRatingFile("Score.txt");
 	}
 
 }

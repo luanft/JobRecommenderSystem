@@ -25,7 +25,7 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 		super(dir);
 	}
 
-	public void init() throws Exception {
+	private void init() throws Exception {
 		System.out.println("Preparing to create index data!");
 		String dir = this.dataReader.getSource();
 		File file = new File(dir + "INDEX_DATA");		
@@ -36,11 +36,10 @@ public class HybirdRecommenderDataPreparer extends DataPreparer {
 		System.out.println("Done!");
 	}
 
-	public void createDataIndex() throws IOException {
+	
+	public void createCBDataIndex() throws IOException {
 		try {
-			init();
-			
-			
+			init();			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			return;

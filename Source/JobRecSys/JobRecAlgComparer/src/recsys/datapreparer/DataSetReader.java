@@ -20,6 +20,11 @@ public class DataSetReader {
 	{
 		source = data_dir;
 	}
+	
+	public DataSetReader()
+	{
+		source = null;
+	}
 	public String getSource() {
 		return source;
 	}
@@ -30,7 +35,6 @@ public class DataSetReader {
 			return -1;
 		}
 	}
-	
 	public  float toFloat(String data) {
 		try {
 			return Float.parseFloat(data);
@@ -38,7 +42,6 @@ public class DataSetReader {
 			return -1.0f;
 		}
 	}
-	
 	BufferedReader buf = null;
 	private Scanner scan;
 	public void open(DataSetType _type)
@@ -56,6 +59,17 @@ public class DataSetReader {
 		}
 		try {
 			buf = new BufferedReader(new InputStreamReader(new FileInputStream(source + file), "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			buf = null;
+		} catch (FileNotFoundException e) {
+			buf = null;
+		}
+	}
+	
+	public void openFile(String _file)
+	{
+		try {
+			buf = new BufferedReader(new InputStreamReader(new FileInputStream(_file), "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			buf = null;
 		} catch (FileNotFoundException e) {
@@ -86,8 +100,7 @@ public class DataSetReader {
 		dto.setTags(scan.next());
 		dto.setDescription(scan.next());
 		
-		return dto;
-		
+		return dto;		
 	}
 	
 	public CvDTO nextCv()

@@ -7,6 +7,8 @@ import recsys.algorithms.hybird.HybirdRecommeder;
 public class App {
 
 	public static void main(String[] args) {	
+		
+			
 		switch (args[0]) {
 		case "cf":
 			collaborativeFiltering(args[1], args[2]);
@@ -26,7 +28,8 @@ public class App {
 		hybirdRecommeder.setInputDirectory(input);
 		hybirdRecommeder.setOutputDirectory(output);
 		hybirdRecommeder.init();
-		hybirdRecommeder.contentBasedFiltering();
+		hybirdRecommeder.hibridRecommend();
+		
 	}
 
 	private static void contentBase(String input, String output) {
