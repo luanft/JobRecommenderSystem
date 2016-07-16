@@ -1,7 +1,0 @@
-INDEX VERSION 1.3+E:\PROJECT\RESEARCH\Source\Comparer\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
-2724559992.index
-2394286541.index
-81973479.index
-4270987412.index
-589581599.index
-3393707976.index

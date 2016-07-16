@@ -8,18 +8,20 @@ public class App {
 
 	public static void main(String[] args) {	
 		
-			
-		switch (args[0]) {
-		case "cf":
-			collaborativeFiltering(args[1], args[2]);
-			break;
-		case "cb":
-			contentBase(args[1], args[2]);
-		case "hb":
-			hybrid(args[1], args[2]);
-		default:
-			break;
-		}
+		hybrid("F:\\JOB_REC\\Input\\","F:\\JOB_REC\\Output\\");
+		return;
+		
+//		switch (args[0]) {
+//		case "cf":
+//			collaborativeFiltering(args[1], args[2]);
+//			break;
+//		case "cb":
+//			contentBase(args[1], args[2]);
+//		case "hb":
+//			hybrid(args[1], args[2]);
+//		default:
+//			break;
+//		}
 
 	}
 
