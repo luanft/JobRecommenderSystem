@@ -1,7 +1,6 @@
 package uit.se.recsys.bean;
 
 import java.sql.Timestamp;
-import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 

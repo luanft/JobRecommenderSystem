@@ -6,7 +6,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import uit.se.recsys.bean.UserBean;
 import uit.se.recsys.utils.SecurityUtil;
 
 @Controller
