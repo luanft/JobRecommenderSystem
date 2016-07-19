@@ -2,6 +2,7 @@ package app;
 
 import recsys.algorithms.collaborativeFiltering.CFAlgorithm;
 import recsys.algorithms.collaborativeFiltering.CollaborativeFiltering;
+import recsys.algorithms.contentBased.ContentBasedRecommender;
 import recsys.algorithms.hybird.HybirdRecommeder;
 
 public class App {
