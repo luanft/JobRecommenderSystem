@@ -22,6 +22,7 @@ import dto.ScoreDTO;
 import recsys.algorithms.RecommendationAlgorithm;
 import recsys.algorithms.collaborativeFiltering.CFAlgorithm;
 import recsys.algorithms.collaborativeFiltering.CollaborativeFiltering;
+import recsys.algorithms.collaborativeFiltering.SimilarityMeasure;
 import recsys.datapreparer.DataSetReader;
 import recsys.datapreparer.DataSetType;
 import recsys.datapreparer.HybirdRecommenderDataPreparer;
@@ -193,7 +194,7 @@ public class HybirdRecommeder extends RecommendationAlgorithm {
 	//ham CF
 	private void collaborativeFiltering(String input, String output) {
 		CollaborativeFiltering cf = new CollaborativeFiltering(input, output);
-		cf.recommend(CFAlgorithm.UserBase, 10);
+		cf.recommend(CFAlgorithm.UserBase, SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, 0.8f, 10);
 	}
 	
 	public void hibridRecommend() {
