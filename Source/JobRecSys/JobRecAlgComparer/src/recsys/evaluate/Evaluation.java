@@ -1,115 +1,101 @@
 package recsys.evaluate;
 
+import dto.ScoreDTO;
+import recsys.algorithms.collaborativeFiltering.CFAlgorithm;
+import recsys.algorithms.collaborativeFiltering.CollaborativeFiltering;
+import recsys.algorithms.collaborativeFiltering.SimilarityMeasure;
+import recsys.datapreparer.CollaborativeFilteringDataPreparer;
+import recsys.datapreparer.ContentBasedDataPreparer;
+import utils.DbConfig;
+import utils.MysqlDBConnection;
+
 import java.util.List;
 
-import dto.ScoreDTO;
-
 /**
- * Created with IntelliJ IDEA. User: tuynguye Date: 8/12/16 Time: 5:06 PM To
+ * Created with IntelliJ IDEA. User: tuynguye Date: 8/12/16 Time: 9:47 AM To
  * change this template use File | Settings | File Templates.
  */
 public class Evaluation {
 
-	private List<ScoreDTO> testingList;
-	private List<ScoreDTO> resultList;
-	private int truePositive;
-	private int falsePositive;
-	private int falseNegative;
+	public static void evaluate(int proportionOfTest, String algorithm,
+			String input, String output, String taskId) {
 
-	public Evaluation() {
+		/**
+		 * First step: preparing data, split training and testing data set
+		 */
+		CollaborativeFilteringDataPreparer dataPreparer = new CollaborativeFilteringDataPreparer(
+				input);
+		dataPreparer.splitDataSet(proportionOfTest, output + "cf\\");
+		ContentBasedDataPreparer cbDataPreparer = new ContentBasedDataPreparer(
+				input);
+		cbDataPreparer.splitDataSet(output + "cf\\testing\\", output + "cb\\");
+
+		/**
+		 * Second step: call to CF Algorithm execute on training data set
+		 */
+		training(algorithm, output);
+
+		/**
+		 * Third step: convert result to boolean type
+		 */
+		List<ScoreDTO> testingList = dataPreparer.getAllEvaluateScores(output
+				+ "cf\\testing\\");
+		List<ScoreDTO> resultList = dataPreparer.getAllEvaluateScores(output
+				+ "cf\\result\\");
+		/**
+		 * Four step: evaluation
+		 */
+		writeResult(taskId, new EvaluationMetrics(testingList, resultList));
 	}
 
-	public Evaluation(List<ScoreDTO> testingList, List<ScoreDTO> resultList) {
-		this.testingList = testingList;
-		this.resultList = resultList;
-		this.truePositive = getTruePositive();
-		this.falsePositive = getFalsePositive();
-		this.falseNegative = getFalseNegative();
-	}
-
-	private int getTruePositive() {
-		int count = 0;
-		for (ScoreDTO resultDto : resultList) {
-			for (ScoreDTO testDto : testingList) {
-				if (testDto.isRelevant() && resultDto.compare(testDto)) {
-					count++;
-					break;
-				}
-			}
+	private static void writeResult(String taskId, EvaluationMetrics eval) {
+		MysqlDBConnection con = new MysqlDBConnection(
+				DbConfig.load("config.txt"));
+		if (con.connect()) {
+			float recall = eval.calculateRecall();
+			float precision = eval.calculatePrecision();
+			String sql = "INSERT INTO `evaluation`(`MetricId`, `TaskId`, `Score`) VALUES (1,"
+					+ taskId + "," + precision + "),";
+			sql += "(2," + taskId + "," + recall + "),";
+			sql += "(3," + taskId + "," + eval.calculateF1(precision, recall)
+					+ "),";
+			sql += "(4," + taskId + "," + eval.calculateMAE() + "),";
+			sql += "(5," + taskId + "," + eval.calculateRMSE() + ")";
+			con.write(sql);
+			con.close();
 		}
-		return count;
 	}
 
-	private int getFalsePositive() {
-		int count = 0;
-		for (ScoreDTO resultDto : resultList) {
-			for (ScoreDTO testDto : testingList) {
-				if (resultDto.isRelevant() && !resultDto.compare(testDto)) {
-					count++;
-					break;
-				}
-			}
+	private static void training(String algorithm, String output) {
+		switch (algorithm) {
+		case "cf":
+			cf(output);
+			break;
+		case "cb":
+			cb(output);
+			break;
+		case "hb":
+			hb(output);
+			break;
+		default:
+			break;
 		}
-		return count;
+
 	}
 
-	private int getFalseNegative() {
-		int count = 0;
-		for (ScoreDTO resultDto : resultList) {
-			for (ScoreDTO testDto : testingList) {
-				if (!resultDto.isRelevant() && !resultDto.compare(testDto)) {
-					count++;
-					break;
-				}
-			}
-		}
-		return count;
+	private static void hb(String output) {
+
 	}
 
-	public float calculatePrecision() {
-		float point = 0.0f;
-		point = truePositive / (truePositive + falsePositive);
-		return point;
+	private static void cb(String output) {
+
 	}
 
-	public float calculateRecall() {
-		float point = 0.0f;
-		point = truePositive / (truePositive + falseNegative);
-		return point;
-	}
-
-	public float calculateF1(float precision, float recall) {
-		return (2 * precision * recall) / (precision + recall);
-	}
-	
-	public float calculateMAE(){
-		float score = 0.0f;
-		int count = 0;
-		for(ScoreDTO testDto : testingList){
-			for(ScoreDTO trainDto : resultList){
-				if(testDto.getUserId() == trainDto.getUserId() && testDto.getJobId() == trainDto.getJobId()){
-					score += Math.abs(testDto.getScore() - trainDto.getScore());
-					count++;
-					break;
-				}					
-			}
-		}
-		score /= count;
-		return score;
-	}
-	
-	public float calculateRMSE(){
-		float score = 0.0f;
-		int count = 0;
-		for(ScoreDTO testDto : testingList){
-			for(ScoreDTO trainDto : resultList){
-				if(testDto.getUserId() == trainDto.getUserId() && testDto.getJobId() == trainDto.getJobId()){
-					score += Math.pow((testDto.getScore() - trainDto.getScore()), 2);
-					count++;
-				}					
-			}
-		}
-		score /= count;		
-		return (float) Math.sqrt(score);
+	private static void cf(String output) {
+		CollaborativeFiltering cf = new CollaborativeFiltering(output
+				+ "cf\\training\\", output + "cf\\result\\", output
+				+ "cf\\testing\\");
+		cf.recommend(CFAlgorithm.UserBase,
+				SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, 5, 10);
 	}
 }

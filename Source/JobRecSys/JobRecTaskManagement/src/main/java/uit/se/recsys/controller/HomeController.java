@@ -33,7 +33,7 @@ import uit.se.recsys.utils.SecurityUtil;
 public class HomeController {
 
     @Value("${Dataset.Location}")
-    String datasetLocation;    
+    String ROOT_PATH;    
     @Value("${JobRecAlgComparer.Location}")    
     String jRACLocation;
 
@@ -72,15 +72,16 @@ public class HomeController {
 
 	/* Set task info and save it */
 	task.setStatus("running");
+	task.setType("rec");
 	task.setTimeCreate(new Timestamp(new Date().getTime()));
 	task.setUserId(SecurityUtil.getInstance().getUserId());
 	taskBO.addTask(task);
 
 	/* Execute algorithm */
-	String path = datasetLocation + task.getUserId() + File.separator
+	String path = ROOT_PATH + task.getUserId() + File.separator
 			+ task.getDataset() + File.separator;
 	executeAlgorithm(task.getAlgorithm(), path + "input\\",
-			path + "output\\");
+			path + "output\\" + task.getAlgorithm() + "\\", taskBO.generateId());
 
 	bindingData(model);
 	return "home";
@@ -91,18 +92,24 @@ public class HomeController {
 	/* Binding new TaskBean and dataset to view */
 	model.addAttribute("task", new TaskBean());
 	model.addAttribute("datasets",
-			DatasetUtil.getInstance().getDatasets(datasetLocation
+			DatasetUtil.getInstance().getDatasets(ROOT_PATH
 					+ SecurityUtil.getInstance()
 							.getUserId()));
 
 	/* Binding list of task to view */
-	model.addAttribute("listTask", taskBO.getAllTasks());
+	model.addAttribute("listTask", taskBO.getAllRecommendationTasks());
     }
 
     private void executeAlgorithm(String algorithm, String input,
-				  String output) {
+				  String output, int taskId) {
 	try {
-
+	    
+	    /* Create directory to save output files */
+	    File dOut = new File(output);
+	    if (!dOut.exists()) {
+		dOut.mkdirs();
+	    }
+	    
 	    /* Create command file to execute .jar file */
 	    File commandFile = new File(output + "command.bat");
 	    if (!commandFile.exists()) {
@@ -110,8 +117,8 @@ public class HomeController {
 	    }
 	    FileWriter fw = new FileWriter(commandFile.getAbsoluteFile());
 	    BufferedWriter bw = new BufferedWriter(fw);
-	    bw.write("java -jar " + jRACLocation + " " + algorithm + " " + input
-			    + " " + output);
+	    bw.write("java -jar " + jRACLocation + " rec " + algorithm + " " + input
+			    + " " + output + " " + taskId);
 	    bw.write("\n exit");
 	    bw.close();
 	    fw.close();

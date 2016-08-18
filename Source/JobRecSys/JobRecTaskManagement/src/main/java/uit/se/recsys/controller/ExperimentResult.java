@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,10 +23,13 @@ import uit.se.recsys.utils.DatasetUtil;
 import uit.se.recsys.utils.SecurityUtil;
 
 @Controller
+@PropertySource("classpath:/config/datasetLocation.properties")
 public class ExperimentResult {
 
     @Autowired
     TaskBO taskBO;
+    @Value("${Dataset.Location}")
+    String ROOT_PATH;
 
     @RequestMapping(value = "/ket-qua", method = RequestMethod.GET)
     public String init(HttpSession session, @RequestParam("taskid") int taskId,
@@ -37,42 +42,18 @@ public class ExperimentResult {
 
 	/* Variables */
 	TaskBean task = taskBO.getTaskById(taskId);
-	String dirPath = System.getProperty("catalina.home") + File.separator
-			+ "data" + File.separator
-			+ SecurityUtil.getInstance().getUserId()
-			+ File.separator + task.getDataset() + "\\output";
-	String fileNamePrefix = task.getAlgorithm().substring(0, 2);
+	String dirPath = ROOT_PATH + SecurityUtil.getInstance().getUserId()
+			+ File.separator + task.getDataset() + "\\output\\"
+			+ task.getAlgorithm() + "\\Score.txt";
 
 	/* Binding task into view */
 	model.addAttribute("task", task);
 
 	/* Biding result into view */
-	model.addAttribute("recommendedItems",
-			DatasetUtil.getInstance().getRecommendedItems(dirPath
-					+ File.separator + getFullFileName(
-							fileNamePrefix)));
+	model.addAttribute("recommendedItems", DatasetUtil.getInstance()
+			.getRecommendedItems(dirPath));
 
 	return "experimentResult";
-    }
-
-    /**
-     * Function get full file name from file name prefix
-     * 
-     * @param fileNamePrefix
-     *            {@link String}: file name prefix
-     * @return fileName {@link String}: full file name
-     */
-    private String getFullFileName(String fileNamePrefix) {
-	switch (fileNamePrefix) {
-	case "cf":
-	    return "CF_REC_ITEMS.txt";
-	case "cb":
-	    return "CB_REC_ITEMS.txt";
-	case "hb":
-	    return "HB_REC_ITEMS.txt";
-	default:
-	    return "FILE NOT FOUND";
-	}
     }
 
     @RequestMapping(value = "/ket-qua.tai-ve", method = RequestMethod.GET)
@@ -86,13 +67,11 @@ public class ExperimentResult {
 
 	/* Find file location */
 	TaskBean task = taskBO.getTaskById(taskId);
-	String dirPath = System.getProperty("catalina.home") + File.separator
-			+ "data" + File.separator
-			+ SecurityUtil.getInstance().getUserId()
-			+ File.separator + task.getDataset() + "\\output\\";
-	String fileNamePrefix = task.getAlgorithm().substring(0, 2);
+	String dirPath = ROOT_PATH + SecurityUtil.getInstance().getUserId()
+			+ File.separator + task.getDataset() + "\\output\\"
+			+ task.getAlgorithm() + "\\Score.txt";
 
-	File downloadFile = new File(dirPath + getFullFileName(fileNamePrefix));
+	File downloadFile = new File(dirPath);
 	try {
 	    FileInputStream inputStream = new FileInputStream(downloadFile);
 

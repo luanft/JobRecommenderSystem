@@ -1,6 +1,7 @@
 package uit.se.recsys.bean;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
@@ -22,6 +23,13 @@ public class TaskBean {
     @NotNull
     @NotEmpty
     String dataset;
+    @NotNull
+    @NotEmpty
+    String type;
+    List<MetricBean> metrics;
+    @NotNull
+    @NotEmpty
+    int testSize;
 
     public int getTaskId() {
 	return taskId;
@@ -64,11 +72,11 @@ public class TaskBean {
     }
 
     public Timestamp getTimeCreate() {
-        return timeCreate;
+	return timeCreate;
     }
 
     public void setTimeCreate(Timestamp timeCreate) {
-        this.timeCreate = timeCreate;
+	this.timeCreate = timeCreate;
     }
 
     public String getDataset() {
@@ -78,4 +86,29 @@ public class TaskBean {
     public void setDataset(String dataset) {
 	this.dataset = dataset;
     }
+
+    public String getType() {
+	return type;
+    }
+
+    public void setType(String type) {
+	this.type = type;
+    }
+
+    public List<MetricBean> getMetrics() {
+        return metrics;
+    }
+
+    public void setMetrics(List<MetricBean> metrics) {
+        this.metrics = metrics;
+    }
+
+    public int getTestSize() {
+        return testSize;
+    }
+
+    public void setTestSize(int testSize) {
+        this.testSize = testSize;
+    }
+
 }

@@ -96,7 +96,7 @@
 							<div class="row">
 								<div class="col-md-3"></div>
 								<div class="col-md-6">
-									<form:form class="form" modelAttribute="task" method="POST">
+									<form:form class="form" action="trang-chu" modelAttribute="task" method="POST">
 										<div class="form-group">
 											<label for="task">Tên task</label>
 											<form:input type="text" required="required"

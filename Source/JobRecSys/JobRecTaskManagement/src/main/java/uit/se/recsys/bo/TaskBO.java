@@ -17,11 +17,19 @@ public class TaskBO {
 	return taskDAO.addTask(task);
     }
 
-    public List<TaskBean> getAllTasks() {
-	return taskDAO.getAllTasks();
+    public List<TaskBean> getAllRecommendationTasks() {
+	return taskDAO.getAllRecommendationTasks();
+    }
+
+    public List<TaskBean> getAllEvaluationTasks() {
+	return taskDAO.getAllEvaluationTasks();
     }
 
     public TaskBean getTaskById(int id) {
 	return taskDAO.getTaskById(id);
+    }
+    
+    public int generateId(){
+	return taskDAO.generateId();
     }
 }

@@ -45,7 +45,7 @@ public class DatasetUtil {
      *            {@link String}
      * @return fileResult[] {@link File}
      */
-    public File[] getResultFile(String dirPath, String fileNamePrefix) {
+    public File[] getResultFile(String dirPath, final String fileNamePrefix) {
 	File dir = new File(dirPath);
 	return dir.listFiles(new FilenameFilter() {
 

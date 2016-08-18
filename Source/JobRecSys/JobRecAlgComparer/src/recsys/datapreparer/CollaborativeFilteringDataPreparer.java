@@ -12,87 +12,87 @@ import dto.ScoreDTO;
 
 public class CollaborativeFilteringDataPreparer extends DataPreparer {
 
-  List<Integer> listUserIds;
+	List<Integer> listUserIds;
 
-  public CollaborativeFilteringDataPreparer(String dir) {
-    super(dir);
-    dataReader = new DataSetReader(dir);
-  }
+	public CollaborativeFilteringDataPreparer(String dir) {
+		super(dir);		
+	}
 
-  public List<Integer> getListUserId() {
-    listUserIds = new ArrayList<Integer>();
-    dataReader.open(DataSetType.Score);
-    ScoreDTO score_dto = null;
-    while ((score_dto = dataReader.nextScore()) != null) {
-      int userId = score_dto.getUserId();
-      if (!isOverlap(userId)) {
-        listUserIds.add(userId);
-      }
-    }
-    return listUserIds;
-  }
+	public List<Integer> getListUserId() {
+		listUserIds = new ArrayList<Integer>();
+		dataReader.open(DataSetType.Score);
+		ScoreDTO score_dto = null;
+		while ((score_dto = dataReader.nextScore()) != null) {
+			int userId = score_dto.getUserId();
+			if (!isOverlap(userId)) {
+				listUserIds.add(userId);
+			}
+		}
+		return listUserIds;
+	}
 
-  private boolean isOverlap(int userId) {
-    for (Integer i : listUserIds) {
-      if (userId == i) {
-        return true;
-      }
-    }
-    return false;
-  }
+	private boolean isOverlap(int userId) {
+		for (Integer i : listUserIds) {
+			if (userId == i) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-  public void splitDataSet(int proportionOfTest, String outputDir) {
+	public void splitDataSet(int proportionOfTest, String outputDir) {
 
-    dataReader.open(DataSetType.Score);
-    List<ScoreDTO> fullSet = getAllScores();
-    List<ScoreDTO> testingSet = new ArrayList<ScoreDTO>();
-    List<ScoreDTO> trainingSet = new ArrayList<ScoreDTO>();
-    int fullSize = fullSet.size();
-    int testingSize = 0; 
-    if(proportionOfTest * fullSize % 100 > 5)
-    	testingSize = (int) (proportionOfTest * fullSize / 100 + 1); 
+		dataReader.open(DataSetType.Score);
+		List<ScoreDTO> scoreDataSet = getAllScores();
+		List<ScoreDTO> scoreTestingSet = new ArrayList<ScoreDTO>();
+		List<ScoreDTO> scoreTrainingSet = new ArrayList<ScoreDTO>();
+		int fullSize = scoreDataSet.size();
+		int testingSize = 0;
+		if (proportionOfTest * fullSize % 100 > 5)
+			testingSize = (int) (proportionOfTest * fullSize / 100 + 1);
 
-    for (int i = 0; i < testingSize; i++) {
-      ScoreDTO dto = getAnyScore(fullSize, fullSet);
-      while (testingSet.contains(dto)) {
-        dto = getAnyScore(fullSize, fullSet);
-      }
-      testingSet.add(dto);
-    }
-    if (fullSet.removeAll(testingSet)) {
-      trainingSet = fullSet;
-    }
-    writeScore(outputDir + "training\\", "Score.txt", trainingSet);
-    writeScore(outputDir + "testing\\", "Score.txt", testingSet);
-  }
+		for (int i = 0; i < testingSize; i++) {
+			ScoreDTO dto = getAnyScore(fullSize, scoreDataSet);
+			while (scoreTestingSet.contains(dto)) {
+				dto = getAnyScore(fullSize, scoreDataSet);
+			}
+			scoreTestingSet.add(dto);
+		}
+		if (scoreDataSet.removeAll(scoreTestingSet)) {
+			scoreTrainingSet = scoreDataSet;
+		}
 
-  private ScoreDTO getAnyScore(int maxRange, List<ScoreDTO> fullSet) {
-    int index = new Random().nextInt(maxRange);
-    return fullSet.get(index);
-  }
+		writeScore(outputDir + "training\\", "Score.txt", scoreTrainingSet);
+		writeScore(outputDir + "testing\\", "Score.txt", scoreTestingSet);
+	}
 
-  private void writeScore(String destination, String fileName, List<ScoreDTO> dataSet) {
-    FileWriter fwr;
-    try {
-      File out = new File(destination);
-      if (!out.exists()) {
-        out.mkdirs();
-      }
-      File fileOut = new File(out.getAbsolutePath() + File.separator + fileName);
+	private ScoreDTO getAnyScore(int maxRange, List<ScoreDTO> fullSet) {
+		int index = new Random().nextInt(maxRange);
+		return fullSet.get(index);
+	}
 
-      fwr = new FileWriter(fileOut, true);
-      fwr.write("");
-      BufferedWriter wr = new BufferedWriter(fwr);
+	private void writeScore(String destination, String fileName, List<ScoreDTO> dataSet) {
+		FileWriter fwr;
+		try {
+			File out = new File(destination);
+			if (!out.exists()) {
+				out.mkdirs();
+			}
+			File fileOut = new File(out.getAbsolutePath() + File.separator + fileName);
 
-      for (ScoreDTO dto : dataSet) {
-        wr.write(dto.getUserId() + "\t" + dto.getJobId() + "\t" + dto.getScore());
-        wr.newLine();
-      }
+			fwr = new FileWriter(fileOut, true);
+			fwr.write("");
+			BufferedWriter wr = new BufferedWriter(fwr);
 
-      wr.close();
-      fwr.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
+			for (ScoreDTO dto : dataSet) {
+				wr.write(dto.getUserId() + "\t" + dto.getJobId() + "\t" + dto.getScore());
+				wr.newLine();
+			}
+
+			wr.close();
+			fwr.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

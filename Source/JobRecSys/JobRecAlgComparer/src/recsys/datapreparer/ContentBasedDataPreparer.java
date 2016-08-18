@@ -6,8 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -119,67 +117,124 @@ public class ContentBasedDataPreparer extends DataPreparer {
 		this.dataReader.close();
 	}
 
-	public void splitDataSet(float proportionOfTest) {
+	public void splitDataSet(String input, String output) {
 
 		dataReader.open(DataSetType.Job);
-		List<JobDTO> fullSet = getAllJobs();
-		List<JobDTO> testingSet = new ArrayList<JobDTO>();
-		List<JobDTO> trainingSet = new ArrayList<JobDTO>();
-		int fullSize = fullSet.size();
-		int testingSize = (int) (proportionOfTest * fullSize);
+		List<JobDTO> jobDataSet = getAllJobs();
+		List<JobDTO> jobTestingDataSet = new ArrayList<JobDTO>();
 
-		for (int i = 0; i < testingSize; i++) {
-			JobDTO dto = getAnyJob(fullSize, fullSet);
-			while (testingSet.contains(dto)) {
-				dto = getAnyJob(fullSize, fullSet);
+		dataReader.open(DataSetType.Cv);
+		List<CvDTO> cvDataSet = getAllCVs();
+		List<CvDTO> cvTestingDataSet = new ArrayList<CvDTO>();
+
+		dataReader.setSource(input);
+		dataReader.open(DataSetType.Score);
+		List<ScoreDTO> scoreDataSet = getAllScores();
+		List<Integer> users = getAllUsers(scoreDataSet);
+		List<Integer> jobs = getAllJobs(scoreDataSet);
+
+		JobDTO removeJob = null;
+		CvDTO removeCv = null;
+		for (Integer jobID : jobs) {
+			for (JobDTO job : jobDataSet) {
+				if (jobID == job.getJobId()) {
+					jobTestingDataSet.add(job);
+					removeJob = job;
+					break;
+				}
 			}
-			testingSet.add(dto);
+			jobDataSet.remove(removeJob);
 		}
-		if (fullSet.removeAll(testingSet)) {
-			trainingSet = fullSet;
+		for (Integer userID : users) {
+			for (CvDTO cv : cvDataSet)
+				if (userID == cv.getAccountId()) {
+					cvTestingDataSet.add(cv);
+					removeCv = cv;
+					break;
+				}
+			cvDataSet.remove(removeCv);
 		}
-		writeJob("C:\\Users\\tuyen\\Desktop\\garbage\\nc\\", "CF_TRAINING_ITEMS.txt", trainingSet);
-		writeJob("C:\\Users\\tuyen\\Desktop\\garbage\\nc\\", "CF_TESTING_ITEMS.txt", testingSet);
-	}
-	
-//	public void splitCv(float proportionOfTest) {
-//
-//		dataReader.open(DataSetType.Cv);
-//		List<CvDTO> fullSet = getAllCVs();
-//		List<CvDTO> testingSet = new ArrayList<CvDTO>();
-//		List<CvDTO> trainingSet = new ArrayList<CvDTO>();
-//		int fullSize = fullSet.size();
-//		int testingSize = (int) (proportionOfTest * fullSize);
-//
-//		for (int i = 0; i < testingSize; i++) {
-//			CvDTO dto = getAnyCv(fullSize, fullSet);
-//			while (testingSet.contains(dto)) {
-//				dto = getAnyCv(fullSize, fullSet);
-//			}
-//			testingSet.add(dto);
-//		}
-//		if (fullSet.removeAll(testingSet)) {
-//			trainingSet = fullSet;
-//		}
-//		writeCv("C:\\Users\\tuyen\\Desktop\\garbage\\nc\\", "CF_TRAINING_ITEMS.txt", trainingSet);
-//		writeCv("C:\\Users\\tuyen\\Desktop\\garbage\\nc\\", "CF_TESTING_ITEMS.txt", testingSet);
-//	}
 
-	private JobDTO getAnyJob(int maxRange, List<JobDTO> fullSet) {
-		int index = new Random().nextInt(maxRange);
-		return fullSet.get(index);
+		writeJob(output + "training\\", "job.txt", jobDataSet);
+		writeJob(output + "testing\\", "job.txt", jobTestingDataSet);
+		writeCv(output + "training\\", "cv.txt", cvDataSet);
+		writeCv(output + "testing\\", "cv.txt", cvTestingDataSet);
+	}
+
+	private List<Integer> getAllUsers(List<ScoreDTO> listScore) {
+		List<Integer> users = new ArrayList<Integer>();
+		for (ScoreDTO score : listScore) {
+			if (!isOverlap(users, score.getUserId())) {
+				users.add(score.getUserId());
+			}
+		}
+		return users;
+	}
+
+	private List<Integer> getAllJobs(List<ScoreDTO> listScore) {
+		List<Integer> jobs = new ArrayList<Integer>();
+		for (ScoreDTO score : listScore) {
+			if (!isOverlap(jobs, score.getJobId())) {
+				jobs.add(score.getJobId());
+			}
+		}
+		return jobs;
+	}
+
+	private boolean isOverlap(List<Integer> list, int id) {
+		for (Integer i : list) {
+			if (id == i) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void writeJob(String destination, String fileName, List<JobDTO> dataSet) {
-		FileWriter fwr;
-		try {
-			fwr = new FileWriter(new File(destination + fileName), true);
-			BufferedWriter wr = new BufferedWriter(fwr);
+    FileWriter fwr;
+    try {
+      File out = new File(destination);
+      if (!out.exists()) {
+        out.mkdirs();
+      }
+      File fileOut = new File(out.getAbsolutePath() + File.separator + fileName);
 
-			for (JobDTO dto : dataSet) {
-				wr.write(dto.getJobId() + "\t" + dto.getJobName() + "\t" + dto.getLocation() + "\t" + dto.getSalary()
-						+ "\t" + dto.getCategory() + "\t" + dto.getRequirement() + "\t" + dto.getTags() + "\t"
-						+ dto.getDescription());
+      fwr = new FileWriter(fileOut, true);
+      fwr.write("");
+      BufferedWriter wr = new BufferedWriter(fwr);
+
+      for (JobDTO dto : dataSet) {
+        wr.write(dto.getJobId() + "\t" + dto.getJobName() + "\t" + dto.getLocation() + "\t" + dto.getSalary()
+                + "\t" + dto.getCategory() + "\t" + dto.getRequirement() + "\t" + dto.getTags() + "\t"
+                + dto.getDescription());
+        wr.newLine();
+      }
+
+      wr.close();
+      fwr.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+	}
+
+	private void writeCv(String destination, String fileName, List<CvDTO> dataSet) {
+    FileWriter fwr;
+    try {
+      File out = new File(destination);
+      if (!out.exists()) {
+        out.mkdirs();
+      }
+      File fileOut = new File(out.getAbsolutePath() + File.separator + fileName);
+
+      fwr = new FileWriter(fileOut, true);
+      fwr.write("");
+      BufferedWriter wr = new BufferedWriter(fwr);
+
+      for (CvDTO dto : dataSet) {
+				wr.write(dto.getAccountId() + "\t" + dto.getResumeId() + "\t" + dto.getUserName() + "\t"
+						+ dto.getCvName() + "\t" + dto.getAddress() + "\t" + dto.getExpectedSalary() + "\t"
+						+ dto.getCategory() + "\t" + dto.getEducation() + "\t" + dto.getLanguage() + "\t"
+						+ dto.getSkill() + "\t" + dto.getObjective());
 				wr.newLine();
 			}
 
@@ -189,29 +244,4 @@ public class ContentBasedDataPreparer extends DataPreparer {
 			e.printStackTrace();
 		}
 	}
-	
-//	private CvDTO getAnyCv(int maxRange, List<CvDTO> fullSet) {
-//		int index = new Random().nextInt(maxRange);
-//		return fullSet.get(index);
-//	}
-
-//	private void writeCv(String destination, String fileName, List<CvDTO> dataSet) {
-//		FileWriter fwr;
-//		try {
-//			fwr = new FileWriter(new File(destination + fileName), true);
-//			BufferedWriter wr = new BufferedWriter(fwr);
-//
-//			for (CvDTO dto : dataSet) {
-//				wr.write(dto.getAccountId() + "\t" + dto.getResumeId() + "\t" + dto.getCvName() + "\t" + dto.get
-//						+ "\t" + dto.getCategory() + "\t" + dto.getRequirement() + "\t" + dto.getTags() + "\t"
-//						+ dto.getDescription());
-//				wr.newLine();
-//			}
-//
-//			wr.close();
-//			fwr.close();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	}
 }
