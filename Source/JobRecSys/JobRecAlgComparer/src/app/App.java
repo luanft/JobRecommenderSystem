@@ -1,8 +1,6 @@
 package app;
 
-import recsys.algorithms.collaborativeFiltering.CFAlgorithm;
 import recsys.algorithms.collaborativeFiltering.CollaborativeFiltering;
-import recsys.algorithms.collaborativeFiltering.SimilarityMeasure;
 import recsys.algorithms.contentBased.ContentBasedRecommender;
 import recsys.algorithms.hybird.HybirdRecommeder;
 import recsys.evaluate.Evaluation;
@@ -11,27 +9,38 @@ public class App {
 
 	public static void main(String[] args) {
 
-		if (args[0].equals("rec")) {
-			if (args[1].equals("cf")) {
-				collaborativeFiltering(args[2], args[3]);
-			} else {
-				if (args[0].equals("cb")) {
-					contentBase(args[2], args[3]);
-				} else {
-					if (args[0].equals("hb")) {
-						hybrid(args[2], args[3]);
-					}
-				}
-			}
-		} else {
-			if (args[1].equals("cf")) {
-				Evaluation.evaluate(Integer.parseInt(args[2]), args[1], args[3], args[4], args[5]);
-			} else {
-			}
-		}
-
+		switch (args[0]) {
+		case "rec":
+			recommend(args);
+			break;
+		case "eval":
+			evaluate(args);
+			break;
+		default:
+			break;
+		}			
 	}
-
+	
+	private static void recommend(String[] args){
+		switch (args[1]) {
+		case "cf":
+			collaborativeFiltering(args[3], args[4], Boolean.valueOf(args[2]));
+			break;
+		case "cb":
+			contentBase(args[3], args[4]);
+			break;
+		case "hb":
+			hybrid(args[3], args[4]);
+			break;			
+		default:
+			break;
+		}
+	}
+	
+	private static void evaluate(String[] args){
+		Evaluation.evaluate(Integer.parseInt(args[3]), args[1], Boolean.valueOf(args[2]), args[4], args[5], args[6]);
+	}
+		
 	private static void hybrid(String input, String output) {
 		HybirdRecommeder hybridRecommender = new HybirdRecommeder();
 		hybridRecommender.setInputDirectory(input);
@@ -50,9 +59,8 @@ public class App {
 
 	}
 
-	private static void collaborativeFiltering(String input, String output) {
-		CollaborativeFiltering cf = new CollaborativeFiltering(input, output);
-		cf.recommend(CFAlgorithm.UserBase,
-				SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, 10, 10);
+	private static void collaborativeFiltering(String input, String output, boolean useConfig) {
+		CollaborativeFiltering cf = new CollaborativeFiltering(input, output, useConfig);
+		cf.recommend();
 	}
 }

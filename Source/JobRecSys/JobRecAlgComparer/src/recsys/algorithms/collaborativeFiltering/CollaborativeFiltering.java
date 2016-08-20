@@ -6,8 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
@@ -26,86 +24,84 @@ import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 
+import recsys.algorithms.RecommendationAlgorithm;
 import recsys.datapreparer.CollaborativeFilteringDataPreparer;
 
-public class CollaborativeFiltering {
+public class CollaborativeFiltering extends RecommendationAlgorithm {
 
-	DataSource dataSource;
 	DataModel dataModel;
 	Recommender recommender;
 	UserSimilarity userSimilarity;
 	ItemSimilarity itemSimilarity;
-	UserNeighborhood userNeighborhood;
+	UserNeighborhood userNeighborhood;	
 	List<Integer> listUserIds;
-	String outputDirectory;
 
-	public CollaborativeFiltering(String inputDir, String outputDir) {
-		try {
-			dataModel = new FileDataModel(new File(inputDir + "Score.txt"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		outputDirectory = outputDir;
+	public CollaborativeFiltering(String inputDir, String outputDir, boolean useConfig) {
+		
+		/*prepare configuration*/
+		super(inputDir, outputDir, useConfig);
+		
+		/*learn model*/
+		initModel();
+		
+		/*List users will be recommended*/
 		listUserIds = new CollaborativeFilteringDataPreparer(inputDir).getListUserId();
 	}
 
-	public CollaborativeFiltering(String inputDir, String outputDir, String testingDir) {
+	public CollaborativeFiltering(String inputDir, String outputDir, String testDir, boolean useConfig) {		
+		
+		/*prepare configuration*/
+		super(inputDir, outputDir, testDir, useConfig);
+		
+		/*learn model*/
+		initModel();
+		
+		/*List users will be recommended*/
+		listUserIds = new CollaborativeFilteringDataPreparer(testDirectory).getListUserId();
+	}
+
+	private void initModel() {
+
+		/* read configuration */
+		readConfiguration(outputDirectory, useConfig);
+
+		/* init data model */
 		try {
-			dataModel = new FileDataModel(new File(inputDir + "Score.txt"));
+			dataModel = new FileDataModel(new File(inputDirectory + "Score.txt"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		outputDirectory = outputDir;
-		listUserIds = new CollaborativeFilteringDataPreparer(testingDir).getListUserId();
-	}
 
-	public void recommend(CFAlgorithm algorithm, SimilarityMeasure sm, int nearestUsers, int numberOfRecItems) {
-		switch (algorithm) {
-		case UserBase:
-			for (Integer userId : listUserIds) {
-				try {
-					UserBase(sm, nearestUsers, userId, numberOfRecItems);
-				} catch (TasteException e) {
-					e.printStackTrace();
-				}
-			}
-			break;
-		case ItemBase:
-			for (Integer userId : listUserIds) {
-				try {
-					ItemBase(sm, userId, numberOfRecItems);
-				} catch (TasteException e) {
-					e.printStackTrace();
-				}
-			}
-			break;
+		/* init similarity measure */
+		try {
+			initSimilaritymeasure(config.getProperty("cf.similarity"));
+		} catch (TasteException e) {
+			e.printStackTrace();
+		}
 
-		default:
-			break;
+		/* init user neighborhood */
+		if (config.getProperty("cf.type").equals("UserBase")) {
+			try {
+				initUserNeighborhood(config.getProperty("cf.neighborhood.type"),
+						config.getProperty("cf.neighborhood.param"));
+			} catch (TasteException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
-	public void recommend(CFAlgorithm algorithm, SimilarityMeasure sm, float threshold, int numberOfRecItems) {
-		switch (algorithm) {
-		case UserBase:
-			for (Integer userId : listUserIds) {
-				try {
-					UserBase(sm, threshold, userId, numberOfRecItems);
-				} catch (TasteException e) {
-					e.printStackTrace();
-				}
+	public void recommend() {
+		switch (config.getProperty("cf.type")) {
+		case "UserBase":
+			for (int userId : listUserIds) {
+				UserBase(userId);
 			}
 			break;
-		case ItemBase:
+		case "ItemBase":
 			for (Integer userId : listUserIds) {
-				try {
-					ItemBase(sm, userId, numberOfRecItems);
-				} catch (TasteException e) {
-					e.printStackTrace();
-				}
+				ItemBase(userId);
 			}
 			break;
-
 		default:
 			break;
 		}
@@ -113,82 +109,48 @@ public class CollaborativeFiltering {
 
 	/**
 	 * Recommendation using user-base method
-	 * 
-	 * @param sm
-	 *            {@link SimilarityMeasure}
-	 * @param type
-	 *            {@link TypeOfNeighborhood}
-	 * @param threshold
-	 *            {@link Integer}
-	 * @param userIDToRecommend
-	 *            {@link Integer} {@code UserID to receive recommender}
-	 * @param numberOfRecItems
-	 *            {@link Integer} {@code Number of recommender items}
-	 * @throws TasteException
 	 */
-	public void UserBase(SimilarityMeasure sm, float threshold, int userIDToRecommend, int numberOfRecItems)
-			throws TasteException {
-		// initialize user'similarity
-		InitUserSimilaritymeasure(sm);
-		// initialize user neighborhood
-		InitUserNeighborhood(threshold);
+	private void UserBase(int userIDToRecommend) {
 		// initialize recommender
 		recommender = new GenericUserBasedRecommender(dataModel, userNeighborhood, userSimilarity);
-		writeOutput(userIDToRecommend, recommender.recommend(userIDToRecommend, numberOfRecItems));
-	}
-
-	public void UserBase(SimilarityMeasure sm, int numberOfNeighbor, int userIDToRecommend, int numberOfRecItems)
-			throws TasteException {
-		// initialize user'similarity
-		InitUserSimilaritymeasure(sm);
-		// initialize user neighborhood
-		InitUserNeighborhood(numberOfNeighbor);
-		// initialize recommender
-		recommender = new GenericUserBasedRecommender(dataModel, userNeighborhood, userSimilarity);
-		writeOutput(userIDToRecommend, recommender.recommend(userIDToRecommend, numberOfRecItems));
+		try {
+			writeOutput(userIDToRecommend, recommender.recommend(userIDToRecommend, Integer.valueOf(config.getProperty("cf.recommendItems"))));
+		} catch (TasteException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Recommendation using item-base method
-	 * 
-	 * @param sm
-	 *            {@link SimilarityMeasure}
-	 * @param userIDToRecommend
-	 *            {@link Integer}
-	 * @param numberOfRecItems
-	 *            {@link Integer}
-	 * @throws TasteException
 	 */
-	public void ItemBase(SimilarityMeasure sm, int userIDToRecommend, int numberOfRecItems) throws TasteException {
-		// initialize item's similarity
-		InitItemSimilarityMeasure(sm);
+	private void ItemBase(int userIDToRecommend) {
 		// initialize recommender
 		recommender = new GenericItemBasedRecommender(dataModel, itemSimilarity);
-		writeOutput(userIDToRecommend, recommender.recommend(userIDToRecommend, numberOfRecItems));
+		try {
+			writeOutput(userIDToRecommend, recommender.recommend(userIDToRecommend, Integer.valueOf(config.getProperty("cf.recommendItems"))));
+		} catch (TasteException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Initialize the user similarity measure
-	 * 
-	 * @param sm
-	 *            {@link SimilarityMeasure}
-	 * @throws TasteException
 	 */
-	private void InitUserSimilaritymeasure(SimilarityMeasure sm) throws TasteException {
-		switch (sm) {
-		case LOGLIKELIHOOD_SIMILARITY:
+	private void initSimilaritymeasure(String similarity) throws TasteException {
+		switch (similarity) {
+		case "LOGLIKELIHOOD_SIMILARITY":
 			userSimilarity = new LogLikelihoodSimilarity(dataModel);
 			break;
-		case EUCLIDEAN_DISTANCE:
+		case "EUCLIDEAN_DISTANCE":
 			userSimilarity = new EuclideanDistanceSimilarity(dataModel);
 			break;
-		case PEARSON_CORRELATION:
+		case "PEARSON_CORRELATION":
 			userSimilarity = new PearsonCorrelationSimilarity(dataModel);
 			break;
-		case SPEARMAN_CORRELATION:
+		case "SPEARMAN_CORRELATION":
 			userSimilarity = new SpearmanCorrelationSimilarity(dataModel);
 			break;
-		case TANIMOTO_COOFFICIENT:
+		case "TANIMOTO_COOFFICIENT":
 			userSimilarity = new TanimotoCoefficientSimilarity(dataModel);
 			break;
 		default:
@@ -196,38 +158,18 @@ public class CollaborativeFiltering {
 		}
 	}
 
-	/**
-	 * Initialize item's similarity
-	 * 
-	 * @param sm
-	 *            {@link SimilarityMeasure}
-	 * @throws TasteException
-	 */
-	private void InitItemSimilarityMeasure(SimilarityMeasure sm) throws TasteException {
-		switch (sm) {
-		case LOGLIKELIHOOD_SIMILARITY:
-			itemSimilarity = new LogLikelihoodSimilarity(dataModel);
+	private void initUserNeighborhood(String neighborhood, String neighborhoodParam) throws TasteException {
+		switch (neighborhood) {
+		case "NearestNUserNeighborhood":
+			userNeighborhood = new NearestNUserNeighborhood(Integer.valueOf(neighborhoodParam), userSimilarity,
+					dataModel);
 			break;
-		case EUCLIDEAN_DISTANCE:
-			itemSimilarity = new EuclideanDistanceSimilarity(dataModel);
-			break;
-		case PEARSON_CORRELATION:
-			itemSimilarity = new PearsonCorrelationSimilarity(dataModel);
-			break;
-		case TANIMOTO_COOFFICIENT:
-			itemSimilarity = new TanimotoCoefficientSimilarity(dataModel);
-			break;
+		case "ThresholdUserNeighborhood":
+			userNeighborhood = new ThresholdUserNeighborhood(Float.valueOf(neighborhoodParam), userSimilarity,
+					dataModel);
 		default:
 			break;
 		}
-	}
-
-	private void InitUserNeighborhood(int numberOfNeighbor) throws TasteException {
-		userNeighborhood = new NearestNUserNeighborhood(numberOfNeighbor, userSimilarity, dataModel);
-	}
-
-	private void InitUserNeighborhood(float numberOfNeighbor) throws TasteException {
-		userNeighborhood = new ThresholdUserNeighborhood(numberOfNeighbor, userSimilarity, dataModel);
 	}
 
 	private void writeOutput(int userId, List<RecommendedItem> recommendedItems) {

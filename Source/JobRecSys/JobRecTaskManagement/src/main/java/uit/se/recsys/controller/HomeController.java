@@ -1,7 +1,9 @@
 package uit.se.recsys.controller;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -19,11 +21,15 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
 import uit.se.recsys.bean.TaskBean;
 import uit.se.recsys.bo.TaskBO;
 import uit.se.recsys.bo.UserBO;
 import uit.se.recsys.utils.DatasetUtil;
 import uit.se.recsys.utils.SecurityUtil;
+import uit.se.recsys.utils.StripAccentUtil;
 
 /**
  * Handles requests for the application home page.
@@ -61,7 +67,7 @@ public class HomeController {
     }
 
     @RequestMapping(value = { "/", "trang-chu" }, method = RequestMethod.POST)
-    public String createTask(@ModelAttribute("task") TaskBean task,
+    public String createTask(@ModelAttribute("task") TaskBean task,@RequestParam("config") MultipartFile config,
 			     BindingResult result, Model model,
 			     HttpSession session) {
 
@@ -75,13 +81,35 @@ public class HomeController {
 	task.setType("rec");
 	task.setTimeCreate(new Timestamp(new Date().getTime()));
 	task.setUserId(SecurityUtil.getInstance().getUserId());
-	taskBO.addTask(task);
+	taskBO.addTask(task);		
 
-	/* Execute algorithm */
+	/* Save config file*/
 	String path = ROOT_PATH + task.getUserId() + File.separator
 			+ task.getDataset() + File.separator;
-	executeAlgorithm(task.getAlgorithm(), path + "input\\",
-			path + "output\\" + task.getAlgorithm() + "\\", taskBO.generateId());
+	int taskId = taskBO.generateId();
+	String taskName = new StripAccentUtil().convert(task.getTaskName().replaceAll(" ", "-"));
+	if(!config.isEmpty()){
+	    try {
+		byte[] cBytes = config.getBytes();
+		File dir = new File(path + "output\\" + taskId + "_" + taskName + File.separator + task.getAlgorithm());
+		if(!dir.exists()){
+		    dir.mkdirs();
+		}
+		File fileConfig = new File(dir.getAbsolutePath() + File.separator + "config.properties");
+		BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(fileConfig));
+		outStream.write(cBytes);
+		outStream.close();		
+	    } catch (IOException e) {
+		e.printStackTrace();
+	    }	    
+	}
+	
+	/* execute algorithm */
+	executeAlgorithm(task.getAlgorithm(), config.isEmpty(),
+			path + "input\\",
+			path + "output\\" + taskId + "_" + taskName
+			+ File.separator + task.getAlgorithm() + "\\", 
+			taskId);
 
 	bindingData(model);
 	return "home";
@@ -100,7 +128,7 @@ public class HomeController {
 	model.addAttribute("listTask", taskBO.getAllRecommendationTasks());
     }
 
-    private void executeAlgorithm(String algorithm, String input,
+    private void executeAlgorithm(String algorithm, boolean useConfig, String input,
 				  String output, int taskId) {
 	try {
 	    
@@ -117,8 +145,8 @@ public class HomeController {
 	    }
 	    FileWriter fw = new FileWriter(commandFile.getAbsoluteFile());
 	    BufferedWriter bw = new BufferedWriter(fw);
-	    bw.write("java -jar " + jRACLocation + " rec " + algorithm + " " + input
-			    + " " + output + " " + taskId);
+	    bw.write("java -jar " + jRACLocation + " rec " + algorithm + " " + useConfig 
+			    + " " + input + " " + output + " " + taskId);
 	    bw.write("\n exit");
 	    bw.close();
 	    fw.close();

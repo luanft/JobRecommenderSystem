@@ -21,6 +21,10 @@
 <script type="text/javascript"
 	src="resources/libs/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
 
+<!-- bootstrap upload file style -->
+<script type="text/javascript"
+	src="resources/js/bootstrap-filestyle.min.js"></script>
+
 <!-- custom css -->
 <link rel="stylesheet" href="resources/css/main.css">
 
@@ -96,7 +100,7 @@
 							<div class="row">
 								<div class="col-md-3"></div>
 								<div class="col-md-6">
-									<form:form class="form" action="trang-chu" modelAttribute="task" method="POST">
+									<form:form class="form" enctype="multipart/form-data" action="trang-chu" modelAttribute="task" method="POST">
 										<div class="form-group">
 											<label for="task">Tên task</label>
 											<form:input type="text" required="required"
@@ -126,6 +130,12 @@
 															}
 												%>
 											</form:select>
+										</div>
+										<div class="form-group">
+											<label for="db">Chọn File cấu hình cho thuật toán</label> <input type="file"
+												class="filestyle form-control" data-buttonName="btn-primary"
+												name="config" data-buttonText="Chọn file"
+												data-buttonBefore="true" id="config">
 										</div>
 										<button type="submit" class="btn btn-primary">Xử lý</button>
 									</form:form>

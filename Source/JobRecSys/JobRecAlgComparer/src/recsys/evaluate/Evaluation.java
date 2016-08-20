@@ -1,9 +1,7 @@
 package recsys.evaluate;
 
 import dto.ScoreDTO;
-import recsys.algorithms.collaborativeFiltering.CFAlgorithm;
 import recsys.algorithms.collaborativeFiltering.CollaborativeFiltering;
-import recsys.algorithms.collaborativeFiltering.SimilarityMeasure;
 import recsys.datapreparer.CollaborativeFilteringDataPreparer;
 import recsys.datapreparer.ContentBasedDataPreparer;
 import utils.DbConfig;
@@ -17,7 +15,7 @@ import java.util.List;
  */
 public class Evaluation {
 
-	public static void evaluate(int proportionOfTest, String algorithm,
+	public static void evaluate(int proportionOfTest, String algorithm, boolean useConfig,
 			String input, String output, String taskId) {
 
 		/**
@@ -33,7 +31,7 @@ public class Evaluation {
 		/**
 		 * Second step: call to CF Algorithm execute on training data set
 		 */
-		training(algorithm, output);
+		training(algorithm, output, useConfig);
 
 		/**
 		 * Third step: convert result to boolean type
@@ -66,10 +64,10 @@ public class Evaluation {
 		}
 	}
 
-	private static void training(String algorithm, String output) {
+	private static void training(String algorithm, String output, boolean useConfig) {
 		switch (algorithm) {
 		case "cf":
-			cf(output);
+			cf(output, useConfig);
 			break;
 		case "cb":
 			cb(output);
@@ -91,11 +89,10 @@ public class Evaluation {
 
 	}
 
-	private static void cf(String output) {
+	private static void cf(String output, boolean useConfig) {
 		CollaborativeFiltering cf = new CollaborativeFiltering(output
 				+ "cf\\training\\", output + "cf\\result\\", output
-				+ "cf\\testing\\");
-		cf.recommend(CFAlgorithm.UserBase,
-				SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, 5, 10);
+				+ "cf\\testing\\", useConfig);
+		cf.recommend();
 	}
 }

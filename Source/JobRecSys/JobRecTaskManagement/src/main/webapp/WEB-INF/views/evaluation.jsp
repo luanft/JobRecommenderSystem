@@ -22,6 +22,10 @@
 <script type="text/javascript"
 	src="resources/libs/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
 
+<!-- bootstrap upload file style -->
+<script type="text/javascript"
+	src="resources/js/bootstrap-filestyle.min.js"></script>
+
 <!-- custom css -->
 <link rel="stylesheet" href="resources/css/main.css">
 
@@ -62,10 +66,9 @@
 										<th>Ngày tạo</th>
 										<th>Thuật toán</th>
 										<th>Dataset</th>
-										<th>Trạng thái</th>										
+										<th>Trạng thái</th>
 										<%
-											List<MetricBean> listMetric = (List<MetricBean>) request
-													.getAttribute("listMetric");
+											List<MetricBean> listMetric = (List<MetricBean>) request.getAttribute("listMetric");
 											for (MetricBean metric : listMetric) {
 												out.write("<th>");
 												out.write(metric.getName());
@@ -76,14 +79,12 @@
 								</thead>
 								<tbody>
 									<%
-										List<TaskBean> listTask = (List<TaskBean>) request
-												.getAttribute("listTask");
+										List<TaskBean> listTask = (List<TaskBean>) request.getAttribute("listTask");
 										int count = 1;
 										for (TaskBean task : listTask) {
 											out.write("<tr>");
 											out.write("<td>" + count++ + "</td>");
-											out.write("<td><a href='" + request.getContextPath()
-													+ "/ket-qua?taskid= " + task.getTaskId() + "'>"
+											out.write("<td><a href='" + request.getContextPath() + "/ket-qua?taskid= " + task.getTaskId() + "'>"
 													+ task.getTaskName() + "</a></td>");
 											out.write("<td>" + task.getTimeCreate() + "</td>");
 											out.write("<td>" + task.getAlgorithm() + "</td>");
@@ -113,7 +114,9 @@
 							<div class="row">
 								<div class="col-md-3"></div>
 								<div class="col-md-6">
-									<form:form class="form" action="danh-gia-thuat-toan" modelAttribute="task" method="POST">
+									<form:form class="form" enctype="multipart/form-data"
+										action="danh-gia-thuat-toan" modelAttribute="task"
+										method="POST">
 										<div class="form-group">
 											<label for="task">Tên task</label>
 											<form:input type="text" required="required"
@@ -135,16 +138,21 @@
 											</label>
 											<form:select class="form-control" id="dataset" path="dataset">
 												<%
-													String[] datasets = (String[]) request
-																	.getAttribute("datasets");
+													String[] datasets = (String[]) request.getAttribute("datasets");
 															if (datasets != null) {
 																for (int i = 0; i < datasets.length; i++) {
-																	out.write("<option value='" + datasets[i] + "'>"
-																			+ datasets[i] + "</option>");
+																	out.write("<option value='" + datasets[i] + "'>" + datasets[i] + "</option>");
 																}
 															}
 												%>
 											</form:select>
+										</div>
+										<div class="form-group">
+											<label for="db">Chọn File cấu hình cho thuật toán</label> <input
+												type="file" class="filestyle form-control"
+												data-buttonName="btn-primary" name="config"
+												data-buttonText="Chọn file" data-buttonBefore="true"
+												id="config">
 										</div>
 										<div class="form-group">
 											<label for="task">Tỉ lệ % tập test</label>
