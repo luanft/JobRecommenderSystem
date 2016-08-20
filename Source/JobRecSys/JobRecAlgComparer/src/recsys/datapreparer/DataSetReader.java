@@ -16,23 +16,9 @@ import dto.ScoreDTO;
 
 
 public class DataSetReader {
-<<<<<<< HEAD
+
 	
-	private String source = "";
-	public DataSetReader(String data_dir)
-	{
-		source = data_dir;
-	}
-	
-	public DataSetReader()
-	{
-		source = null;
-	}
-	
-	
-	public String getSource() {
-		return source;
-	}
+		
 	private  int toInt(String data) {
 		try {
 			return Integer.parseInt(data);
@@ -47,128 +33,7 @@ public class DataSetReader {
 			return -1.0f;
 		}
 	}
-	BufferedReader buf = null;
-	private Scanner scan;
-	public void open(DataSetType _type)
-	{
-		String file = "Score.txt";
-		switch (_type) {
-		case Cv:
-			file = "Cv.txt";
-			break;
-		case Job:
-			file = "Job.txt";
-			break;
-		default:
-			break;
-		}
-		try {
-			buf = new BufferedReader(new InputStreamReader(new FileInputStream(source + file), "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			buf = null;
-		} catch (FileNotFoundException e) {
-			buf = null;
-		}
-	}
-	
-	public void openFile(String _file)
-	{
-		try {
-			buf = new BufferedReader(new InputStreamReader(new FileInputStream(_file), "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			buf = null;
-		} catch (FileNotFoundException e) {
-			buf = null;
-		}
-	}
-	
-	public JobDTO nextJob()
-	{
-		if(buf == null) return null;
-		JobDTO dto = new JobDTO();
-		String data;
-		try {
-			data = buf.readLine();
-		} catch (IOException e) {
-			close();
-			return null;
-		}
-		if(data == null) return null;
-		scan = new Scanner(data);
-		scan.useDelimiter("\t");			
-		dto.setJobId(toInt(scan.next()));
-		dto.setJobName(scan.next());
-		dto.setLocation(scan.next());			
-		dto.setSalary(scan.next());
-		dto.setCategory(scan.next());
-		dto.setRequirement(scan.next());			
-		dto.setTags(scan.next());
-		dto.setDescription(scan.next());
-		
-		return dto;		
-	}
-	
-	public CvDTO nextCv()
-	{
-		CvDTO dto = new CvDTO();
-		String data = null;
-		try {
-			data = buf.readLine();
-		} catch (IOException e) {
-			close();
-			return null;
-		}
-		if(data == null) return null;
-		scan = new Scanner(data);
-		scan.useDelimiter("\t");			
-		dto.setAccountId(toInt(scan.next()));
-		dto.setResumeId(toInt(scan.next()));
-		dto.setUserName(scan.next());
-		dto.setCvName(scan.next());
-		dto.setAddress(scan.next());
-		dto.setExpectedSalary(scan.next());
-		dto.setCategory(scan.next());
-		dto.setEducation(scan.next());
-		dto.setLanguage(scan.next());
-		dto.setSkill(scan.next());		
-		
-		return dto;
-	}
-	
-	public ScoreDTO nextScore()
-	{
-		ScoreDTO dto = new ScoreDTO();
-		String data = null;
-		try {
-			data = buf.readLine();
-		} catch (IOException e) {
-			close();
-			return null;
-		}
-		if(data == null) return null;
-		scan = new Scanner(data);
-		scan.useDelimiter("\t");			
-		dto.setUserId(toInt(scan.next()));
-		dto.setJobId(toInt(scan.next()));
-		dto.setScore(toFloat(scan.next()));	
-		return dto;
-	}
-	
-	public void close()
-	{
-		if(buf != null)
-		{
-			try {
-				buf.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				buf = null;
-			}
-			buf = null;
-		}
-	}
-	
-=======
+
 
   private String source = "";
 
@@ -188,21 +53,6 @@ public class DataSetReader {
     source = newSource;
   }
 
-  public int toInt(String data) {
-    try {
-      return Integer.parseInt(data);
-    } catch (Exception e) {
-      return -1;
-    }
-  }
-
-  public float toFloat(String data) {
-    try {
-      return Float.parseFloat(data);
-    } catch (Exception e) {
-      return -1.0f;
-    }
-  }
 
   BufferedReader buf = null;
   private Scanner scan;
@@ -326,5 +176,5 @@ public class DataSetReader {
       buf = null;
     }
   }
->>>>>>> af43c8104adab7c144664672949e61ae40517120
+
 }
