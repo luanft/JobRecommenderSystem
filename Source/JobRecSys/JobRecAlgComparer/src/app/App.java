@@ -42,11 +42,11 @@ public class App {
 	}
 
 	private static void contentBase(String input, String output) {
-		ContentBasedRecommender CBRec = new ContentBasedRecommender();
-		CBRec.setInputDirectory(input);
-		CBRec.setOutputDirectory(output);
-		CBRec.init();
-		CBRec.contentBasedFiltering();
+//		ContentBasedRecommender CBRec = new ContentBasedRecommender();
+//		CBRec.setInputDirectory(input);
+//		CBRec.setOutputDirectory(output);
+//		CBRec.init();
+//		CBRec.contentBasedFiltering();
 
 	}
 
