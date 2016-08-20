@@ -4,23 +4,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.FieldInfo.IndexOptions;
-import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.search.Explanation;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -35,6 +22,7 @@ import dto.ScoreDTO;
 import recsys.algorithms.RecommendationAlgorithm;
 import recsys.algorithms.collaborativeFiltering.CFAlgorithm;
 import recsys.algorithms.collaborativeFiltering.CollaborativeFiltering;
+import recsys.algorithms.collaborativeFiltering.SimilarityMeasure;
 import recsys.datapreparer.DataSetReader;
 import recsys.datapreparer.DataSetType;
 import recsys.datapreparer.HybirdRecommenderDataPreparer;
@@ -206,7 +194,7 @@ public class HybirdRecommeder extends RecommendationAlgorithm {
 	//ham CF
 	private void collaborativeFiltering(String input, String output) {
 		CollaborativeFiltering cf = new CollaborativeFiltering(input, output);
-		cf.recommend(CFAlgorithm.UserBase, 10);
+		cf.recommend(CFAlgorithm.UserBase, SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, 0.8f, 10);
 	}
 	
 	public void hibridRecommend() {

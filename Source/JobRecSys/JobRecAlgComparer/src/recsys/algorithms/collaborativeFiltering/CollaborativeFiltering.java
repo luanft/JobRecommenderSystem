@@ -35,13 +35,13 @@ public class CollaborativeFiltering {
 	Recommender recommender;
 	UserSimilarity userSimilarity;
 	ItemSimilarity itemSimilarity;
-	UserNeighborhood userNeightborhood;
+	UserNeighborhood userNeighborhood;
 	List<Integer> listUserIds;
 	String outputDirectory;
 
-	public CollaborativeFiltering(String inputDir, String outputDir){
+	public CollaborativeFiltering(String inputDir, String outputDir) {
 		try {
-			dataModel = new FileDataModel(new File(inputDir + "Score.txt"));		
+			dataModel = new FileDataModel(new File(inputDir + "Score.txt"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -49,13 +49,22 @@ public class CollaborativeFiltering {
 		listUserIds = new CollaborativeFilteringDataPreparer(inputDir).getListUserId();
 	}
 
-	public void recommend(CFAlgorithm algorithm, int numberOfRecItems) {
+	public CollaborativeFiltering(String inputDir, String outputDir, String testingDir) {
+		try {
+			dataModel = new FileDataModel(new File(inputDir + "Score.txt"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		outputDirectory = outputDir;
+		listUserIds = new CollaborativeFilteringDataPreparer(testingDir).getListUserId();
+	}
+
+	public void recommend(CFAlgorithm algorithm, SimilarityMeasure sm, int nearestUsers, int numberOfRecItems) {
 		switch (algorithm) {
 		case UserBase:
 			for (Integer userId : listUserIds) {
 				try {
-					UserBase(SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, TypeOfNeighborhood.THRESHOLDSUSER, 0.7f, userId,
-							numberOfRecItems);
+					UserBase(sm, nearestUsers, userId, numberOfRecItems);
 				} catch (TasteException e) {
 					e.printStackTrace();
 				}
@@ -64,7 +73,33 @@ public class CollaborativeFiltering {
 		case ItemBase:
 			for (Integer userId : listUserIds) {
 				try {
-					ItemBase(SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, userId, numberOfRecItems);
+					ItemBase(sm, userId, numberOfRecItems);
+				} catch (TasteException e) {
+					e.printStackTrace();
+				}
+			}
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	public void recommend(CFAlgorithm algorithm, SimilarityMeasure sm, float threshold, int numberOfRecItems) {
+		switch (algorithm) {
+		case UserBase:
+			for (Integer userId : listUserIds) {
+				try {
+					UserBase(sm, threshold, userId, numberOfRecItems);
+				} catch (TasteException e) {
+					e.printStackTrace();
+				}
+			}
+			break;
+		case ItemBase:
+			for (Integer userId : listUserIds) {
+				try {
+					ItemBase(sm, userId, numberOfRecItems);
 				} catch (TasteException e) {
 					e.printStackTrace();
 				}
@@ -83,7 +118,7 @@ public class CollaborativeFiltering {
 	 *            {@link SimilarityMeasure}
 	 * @param type
 	 *            {@link TypeOfNeighborhood}
-	 * @param numberOfNeighbor
+	 * @param threshold
 	 *            {@link Integer}
 	 * @param userIDToRecommend
 	 *            {@link Integer} {@code UserID to receive recommender}
@@ -91,14 +126,25 @@ public class CollaborativeFiltering {
 	 *            {@link Integer} {@code Number of recommender items}
 	 * @throws TasteException
 	 */
-	public void UserBase(SimilarityMeasure sm, TypeOfNeighborhood type, float numberOfNeighbor, int userIDToRecommend,
-			int numberOfRecItems) throws TasteException {
+	public void UserBase(SimilarityMeasure sm, float threshold, int userIDToRecommend, int numberOfRecItems)
+			throws TasteException {
 		// initialize user'similarity
 		InitUserSimilaritymeasure(sm);
 		// initialize user neighborhood
-		InitUserNeighborhood(type, numberOfNeighbor);
+		InitUserNeighborhood(threshold);
 		// initialize recommender
-		recommender = new GenericUserBasedRecommender(dataModel, userNeightborhood, userSimilarity);
+		recommender = new GenericUserBasedRecommender(dataModel, userNeighborhood, userSimilarity);
+		writeOutput(userIDToRecommend, recommender.recommend(userIDToRecommend, numberOfRecItems));
+	}
+
+	public void UserBase(SimilarityMeasure sm, int numberOfNeighbor, int userIDToRecommend, int numberOfRecItems)
+			throws TasteException {
+		// initialize user'similarity
+		InitUserSimilaritymeasure(sm);
+		// initialize user neighborhood
+		InitUserNeighborhood(numberOfNeighbor);
+		// initialize recommender
+		recommender = new GenericUserBasedRecommender(dataModel, userNeighborhood, userSimilarity);
 		writeOutput(userIDToRecommend, recommender.recommend(userIDToRecommend, numberOfRecItems));
 	}
 
@@ -176,32 +222,26 @@ public class CollaborativeFiltering {
 		}
 	}
 
-	/**
-	 * Initialize the user neighborhood
-	 * 
-	 * @param type
-	 *            {@link TypeOfNeighborhood}
-	 * @param numberOfNeighbor
-	 *            {@link Integer}
-	 * @throws TasteException
-	 */
-	private void InitUserNeighborhood(TypeOfNeighborhood type, float numberOfNeighbor) throws TasteException {
-		switch (type) {
-		case NEARESTNUSER:
-			userNeightborhood = new NearestNUserNeighborhood((int) numberOfNeighbor, userSimilarity, dataModel);
-			break;
-		case THRESHOLDSUSER:
-			userNeightborhood = new ThresholdUserNeighborhood(numberOfNeighbor, userSimilarity, dataModel);
-			break;
-		default:
-			break;
-		}
+	private void InitUserNeighborhood(int numberOfNeighbor) throws TasteException {
+		userNeighborhood = new NearestNUserNeighborhood(numberOfNeighbor, userSimilarity, dataModel);
+	}
+
+	private void InitUserNeighborhood(float numberOfNeighbor) throws TasteException {
+		userNeighborhood = new ThresholdUserNeighborhood(numberOfNeighbor, userSimilarity, dataModel);
 	}
 
 	private void writeOutput(int userId, List<RecommendedItem> recommendedItems) {
 		FileWriter fwr;
 		try {
-			fwr = new FileWriter(new File(outputDirectory + "CF_REC_ITEMS.txt"), true);
+			File out = new File(outputDirectory);
+			if (!out.exists()) {
+				out.mkdirs();
+			}
+			File fileOut = new File(out.getAbsolutePath() + File.separator + "Score.txt");
+			if (!fileOut.exists()) {
+				fileOut.createNewFile();
+			}
+			fwr = new FileWriter(fileOut, true);
 			BufferedWriter wr = new BufferedWriter(fwr);
 			System.out.println("start writing data");
 			for (RecommendedItem rec : recommendedItems) {

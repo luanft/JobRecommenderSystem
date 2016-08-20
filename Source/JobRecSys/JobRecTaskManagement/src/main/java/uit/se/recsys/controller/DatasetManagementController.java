@@ -3,13 +3,11 @@ package uit.se.recsys.controller;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,9 +19,10 @@ import uit.se.recsys.utils.DatasetUtil;
 import uit.se.recsys.utils.SecurityUtil;
 
 @Controller
+@PropertySource("classpath:/config/datasetLocation.properties")
 public class DatasetManagementController {
-    private final String ROOT_PATH = System.getProperty("catalina.home")
-		    + File.separator + "data" + File.separator;
+    @Value("${Dataset.Location}")
+    private String ROOT_PATH;
 
     @RequestMapping(value = "/quan-ly-dataset", method = RequestMethod.GET)
     public String init(Model model, HttpSession session) {
@@ -61,16 +60,7 @@ public class DatasetManagementController {
 					    + File.separator + "input");
 	    if (!dIn.exists()) {
 		dIn.mkdirs();
-	    }
-	    
-	    /* Create directory to save output files */
-	    File dOut = new File(
-			    ROOT_PATH + SecurityUtil.getInstance().getUserId()
-					    + File.separator + datasetName
-					    + File.separator + "output");
-	    if (!dOut.exists()) {
-		dOut.mkdirs();
-	    }
+	    }	    
 
 	    /* Loop through files and save it */
 	    for (int i = 0; i < 3; i++) {

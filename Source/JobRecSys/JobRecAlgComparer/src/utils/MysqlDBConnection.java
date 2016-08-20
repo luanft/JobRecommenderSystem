@@ -1,4 +1,4 @@
-package uit.se.recsys;
+package utils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
