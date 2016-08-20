@@ -4,4 +4,21 @@
 <fullyQualifiedTypeName name="java.util.ArrayList"/>
 <fullyQualifiedTypeName name="dto.ScoreDTO"/>
 <fullyQualifiedTypeName name="java.lang.Integer"/>
+<fullyQualifiedTypeName name="vn.hus.nlp.tokenizer.VietTokenizer"/>
+<fullyQualifiedTypeName name="java.io.Console"/>
+<fullyQualifiedTypeName name="org.apache.lucene.index.IndexWriter"/>
+<fullyQualifiedTypeName name="org.apache.lucene.document.Field.TermVector"/>
+<fullyQualifiedTypeName name="tran.minh.luan.Test"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.conf.Configuration"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.fs.FileSystem"/>
+<fullyQualifiedTypeName name="javax.sound.midi.Patch"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.fs.Path"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.fs.FileStatus"/>
+<fullyQualifiedTypeName name="java.lang.System"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.io.SequenceFile"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.io.SequenceFile.Writer"/>
+<fullyQualifiedTypeName name="org.apache.lucene.document.Document"/>
+<fullyQualifiedTypeName name="org.apache.hadoop.io.Text"/>
+<fullyQualifiedTypeName name="java.lang.Exception"/>
+<fullyQualifiedTypeName name="java.util.Scanner"/>
 </qualifiedTypeNameHistroy>

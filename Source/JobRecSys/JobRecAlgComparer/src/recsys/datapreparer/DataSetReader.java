@@ -25,17 +25,19 @@ public class DataSetReader {
 	{
 		source = null;
 	}
+	
+	
 	public String getSource() {
 		return source;
 	}
-	public  int toInt(String data) {
+	private  int toInt(String data) {
 		try {
 			return Integer.parseInt(data);
 		} catch (Exception e) {
 			return -1;
 		}
 	}
-	public  float toFloat(String data) {
+	private  float toFloat(String data) {
 		try {
 			return Float.parseFloat(data);
 		} catch (Exception e) {

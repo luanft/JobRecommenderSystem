@@ -9,5 +9,14 @@
 	<classpathentry kind="lib" path="lib/mahout-mr-0.12.1.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.36-bin.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/junit.jar"/>
+	<classpathentry kind="lib" path="lib/opennlp-tools-1.4.3.jar"/>
+	<classpathentry kind="lib" path="lib/trove.jar"/>
+	<classpathentry kind="lib" path="lib/vn.hus.nlp.fsm-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/vn.hus.nlp.sd-2.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/vn.hus.nlp.tokenizer-4.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/vn.hus.nlp.utils-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/maxent-2.5.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
