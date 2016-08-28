@@ -8,11 +8,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import uit.se.recsys.bean.TaskBean;
@@ -35,7 +37,6 @@ import uit.se.recsys.utils.StripAccentUtil;
  * Handles requests for the application home page.
  */
 @Controller
-@PropertySource("classpath:/config/datasetLocation.properties")
 public class HomeController {
 
     @Value("${Dataset.Location}")
@@ -47,6 +48,8 @@ public class HomeController {
     UserBO userService;
     @Autowired
     TaskBO taskBO;
+    @Autowired    
+    DatasetUtil dsUtil;
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
@@ -81,6 +84,7 @@ public class HomeController {
 	task.setType("rec");
 	task.setTimeCreate(new Timestamp(new Date().getTime()));
 	task.setUserId(SecurityUtil.getInstance().getUserId());
+	task.setUseConfig(!config.isEmpty());
 	taskBO.addTask(task);		
 
 	/* Save config file*/
@@ -105,7 +109,7 @@ public class HomeController {
 	}
 	
 	/* execute algorithm */
-	executeAlgorithm(task.getAlgorithm(), config.isEmpty(),
+	executeAlgorithm(task.getAlgorithm(), task.isUseConfig(),
 			path + "input\\",
 			path + "output\\" + taskId + "_" + taskName
 			+ File.separator + task.getAlgorithm() + "\\", 
@@ -120,7 +124,7 @@ public class HomeController {
 	/* Binding new TaskBean and dataset to view */
 	model.addAttribute("task", new TaskBean());
 	model.addAttribute("datasets",
-			DatasetUtil.getInstance().getDatasets(ROOT_PATH
+			dsUtil.getDatasets(ROOT_PATH
 					+ SecurityUtil.getInstance()
 							.getUserId()));
 
@@ -157,5 +161,11 @@ public class HomeController {
 	} catch (IOException e1) {
 	    e1.printStackTrace();
 	}
+    }
+    
+    @RequestMapping(value="trang-chu/updateTask", method=RequestMethod.POST, produces="application/json")
+    @ResponseBody
+    public List<TaskBean> updateTask(){
+	return taskBO.getAllRecommendationTasks();
     }
 }

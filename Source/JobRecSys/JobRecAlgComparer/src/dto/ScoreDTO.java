@@ -40,7 +40,7 @@ public class ScoreDTO {
   }
 
   public boolean compare(ScoreDTO dto) {
-    if (this.userId == dto.getUserId() && this.jobId == dto.getJobId() && this.relevant == dto.isRelevant()) {
+    if (this.userId == dto.getUserId() && this.jobId == dto.getJobId()) {
       return true;
     } else {
       return false;

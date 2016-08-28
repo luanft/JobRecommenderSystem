@@ -4,9 +4,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import org.apache.commons.io.FileUtils;
 
 import dto.ScoreDTO;
 
@@ -40,6 +43,11 @@ public class CollaborativeFilteringDataPreparer extends DataPreparer {
 		return false;
 	}
 
+	/**
+	 * split dataset by proportion of test set
+	 * @param proportionOfTest
+	 * @param outputDir
+	 */
 	public void splitDataSet(int proportionOfTest, String outputDir) {
 
 		dataReader.open(DataSetType.Score);
@@ -50,6 +58,8 @@ public class CollaborativeFilteringDataPreparer extends DataPreparer {
 		int testingSize = 0;
 		if (proportionOfTest * fullSize % 100 > 5)
 			testingSize = (int) (proportionOfTest * fullSize / 100 + 1);
+		else
+			testingSize = (int) (proportionOfTest * fullSize / 100);
 
 		for (int i = 0; i < testingSize; i++) {
 			ScoreDTO dto = getAnyScore(fullSize, scoreDataSet);
@@ -65,6 +75,44 @@ public class CollaborativeFilteringDataPreparer extends DataPreparer {
 		writeScore(outputDir + "training\\", "Score.txt", scoreTrainingSet);
 		writeScore(outputDir + "testing\\", "Score.txt", scoreTestingSet);
 	}
+	
+	/**
+	 * split dataset by number of fold
+	 * @param foldIndex
+	 * @param totalFold
+	 * @param inputDir
+	 * @param evalDir
+	 */
+	public void splitDataSet(int foldIndex, int totalFold, String inputDir, String evalDir){
+		dataReader.setSource(inputDir);
+		dataReader.open(DataSetType.Score);
+		List<ScoreDTO> scoreDataSet = getAllScores();
+		List<ScoreDTO> scoreTestingSet = new ArrayList<ScoreDTO>();
+		List<ScoreDTO> scoreTrainingSet = new ArrayList<ScoreDTO>();
+		
+		int foldSize = scoreDataSet.size()/totalFold;
+		int startIndex = foldIndex*foldSize;
+		int endIndex = startIndex + foldSize;
+		for (int i = startIndex; i < endIndex; i++) {			
+			scoreTestingSet.add(scoreDataSet.get(i));
+		}
+		if (scoreDataSet.removeAll(scoreTestingSet)) {
+			scoreTrainingSet = scoreDataSet;
+		}
+		
+		writeScore(evalDir + "training\\", "Score.txt", scoreTrainingSet);
+		writeScore(evalDir + "testing\\", "Score.txt", scoreTestingSet);
+	}
+	
+	public void copyFileTo(String input, String output){		
+		try {
+			File srcFile = new File(input);
+			File destFile = new File(output);
+			FileUtils.copyFile(srcFile, destFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private ScoreDTO getAnyScore(int maxRange, List<ScoreDTO> fullSet) {
 		int index = new Random().nextInt(maxRange);
@@ -79,7 +127,9 @@ public class CollaborativeFilteringDataPreparer extends DataPreparer {
 				out.mkdirs();
 			}
 			File fileOut = new File(out.getAbsolutePath() + File.separator + fileName);
-
+			PrintWriter pw = new PrintWriter(fileOut);
+			pw.print("");
+			pw.close();
 			fwr = new FileWriter(fileOut, true);
 			fwr.write("");
 			BufferedWriter wr = new BufferedWriter(fwr);

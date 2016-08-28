@@ -13,7 +13,6 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -34,7 +33,6 @@ import uit.se.recsys.utils.SecurityUtil;
 import uit.se.recsys.utils.StripAccentUtil;
 
 @Controller
-@PropertySource("classpath:/config/datasetLocation.properties")
 public class EvaluationController {
 
     @Value("${Dataset.Location}")
@@ -52,7 +50,7 @@ public class EvaluationController {
     @InitBinder
     public void initBinder(WebDataBinder binder) {
 	binder.setAllowedFields(new String[] { "taskName", "algorithm",
-			"dataset", "testSize" });
+			"dataset", "evaluationType", "testSize", "testFold" });
     }
 
     @RequestMapping(value = "/danh-gia-thuat-toan", method = RequestMethod.GET)
@@ -68,7 +66,9 @@ public class EvaluationController {
     }
 
     @RequestMapping(value = {"danh-gia-thuat-toan" }, method = RequestMethod.POST)
-    public String createTask(@ModelAttribute("task") TaskBean task,@RequestParam("config") MultipartFile config,
+    public String createTask(@ModelAttribute("task") TaskBean task,
+			     @RequestParam("config") MultipartFile config,			     
+			     @RequestParam("test") MultipartFile test,
 			     BindingResult result, Model model,
 			     HttpSession session) {
 
@@ -82,46 +82,67 @@ public class EvaluationController {
 	task.setType("eval");
 	task.setTimeCreate(new Timestamp(new Date().getTime()));
 	task.setUserId(SecurityUtil.getInstance().getUserId());
+	task.setUseConfig(!config.isEmpty());
+
+	switch (task.getEvaluationType()) {
+	case "partitioning":
+	    task.setEvaluationParam(task.getTestSize());
+	    break;
+	case "cross":
+	    task.setEvaluationParam(task.getTestFold());
+	    break;
+	default:
+	    break;
+	}
 	taskBO.addTask(task);
 
 	/* Save config file */
 	String path = ROOT_PATH + task.getUserId() + File.separator
 			+ task.getDataset() + File.separator;
 	int taskId = taskBO.generateId();
-	String taskName = new StripAccentUtil().convert(task.getTaskName().replaceAll(" ", "-"));
-	if(!config.isEmpty()){
-	    try {
-		byte[] cBytes = config.getBytes();		
-		File dir = new File(path + "evaluation\\" + taskId + "_" + taskName);
-		if(!dir.exists()){
-		    dir.mkdirs();
-		}
-		File fileConfig = new File(dir.getAbsolutePath() + File.separator + "config.properties");
-		BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(fileConfig));
-		outStream.write(cBytes);
-		outStream.close();		
-	    } catch (IOException e) {
-		e.printStackTrace();
-	    }	    
-	}
+	String taskName = new StripAccentUtil()
+			.convert(task.getTaskName().replaceAll(" ", "-"));
+	saveUploadFile(path+ "evaluation\\" + taskId + "_" + taskName + File.separator, "config.properties", config);
 	
-	/* execute algorithm*/
-	executeAlgorithm(task.getAlgorithm(), config.isEmpty(),
-			task.getTestSize(),
-			path + "input\\",
-			path + "evaluation\\" + taskId + "_" 
-			+ taskName + File.separator,
-			taskId);
+	if(task.getEvaluationType().equals("custom"))
+	    saveUploadFile(path+ "evaluation\\" + taskId + "_" + taskName + File.separator + "testing\\", "Score.txt", test);
+
+	/* execute algorithm */
+	 executeAlgorithm(task.getAlgorithm(), task.isUseConfig(), task.getEvaluationType(), task.getEvaluationParam(),
+	 path + "input\\",
+	 path + "evaluation\\" + taskId + "_"
+	 + taskName + File.separator,
+	 taskId);
 
 	bindingData(model);
 	return "evaluation";
+    }
+    
+    private void saveUploadFile(String path, String name, MultipartFile file){
+	if (!file.isEmpty()) {
+	    try {
+		byte[] cBytes = file.getBytes();
+		File dir = new File(path);
+		if (!dir.exists()) {
+		    dir.mkdirs();
+		}
+		File fileConfig = new File(dir.getAbsolutePath()
+				+ File.separator + name);
+		BufferedOutputStream outStream = new BufferedOutputStream(
+				new FileOutputStream(fileConfig));
+		outStream.write(cBytes);
+		outStream.close();
+	    } catch (IOException e) {
+		e.printStackTrace();
+	    }
+	}
     }
 
     private void bindingData(Model model) {
 
 	/* Binding new TaskBean and dataset to view */
 	model.addAttribute("task", new TaskBean());
-	model.addAttribute("datasets", DatasetUtil.getInstance().getDatasets(
+	model.addAttribute("datasets", new DatasetUtil().getDatasets(
 			ROOT_PATH + SecurityUtil.getInstance().getUserId()));
 
 	/* Binding list of task to view */
@@ -130,8 +151,8 @@ public class EvaluationController {
 	model.addAttribute("listMetric", metricBO.getAllMetrics());
     }
 
-    private void executeAlgorithm(String algorithm, boolean useConfig, int testSize, String input,
-				  String output, int taskId) {
+    private void executeAlgorithm(String algorithm, boolean useConfig, String evalType, int evalParam, String input, String output,
+				  int taskId) {
 	try {
 
 	    /* Create directory to save output files */
@@ -147,9 +168,9 @@ public class EvaluationController {
 	    }
 	    FileWriter fw = new FileWriter(commandFile.getAbsoluteFile());
 	    BufferedWriter bw = new BufferedWriter(fw);
-	    bw.write("java -jar " + jRACLocation + " eval " + algorithm + " " + useConfig
-			    + " " + testSize + " " + input + " " + output + " "
-			    + taskId);
+	    bw.write("java -jar " + jRACLocation + " eval " + algorithm + " "
+			    + useConfig + " " + evalType + " " + evalParam + " " + input + " "
+			    + output + " " + taskId);
 	    bw.write("\n exit");
 	    bw.close();
 	    fw.close();

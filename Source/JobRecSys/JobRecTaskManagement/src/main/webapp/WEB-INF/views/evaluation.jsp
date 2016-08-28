@@ -32,6 +32,23 @@
 <!-- custom query -->
 <script type="text/javascript" src="resources/js/home.js"></script>
 
+<!-- jquery ui -->
+<link rel="stylesheet"
+	href="resources/libs/jquery-ui-1.12.0/jquery-ui.css">
+<script type="text/javascript"
+	src="resources/libs/jquery-ui-1.12.0/jquery-ui.js"></script>
+
+<script>
+	$(function() {
+		$(document).tooltip();
+	});
+</script>
+<style>
+.ui-tooltip {
+	max-width: 500px;
+	white-space: pre-line;
+}
+</style>
 </head>
 <body>
 	<!-- include header file -->
@@ -66,6 +83,7 @@
 										<th>Ngày tạo</th>
 										<th>Thuật toán</th>
 										<th>Dataset</th>
+										<th>Cách test</th>
 										<th>Trạng thái</th>
 										<%
 											List<MetricBean> listMetric = (List<MetricBean>) request.getAttribute("listMetric");
@@ -84,11 +102,16 @@
 										for (TaskBean task : listTask) {
 											out.write("<tr>");
 											out.write("<td>" + count++ + "</td>");
-											out.write("<td><a href='" + request.getContextPath() + "/ket-qua?taskid= " + task.getTaskId() + "'>"
-													+ task.getTaskName() + "</a></td>");
+											out.write("<td>" + task.getTaskName() + "</td>");
 											out.write("<td>" + task.getTimeCreate() + "</td>");
-											out.write("<td>" + task.getAlgorithm() + "</td>");
+											String tooltip = "";
+											for (String key : task.getConfig().stringPropertyNames()) {
+												tooltip += key + "=" + task.getConfig().getProperty(key) + "\n";
+											}
+											out.write("<td><a href='#' title='" + tooltip);
+											out.write("' data-toggle='tooltip'>" + task.getAlgorithm() + "</a></td>");
 											out.write("<td>" + task.getDataset() + "</td>");
+											out.write("<td>" + task.getEvaluationType() + "</td>");
 											out.write("<td>" + task.getStatus() + "</td>");
 											for (MetricBean metric : task.getMetrics()) {
 												out.write("<td>");
@@ -155,9 +178,31 @@
 												id="config">
 										</div>
 										<div class="form-group">
-											<label for="task">Tỉ lệ % tập test</label>
+											<label for="evaluationType">Chọn hình thức test</label>
+											<form:select class="form-control" id="evaluationType"
+												onchange="changeEvalType()" path="evaluationType">
+												<option value="partitioning">Partitioning Input</option>
+												<option value="cross">Cross Validation</option>
+												<option value="custom">Use Train & Test Set
+													Available</option>
+											</form:select>
+										</div>
+										<div class="form-group" id="evaluationParamG">
+											<label for="evaluationParam">Tỉ lệ % tập test</label>
 											<form:input type="number" required="required"
-												class="form-control" path="testSize" id="testSize" />
+												class="form-control" path="testSize" id = "testSize"/>
+										</div>
+										<div class="form-group" id="evaluationParamG1" hidden="true">
+											<label for='evaluationParam'>Số fold</label>
+											<form:input type='number' required='required'
+												class='form-control' path='testFold' id = "testFold"/>
+										</div>
+										<div class="form-group" id="evaluationParamG2" hidden="true">
+											<label for='evaluationParam'>Chọn file test</label> <input
+												type='file' class='filestyle form-control'
+												data-buttonName='btn-primary' name='test'
+												data-buttonText='Chọn file' data-buttonBefore='true'
+												id='test'>
 										</div>
 										<button type="submit" class="btn btn-primary">Xử lý</button>
 									</form:form>

@@ -12,12 +12,11 @@ public class EvaluationMetrics {
 
 	private List<ScoreDTO> testingList;
 	private List<ScoreDTO> resultList;
-	private int truePositive;
-	private int falsePositive;
-	private int falseNegative;
+	private float truePositive;
+	private float falsePositive;
+	private float falseNegative;
 
-	public EvaluationMetrics(List<ScoreDTO> testingList,
-			List<ScoreDTO> resultList) {
+	public EvaluationMetrics(List<ScoreDTO> testingList, List<ScoreDTO> resultList) {
 		this.testingList = testingList;
 		this.resultList = resultList;
 		this.truePositive = getTruePositive();
@@ -28,10 +27,12 @@ public class EvaluationMetrics {
 	private int getTruePositive() {
 		int count = 0;
 		for (ScoreDTO resultDto : resultList) {
-			for (ScoreDTO testDto : testingList) {
-				if (testDto.isRelevant() && resultDto.compare(testDto)) {
-					count++;
-					break;
+			if (resultDto.isRelevant()) {
+				for (ScoreDTO testDto : testingList) {
+					if (resultDto.compare(testDto) && testDto.isRelevant()) {
+						count++;
+						break;
+					}
 				}
 			}
 		}
@@ -41,10 +42,12 @@ public class EvaluationMetrics {
 	private int getFalsePositive() {
 		int count = 0;
 		for (ScoreDTO resultDto : resultList) {
-			for (ScoreDTO testDto : testingList) {
-				if (resultDto.isRelevant() && !resultDto.compare(testDto)) {
-					count++;
-					break;
+			if (!resultDto.isRelevant()) {
+				for (ScoreDTO testDto : testingList) {
+					if (resultDto.compare(testDto) && !testDto.isRelevant()) {
+						count++;
+						break;
+					}
 				}
 			}
 		}
@@ -53,11 +56,19 @@ public class EvaluationMetrics {
 
 	private int getFalseNegative() {
 		int count = 0;
-		for (ScoreDTO resultDto : resultList) {
-			for (ScoreDTO testDto : testingList) {
-				if (!resultDto.isRelevant() && !resultDto.compare(testDto)) {
+		boolean isPredicted = false;
+		for (ScoreDTO testDto : testingList) {
+			if (testDto.isRelevant()) {
+				for (ScoreDTO resultDto : resultList) {
+					if (resultDto.compare(testDto)) {
+						isPredicted = true;
+						break;
+					}
+				}
+				if (!isPredicted) {
 					count++;
-					break;
+				} else {
+					isPredicted = false;
 				}
 			}
 		}
@@ -65,12 +76,18 @@ public class EvaluationMetrics {
 	}
 
 	public float calculatePrecision() {
+		if (truePositive + falsePositive == 0) {
+			return 0.0f;
+		}
 		float point = 0.0f;
 		point = truePositive / (truePositive + falsePositive);
 		return point;
 	}
 
 	public float calculateRecall() {
+		if (truePositive + falseNegative == 0) {
+			return 0.0f;
+		}
 		float point = 0.0f;
 		point = truePositive / (truePositive + falseNegative);
 		return point;
@@ -87,14 +104,15 @@ public class EvaluationMetrics {
 		int count = 0;
 		for (ScoreDTO testDto : testingList) {
 			for (ScoreDTO trainDto : resultList) {
-				if (testDto.getUserId() == trainDto.getUserId()
-						&& testDto.getJobId() == trainDto.getJobId()) {
-					score += Math.abs(testDto.getScore() - trainDto.getScore());
+				if (testDto.compare(trainDto)) {
+					score += Math.abs(trainDto.getScore() - testDto.getScore());
 					count++;
 					break;
 				}
 			}
 		}
+		if (count == 0)
+			return 0;
 		score /= count;
 		return score;
 	}
@@ -104,14 +122,14 @@ public class EvaluationMetrics {
 		int count = 0;
 		for (ScoreDTO testDto : testingList) {
 			for (ScoreDTO trainDto : resultList) {
-				if (testDto.getUserId() == trainDto.getUserId()
-						&& testDto.getJobId() == trainDto.getJobId()) {
-					score += Math.pow(
-							(testDto.getScore() - trainDto.getScore()), 2);
+				if (testDto.compare(trainDto)) {
+					score += Math.pow((trainDto.getScore() - testDto.getScore()), 2);
 					count++;
 				}
 			}
 		}
+		if (count == 0)
+			return 0;
 		score /= count;
 		return (float) Math.sqrt(score);
 	}

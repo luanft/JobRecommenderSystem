@@ -1,3 +1,4 @@
+<%@page import="uit.se.recsys.bean.TaskBean"%>
 <%@page import="uit.se.recsys.bean.RecommendedItem"%>
 <%@page import="uit.se.recsys.bean.UserBean"%>
 <%@page import="java.util.List"%>
@@ -64,21 +65,56 @@
 					<div id="panel-content2" class="panel-collapse collapse in">
 						<div class="panel-body">
 							<div class="row">
-								<div class="col-md-2">
-									<p style="font-weight: bold;">Tên task:</p>
-									<p style="font-weight: bold;">Ngày tạo:</p>
-									<p style="font-weight: bold;">Thuật toán:</p>
-									<p style="font-weight: bold;">Dataset:</p>
-									<p style="font-weight: bold;">Trạng thái:</p>
-									<p style="font-weight: bold;">Kết quả:</p>
-								</div>
-								<div class="col-md-4">
-									<p>${task.taskName }</p>
-									<p>${task.timeCreate }</p>
-									<p>${task.algorithm }</p>
-									<p>${task.dataset }</p>
-									<p>${task.status }</p>
-									<a href="<%=request.getContextPath() %>/ket-qua.tai-ve?task=${task.taskId }">result.txt</a>
+								<div class="col-md-6">
+									<table class="table table-striped table-bordered table-hover ">
+										<tbody>
+											<tr>
+												<td>
+													<p style="font-weight: bold;">Tên task:</p>
+												</td>
+												<td><p>${task.taskName }</p></td>
+											</tr>
+											<tr>
+												<td><p style="font-weight: bold;">Ngày tạo:</p></td>
+												<td><p>${task.timeCreate }</p></td>
+											</tr>
+											<tr>
+												<td><p style="font-weight: bold;">Thuật toán:</p></td>
+												<td><p>${task.algorithm }</p></td>
+											</tr>
+											<%
+												TaskBean task = (TaskBean) request.getAttribute("task");
+												for (String key : task.getConfig().stringPropertyNames()) {
+													out.write("<tr>");
+													out.write("<td>");
+													out.println(key);
+													out.write("</td>");
+													out.write("<td>");
+													out.println(task.getConfig().getProperty(key));
+													out.write("</td>");
+													out.write("</tr>");
+												}
+											%>
+											<tr>
+												<td></td>
+												<td></td>
+											</tr>
+											<tr>
+												<td><p style="font-weight: bold;">Dataset:</p></td>
+												<td><p>${task.dataset }</p></td>
+											</tr>
+											<tr>
+												<td><p style="font-weight: bold;">Trạng thái:</p></td>
+												<td><p>${task.status }</p></td>
+											</tr>
+											<tr>
+												<td><p style="font-weight: bold;">Kết quả:</p></td>
+												<td><a
+													href="<%=request.getContextPath() %>/ket-qua.tai-ve?task=${task.taskId }">result.txt</a>
+												</td>
+											</tr>
+										</tbody>
+									</table>
 								</div>
 								<div class="col-md-6">
 									<div class="result">
@@ -102,12 +138,7 @@
 														out.write("<td>" + item.getScore() + "</td>");
 														out.write("</tr>");
 													}
-												%>
-												<tr>
-													<td>1</td>
-													<td>4</td>
-													<td>5</td>
-												</tr>
+												%>											
 											</tbody>
 										</table>
 									</div>

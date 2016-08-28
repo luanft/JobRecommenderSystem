@@ -30,6 +30,8 @@ public class ExperimentResult {
     TaskBO taskBO;
     @Value("${Dataset.Location}")
     String ROOT_PATH;
+    @Autowired
+    DatasetUtil dsUtil;
 
     @RequestMapping(value = "/ket-qua", method = RequestMethod.GET)
     public String init(HttpSession session, @RequestParam("taskid") int taskId,
@@ -42,16 +44,13 @@ public class ExperimentResult {
 
 	/* Variables */
 	TaskBean task = taskBO.getTaskById(taskId);
-	String dirPath = ROOT_PATH + SecurityUtil.getInstance().getUserId()
-			+ File.separator + task.getDataset() + "\\output\\"
-			+ task.getAlgorithm() + "\\Score.txt";
 
 	/* Binding task into view */
 	model.addAttribute("task", task);
 
 	/* Biding result into view */
-	model.addAttribute("recommendedItems", DatasetUtil.getInstance()
-			.getRecommendedItems(dirPath));
+	model.addAttribute("recommendedItems", 
+			dsUtil.getRecommendedItems(dsUtil.getOutputLocation(task)+ "Score.txt"));
 
 	return "experimentResult";
     }
@@ -67,11 +66,7 @@ public class ExperimentResult {
 
 	/* Find file location */
 	TaskBean task = taskBO.getTaskById(taskId);
-	String dirPath = ROOT_PATH + SecurityUtil.getInstance().getUserId()
-			+ File.separator + task.getDataset() + "\\output\\"
-			+ task.getAlgorithm() + "\\Score.txt";
-
-	File downloadFile = new File(dirPath);
+	File downloadFile = new File(dsUtil.getOutputLocation(task) + "Score.txt");
 	try {
 	    FileInputStream inputStream = new FileInputStream(downloadFile);
 

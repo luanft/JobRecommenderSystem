@@ -2,6 +2,7 @@ package uit.se.recsys.bean;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Properties;
 
 import javax.validation.constraints.NotNull;
 
@@ -27,9 +28,14 @@ public class TaskBean {
     @NotEmpty
     String type;
     List<MetricBean> metrics;
+    int evaluationParam;
     @NotNull
     @NotEmpty
+    String evaluationType;
+    Properties config;
+    boolean useConfig;
     int testSize;
+    int testFold;
 
     public int getTaskId() {
 	return taskId;
@@ -96,11 +102,43 @@ public class TaskBean {
     }
 
     public List<MetricBean> getMetrics() {
-        return metrics;
+	return metrics;
     }
 
     public void setMetrics(List<MetricBean> metrics) {
-        this.metrics = metrics;
+	this.metrics = metrics;
+    }
+
+    public Properties getConfig() {
+	return config;
+    }
+
+    public void setConfig(Properties config) {
+	this.config = config;
+    }
+
+    public boolean isUseConfig() {
+	return useConfig;
+    }
+
+    public void setUseConfig(boolean useConfig) {
+	this.useConfig = useConfig;
+    }
+
+    public int getEvaluationParam() {
+	return evaluationParam;
+    }
+
+    public void setEvaluationParam(int evaluationParam) {
+	this.evaluationParam = evaluationParam;
+    }
+
+    public String getEvaluationType() {
+	return evaluationType;
+    }
+
+    public void setEvaluationType(String evaluationType) {
+	this.evaluationType = evaluationType;
     }
 
     public int getTestSize() {
@@ -109,6 +147,14 @@ public class TaskBean {
 
     public void setTestSize(int testSize) {
         this.testSize = testSize;
+    }
+
+    public int getTestFold() {
+        return testFold;
+    }
+
+    public void setTestFold(int testFold) {
+        this.testFold = testFold;
     }
 
 }

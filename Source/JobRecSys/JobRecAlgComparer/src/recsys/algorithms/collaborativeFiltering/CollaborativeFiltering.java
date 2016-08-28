@@ -33,73 +33,76 @@ public class CollaborativeFiltering extends RecommendationAlgorithm {
 	Recommender recommender;
 	UserSimilarity userSimilarity;
 	ItemSimilarity itemSimilarity;
-	UserNeighborhood userNeighborhood;	
+	UserNeighborhood userNeighborhood;
 	List<Integer> listUserIds;
 
 	public CollaborativeFiltering(String inputDir, String outputDir, boolean useConfig) {
-		
-		/*prepare configuration*/
-		super(inputDir, outputDir, useConfig);
-		
-		/*learn model*/
-		initModel();
-		
-		/*List users will be recommended*/
-		listUserIds = new CollaborativeFilteringDataPreparer(inputDir).getListUserId();
-	}
 
-	public CollaborativeFiltering(String inputDir, String outputDir, String testDir, boolean useConfig) {		
-		
-		/*prepare configuration*/
-		super(inputDir, outputDir, testDir, useConfig);
-		
-		/*learn model*/
+		/* prepare configuration */
+		super(inputDir, outputDir, useConfig);
+
+		/* learn model */
 		initModel();
-		
-		/*List users will be recommended*/
-		listUserIds = new CollaborativeFilteringDataPreparer(testDirectory).getListUserId();
+
+		/* List users will be recommended */
+		listUserIds = new CollaborativeFilteringDataPreparer(this.inputDirectory).getListUserId();
+	}
+	
+	public CollaborativeFiltering(String evaluationDir, boolean useConfig) {
+
+		/* prepare configuration */
+		super(evaluationDir, useConfig);
+
+		/* learn model */
+		initModel();
+
+		/* List users will be recommended */
+		listUserIds = new CollaborativeFilteringDataPreparer(this.testDirectory).getListUserId();
 	}
 
 	private void initModel() {
 
 		/* read configuration */
-		readConfiguration(outputDirectory, useConfig);
+		readConfiguration(configDirectory, useConfig);
 
 		/* init data model */
 		try {
 			dataModel = new FileDataModel(new File(inputDirectory + "Score.txt"));
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-
-		/* init similarity measure */
-		try {
-			initSimilaritymeasure(config.getProperty("cf.similarity"));
-		} catch (TasteException e) {
-			e.printStackTrace();
-		}
-
-		/* init user neighborhood */
-		if (config.getProperty("cf.type").equals("UserBase")) {
+		}		
+		
+		if (config.getProperty("cf.type").equals("UserBased")) {
 			try {
+				/* init user similarity measure */
+				initUserSimilaritymeasure(config.getProperty("cf.similarity"));				
+				
+				/* init user neighborhood */
 				initUserNeighborhood(config.getProperty("cf.neighborhood.type"),
 						config.getProperty("cf.neighborhood.param"));
 			} catch (TasteException e) {
 				e.printStackTrace();
 			}
+		}else{
+			/* init item similarity measure */
+			try {
+				initItemSimilaritymeasure(config.getProperty("cf.similarity"));
+			} catch (TasteException e) {
+				e.printStackTrace();
+			}		
 		}
 	}
 
 	public void recommend() {
 		switch (config.getProperty("cf.type")) {
-		case "UserBase":
+		case "UserBased":
 			for (int userId : listUserIds) {
-				UserBase(userId);
+				UserBased(userId);
 			}
 			break;
-		case "ItemBase":
+		case "ItemBased":
 			for (Integer userId : listUserIds) {
-				ItemBase(userId);
+				ItemBased(userId);
 			}
 			break;
 		default:
@@ -108,26 +111,28 @@ public class CollaborativeFiltering extends RecommendationAlgorithm {
 	}
 
 	/**
-	 * Recommendation using user-base method
+	 * Recommendation using user-Based method
 	 */
-	private void UserBase(int userIDToRecommend) {
+	private void UserBased(int userIDToRecommend) {
 		// initialize recommender
 		recommender = new GenericUserBasedRecommender(dataModel, userNeighborhood, userSimilarity);
 		try {
-			writeOutput(userIDToRecommend, recommender.recommend(userIDToRecommend, Integer.valueOf(config.getProperty("cf.recommendItems"))));
+			writeOutput(userIDToRecommend,
+					recommender.recommend(userIDToRecommend, Integer.valueOf(config.getProperty("cf.recommendItems"))));
 		} catch (TasteException e) {
 			e.printStackTrace();
 		}
 	}
 
 	/**
-	 * Recommendation using item-base method
+	 * Recommendation using item-Based method
 	 */
-	private void ItemBase(int userIDToRecommend) {
+	private void ItemBased(int userIDToRecommend) {
 		// initialize recommender
 		recommender = new GenericItemBasedRecommender(dataModel, itemSimilarity);
 		try {
-			writeOutput(userIDToRecommend, recommender.recommend(userIDToRecommend, Integer.valueOf(config.getProperty("cf.recommendItems"))));
+			writeOutput(userIDToRecommend,
+					recommender.recommend(userIDToRecommend, Integer.valueOf(config.getProperty("cf.recommendItems"))));
 		} catch (TasteException e) {
 			e.printStackTrace();
 		}
@@ -136,7 +141,7 @@ public class CollaborativeFiltering extends RecommendationAlgorithm {
 	/**
 	 * Initialize the user similarity measure
 	 */
-	private void initSimilaritymeasure(String similarity) throws TasteException {
+	private void initUserSimilaritymeasure(String similarity) throws TasteException {
 		switch (similarity) {
 		case "LOGLIKELIHOOD_SIMILARITY":
 			userSimilarity = new LogLikelihoodSimilarity(dataModel);
@@ -152,6 +157,26 @@ public class CollaborativeFiltering extends RecommendationAlgorithm {
 			break;
 		case "TANIMOTO_COOFFICIENT":
 			userSimilarity = new TanimotoCoefficientSimilarity(dataModel);
+			break;
+		default:
+			break;
+		}
+	}
+	
+	private void initItemSimilaritymeasure(String similarity) throws TasteException {
+		switch (similarity) {
+		case "LOGLIKELIHOOD_SIMILARITY":
+			itemSimilarity = new LogLikelihoodSimilarity(dataModel);
+			break;
+		case "EUCLIDEAN_DISTANCE":
+			itemSimilarity = new EuclideanDistanceSimilarity(dataModel);
+			break;
+		case "PEARSON_CORRELATION":
+			itemSimilarity = new PearsonCorrelationSimilarity(dataModel);
+			break;
+		case "SPEARMAN_CORRELATION":
+		case "TANIMOTO_COOFFICIENT":
+			itemSimilarity = new TanimotoCoefficientSimilarity(dataModel);
 			break;
 		default:
 			break;

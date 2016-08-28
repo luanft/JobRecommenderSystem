@@ -31,6 +31,24 @@
 <!-- custom query -->
 <script type="text/javascript" src="resources/js/home.js"></script>
 
+<!-- jquery ui -->
+<link rel="stylesheet"
+	href="resources/libs/jquery-ui-1.12.0/jquery-ui.css">
+<script type="text/javascript"
+	src="resources/libs/jquery-ui-1.12.0/jquery-ui.js"></script>
+
+<script>
+	$(function() {
+		$(document).tooltip();
+	});
+</script>
+<style>
+
+.ui-tooltip {
+	max-width: 500px;
+	white-space: pre-line;
+}
+</style>
 </head>
 <body>
 
@@ -78,9 +96,14 @@
 											out.write("<td><a href='" + request.getContextPath() + "/ket-qua?taskid= " + task.getTaskId() + "'>"
 													+ task.getTaskName() + "</a></td>");
 											out.write("<td>" + task.getTimeCreate() + "</td>");
-											out.write("<td>" + task.getAlgorithm() + "</td>");
+											String tooltip = "";
+											for (String key : task.getConfig().stringPropertyNames()) {
+												tooltip += key + "=" + task.getConfig().getProperty(key) + "\n";
+											}
+											out.write("<td><a href='#' title='" + tooltip);
+											out.write("' data-toggle='tooltip'>" + task.getAlgorithm() + "</a></td>");
 											out.write("<td>" + task.getDataset() + "</td>");
-											out.write("<td>" + task.getStatus() + "</td>");
+											out.write("<td class='status' id='t" + task.getTaskId() + "'>" + task.getStatus() + "</td>");
 										}
 									%>
 								</tbody>
@@ -100,7 +123,8 @@
 							<div class="row">
 								<div class="col-md-3"></div>
 								<div class="col-md-6">
-									<form:form class="form" enctype="multipart/form-data" action="trang-chu" modelAttribute="task" method="POST">
+									<form:form class="form" enctype="multipart/form-data"
+										action="trang-chu" modelAttribute="task" method="POST">
 										<div class="form-group">
 											<label for="task">Tên task</label>
 											<form:input type="text" required="required"
@@ -132,10 +156,11 @@
 											</form:select>
 										</div>
 										<div class="form-group">
-											<label for="db">Chọn File cấu hình cho thuật toán</label> <input type="file"
-												class="filestyle form-control" data-buttonName="btn-primary"
-												name="config" data-buttonText="Chọn file"
-												data-buttonBefore="true" id="config">
+											<label for="db">Chọn File cấu hình cho thuật toán</label> <input
+												type="file" class="filestyle form-control"
+												data-buttonName="btn-primary" name="config"
+												data-buttonText="Chọn file" data-buttonBefore="true"
+												id="config">
 										</div>
 										<button type="submit" class="btn btn-primary">Xử lý</button>
 									</form:form>

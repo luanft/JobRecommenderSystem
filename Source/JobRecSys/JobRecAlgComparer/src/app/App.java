@@ -38,7 +38,8 @@ public class App {
 	}
 	
 	private static void evaluate(String[] args){
-		Evaluation.evaluate(Integer.parseInt(args[3]), args[1], Boolean.valueOf(args[2]), args[4], args[5], args[6]);
+		Evaluation eval = new Evaluation(args[3], Integer.valueOf(args[4]), args[1], Boolean.valueOf(args[2]), args[5], args[6], args[7]);
+		eval.evaluate();
 	}
 		
 	private static void hybrid(String input, String output) {

@@ -1,10 +1,13 @@
 package uit.se.recsys.dao;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import javax.sql.DataSource;
 
@@ -13,14 +16,17 @@ import org.springframework.stereotype.Repository;
 
 import uit.se.recsys.bean.MetricBean;
 import uit.se.recsys.bean.TaskBean;
+import uit.se.recsys.utils.DatasetUtil;
 
 @Repository
 public class TaskDAO {
     @Autowired
     DataSource dataSource;
+    @Autowired
+    DatasetUtil datasetUtil;
 
     public boolean addTask(TaskBean task) {
-	String sql = "insert into task (UserId, TaskName, TimeCreate, Status, Algorithm, Dataset, TaskType, TestSize) values (?,?,?,?,?,?,?,?)";
+	String sql = "insert into task (UserId, TaskName, TimeCreate, Status, Algorithm, Dataset, TaskType, EvaluationType, EvaluationParam, UseConfig) values (?,?,?,?,?,?,?,?,?,?)";
 	try {
 	    PreparedStatement statement = dataSource.getConnection()
 			    .prepareStatement(sql);
@@ -31,7 +37,9 @@ public class TaskDAO {
 	    statement.setString(5, task.getAlgorithm());
 	    statement.setString(6, task.getDataset());
 	    statement.setString(7, task.getType());
-	    statement.setInt(8, task.getTestSize());
+	    statement.setString(8, task.getEvaluationType());
+	    statement.setInt(9, task.getEvaluationParam());
+	    statement.setBoolean(10, task.isUseConfig());
 	    if (statement.executeUpdate() > 0)
 		return true;
 	} catch (SQLException e) {
@@ -57,12 +65,40 @@ public class TaskDAO {
 		task.setTaskName(rs.getString("TaskName"));
 		task.setTimeCreate(rs.getTimestamp("TimeCreate"));
 		task.setType(rs.getString("TaskType"));
+		task.setUseConfig(rs.getBoolean("useConfig"));
+		task.setConfig(readConfig(task));
 		taskBeans.add(task);
 	    }
 	} catch (SQLException e) {
 	    e.printStackTrace();
 	}
 	return taskBeans;
+    }
+
+    private Properties readConfig(TaskBean task) {
+	Properties config = new Properties();
+	if (task.isUseConfig()) {
+	    try {
+		config.load(new FileInputStream(datasetUtil.getOutputLocation(task)
+						+ "config.properties"));
+	    } catch (IOException e) {
+		e.printStackTrace();
+	    }
+	} else {
+
+	    /* cf configuration */
+	    config.setProperty("cf.type", "UserBased");
+	    config.setProperty("cf.similarity", "PEARSON_CORRELATION");
+	    config.setProperty("cf.neighborhood.type",
+			    "NearestNUserNeighborhood");
+	    config.setProperty("cf.neighborhood.param", "10");
+	    config.setProperty("cf.recommendItems", "10");
+
+	    /* cb configuration */
+
+	    /* hb configuration */
+	}
+	return config;
     }
 
     public List<TaskBean> getAllEvaluationTasks() {
@@ -82,8 +118,11 @@ public class TaskDAO {
 		task.setTaskName(rs.getString("TaskName"));
 		task.setTimeCreate(rs.getTimestamp("TimeCreate"));
 		task.setType(rs.getString("TaskType"));
-		task.setTestSize(Integer.parseInt(rs.getString("TestSize")));
+		task.setEvaluationParam(Integer.parseInt(rs.getString("EvaluationParam")));
 		task.setMetrics(getMetricOfTask(task.getTaskId()));
+		task.setEvaluationType(rs.getString("EvaluationType"));
+		task.setUseConfig(rs.getBoolean("useConfig"));
+		task.setConfig(readConfig(task));
 		taskBeans.add(task);
 	    }
 	} catch (SQLException e) {
@@ -132,9 +171,9 @@ public class TaskDAO {
 		task.setStatus(rs.getString("Status"));
 		task.setTaskName(rs.getString("TaskName"));
 		task.setTimeCreate(rs.getTimestamp("TimeCreate"));
-		task.setType(rs.getString("TaskType"));
-		task.setTestSize(Integer.parseInt(rs.getString("TestSize")));
-		task.setMetrics(getMetricOfTask(task.getTaskId()));
+		task.setType(rs.getString("TaskType"));		
+		task.setUseConfig(rs.getBoolean("useConfig"));
+		task.setConfig(readConfig(task));		
 	    }
 	} catch (SQLException e) {
 	    e.printStackTrace();

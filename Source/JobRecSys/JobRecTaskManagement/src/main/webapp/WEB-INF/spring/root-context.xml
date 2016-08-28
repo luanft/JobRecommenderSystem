@@ -8,10 +8,14 @@
 
 	<!-- Root Context: defines shared resources visible to all other web components -->
 
-	<beans:bean
+	<beans:bean id="appProperties"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<beans:property name="location"
-			value="classpath:config/webDBConfig.properties" />
+		<beans:property name="locations">
+			<beans:list>
+				<beans:value>classpath:config/webDBConfig.properties</beans:value>
+				<beans:value>classpath:config/datasetLocation.properties</beans:value>
+			</beans:list>
+		</beans:property>
 	</beans:bean>
 
 	<beans:bean id="dataSource"
