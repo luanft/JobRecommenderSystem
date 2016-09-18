@@ -1,15 +1,22 @@
 package app;
 
+import java.io.IOException;
+
+import recsys.algorithms.cbf.CB;
+import recsys.algorithms.cbf.DocumentSimilarityTFIDF;
 import recsys.algorithms.collaborativeFiltering.CFAlgorithm;
 import recsys.algorithms.collaborativeFiltering.CollaborativeFiltering;
 import recsys.algorithms.collaborativeFiltering.SimilarityMeasure;
 import recsys.algorithms.contentBased.ContentBasedRecommender;
+import recsys.algorithms.contentBased.CosineSimilarity;
+import recsys.algorithms.contentBased.StripAccent;
 import recsys.algorithms.hybird.HybirdRecommeder;
 import recsys.evaluate.Evaluation;
+import vn.hus.nlp.tokenizer.VietTokenizer;
 
 public class App {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
 		if (args[0].equals("rec")) {
 			if (args[1].equals("cf")) {
@@ -42,17 +49,18 @@ public class App {
 	}
 
 	private static void contentBase(String input, String output) {
-//		ContentBasedRecommender CBRec = new ContentBasedRecommender();
-//		CBRec.setInputDirectory(input);
-//		CBRec.setOutputDirectory(output);
-//		CBRec.init();
-//		CBRec.contentBasedFiltering();
 
+		CB cb = new CB();
+		cb.setInputDirectory(input);
+		cb.setOutputDirectory(output);
+		try {
+			cb.run();
+		} catch (Exception ex) {
+		}
 	}
 
 	private static void collaborativeFiltering(String input, String output) {
 		CollaborativeFiltering cf = new CollaborativeFiltering(input, output);
-		cf.recommend(CFAlgorithm.UserBase,
-				SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, 10, 10);
+		cf.recommend(CFAlgorithm.UserBase, SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, 10, 10);
 	}
 }
