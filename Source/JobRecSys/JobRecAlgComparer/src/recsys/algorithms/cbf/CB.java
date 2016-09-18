@@ -73,6 +73,8 @@ public class CB extends RecommendationAlgorithm {
 		}		
 	}
 
+	
+	
 	public void run() throws IOException {
 
 		readDataSet();
