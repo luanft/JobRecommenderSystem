@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -31,6 +32,7 @@ public class CollaborativeFilteringDataPreparer extends DataPreparer {
 				listUserIds.add(userId);
 			}
 		}
+		listUserIds.sort(Comparator.comparing(Integer::intValue));
 		return listUserIds;
 	}
 
@@ -61,7 +63,7 @@ public class CollaborativeFilteringDataPreparer extends DataPreparer {
 		else
 			testingSize = (int) (proportionOfTest * fullSize / 100);
 
-		for (int i = 0; i < testingSize; i++) {
+		for (int i = 0; i < testingSize; i++) {			
 			ScoreDTO dto = getAnyScore(fullSize, scoreDataSet);
 			while (scoreTestingSet.contains(dto)) {
 				dto = getAnyScore(fullSize, scoreDataSet);
@@ -74,6 +76,11 @@ public class CollaborativeFilteringDataPreparer extends DataPreparer {
 
 		writeScore(outputDir + "training\\", "Score.txt", scoreTrainingSet);
 		writeScore(outputDir + "testing\\", "Score.txt", scoreTestingSet);
+	}
+	
+	private ScoreDTO getAnyScore(int maxRange, List<ScoreDTO> fullSet) {
+		int index = new Random().nextInt(maxRange);
+		return fullSet.get(index);
 	}
 	
 	/**
@@ -94,7 +101,11 @@ public class CollaborativeFilteringDataPreparer extends DataPreparer {
 		int startIndex = foldIndex*foldSize;
 		int endIndex = startIndex + foldSize;
 		for (int i = startIndex; i < endIndex; i++) {			
-			scoreTestingSet.add(scoreDataSet.get(i));
+			ScoreDTO dto = getAnyScore(scoreDataSet.size(), scoreDataSet);
+			while (scoreTestingSet.contains(dto)) {
+				dto = getAnyScore(scoreDataSet.size(), scoreDataSet);
+			}
+			scoreTestingSet.add(dto);
 		}
 		if (scoreDataSet.removeAll(scoreTestingSet)) {
 			scoreTrainingSet = scoreDataSet;
@@ -112,11 +123,6 @@ public class CollaborativeFilteringDataPreparer extends DataPreparer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private ScoreDTO getAnyScore(int maxRange, List<ScoreDTO> fullSet) {
-		int index = new Random().nextInt(maxRange);
-		return fullSet.get(index);
 	}
 
 	private void writeScore(String destination, String fileName, List<ScoreDTO> dataSet) {

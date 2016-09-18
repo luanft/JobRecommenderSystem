@@ -26,7 +26,7 @@ public class TaskDAO {
     DatasetUtil datasetUtil;
 
     public boolean addTask(TaskBean task) {
-	String sql = "insert into task (UserId, TaskName, TimeCreate, Status, Algorithm, Dataset, TaskType, EvaluationType, EvaluationParam, UseConfig) values (?,?,?,?,?,?,?,?,?,?)";
+	String sql = "insert into task (UserId, TaskName, TimeCreate, Status, Algorithm, Dataset, TaskType, EvaluationType, EvaluationParam) values (?,?,?,?,?,?,?,?,?)";
 	try {
 	    PreparedStatement statement = dataSource.getConnection()
 			    .prepareStatement(sql);
@@ -39,7 +39,6 @@ public class TaskDAO {
 	    statement.setString(7, task.getType());
 	    statement.setString(8, task.getEvaluationType());
 	    statement.setInt(9, task.getEvaluationParam());
-	    statement.setBoolean(10, task.isUseConfig());
 	    if (statement.executeUpdate() > 0)
 		return true;
 	} catch (SQLException e) {
@@ -65,7 +64,6 @@ public class TaskDAO {
 		task.setTaskName(rs.getString("TaskName"));
 		task.setTimeCreate(rs.getTimestamp("TimeCreate"));
 		task.setType(rs.getString("TaskType"));
-		task.setUseConfig(rs.getBoolean("useConfig"));
 		task.setConfig(readConfig(task));
 		taskBeans.add(task);
 	    }
@@ -77,26 +75,11 @@ public class TaskDAO {
 
     private Properties readConfig(TaskBean task) {
 	Properties config = new Properties();
-	if (task.isUseConfig()) {
-	    try {
-		config.load(new FileInputStream(datasetUtil.getOutputLocation(task)
-						+ "config.properties"));
-	    } catch (IOException e) {
-		e.printStackTrace();
-	    }
-	} else {
-
-	    /* cf configuration */
-	    config.setProperty("cf.type", "UserBased");
-	    config.setProperty("cf.similarity", "PEARSON_CORRELATION");
-	    config.setProperty("cf.neighborhood.type",
-			    "NearestNUserNeighborhood");
-	    config.setProperty("cf.neighborhood.param", "10");
-	    config.setProperty("cf.recommendItems", "10");
-
-	    /* cb configuration */
-
-	    /* hb configuration */
+	try {
+	    config.load(new FileInputStream(datasetUtil.getOutputLocation(task)
+			    + "config.properties"));
+	} catch (IOException e) {
+	    e.printStackTrace();
 	}
 	return config;
     }
@@ -118,10 +101,10 @@ public class TaskDAO {
 		task.setTaskName(rs.getString("TaskName"));
 		task.setTimeCreate(rs.getTimestamp("TimeCreate"));
 		task.setType(rs.getString("TaskType"));
-		task.setEvaluationParam(Integer.parseInt(rs.getString("EvaluationParam")));
+		task.setEvaluationParam(Integer
+				.parseInt(rs.getString("EvaluationParam")));
 		task.setMetrics(getMetricOfTask(task.getTaskId()));
 		task.setEvaluationType(rs.getString("EvaluationType"));
-		task.setUseConfig(rs.getBoolean("useConfig"));
 		task.setConfig(readConfig(task));
 		taskBeans.add(task);
 	    }
@@ -133,7 +116,7 @@ public class TaskDAO {
 
     private List<MetricBean> getMetricOfTask(int taskId) {
 	List<MetricBean> metrics = new ArrayList<MetricBean>();
-	String sql = "select MetricName, Score from metrics, evaluation, task where task.TaskId = evaluation.TaskId and evaluation.MetricId = metrics.MetricId and task.TaskId = "
+	String sql = "select Metric, Score from evaluation, task where task.TaskId = evaluation.TaskId and task.TaskId = "
 			+ taskId;
 	try {
 	    PreparedStatement stm = dataSource.getConnection()
@@ -142,7 +125,7 @@ public class TaskDAO {
 	    MetricBean metric;
 	    while (rs.next()) {
 		metric = new MetricBean();
-		metric.setName(rs.getString("MetricName"));
+		metric.setName(rs.getString("Metric"));
 		metric.setScore(rs.getFloat("Score"));
 		metrics.add(metric);
 	    }
@@ -171,9 +154,9 @@ public class TaskDAO {
 		task.setStatus(rs.getString("Status"));
 		task.setTaskName(rs.getString("TaskName"));
 		task.setTimeCreate(rs.getTimestamp("TimeCreate"));
-		task.setType(rs.getString("TaskType"));		
-		task.setUseConfig(rs.getBoolean("useConfig"));
-		task.setConfig(readConfig(task));		
+		task.setType(rs.getString("TaskType"));
+		task.setConfig(readConfig(task));
+		task.setMetrics(getMetricOfTask(task.getTaskId()));
 	    }
 	} catch (SQLException e) {
 	    e.printStackTrace();

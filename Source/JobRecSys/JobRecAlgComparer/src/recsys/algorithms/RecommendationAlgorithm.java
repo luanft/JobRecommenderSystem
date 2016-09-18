@@ -11,7 +11,6 @@ public abstract class RecommendationAlgorithm {
 	protected String testDirectory;
 	protected String configDirectory;
 	protected Properties config;
-	protected boolean useConfig;
 
 	public RecommendationAlgorithm() {
 	}
@@ -19,22 +18,20 @@ public abstract class RecommendationAlgorithm {
 	public void init() {
 	}
 
-	public RecommendationAlgorithm(String input, String output, boolean useConfig) {
+	public RecommendationAlgorithm(String input, String output) {
 		this.inputDirectory = input;
 		this.outputDirectory = output;
 		this.testDirectory = "";
 		this.configDirectory = output;
 		this.config = new Properties();
-		this.useConfig = useConfig;
 	}
 
-	public RecommendationAlgorithm(String evaluationFolder, boolean useConfig) {
+	public RecommendationAlgorithm(String evaluationFolder, Properties config) {
 		this.inputDirectory = evaluationFolder + "training\\";
 		this.outputDirectory = evaluationFolder + "result\\";
 		this.testDirectory = evaluationFolder + "testing\\";
 		this.configDirectory = evaluationFolder;
-		this.config = new Properties();
-		this.useConfig = useConfig;
+		this.config = config;
 	}
 
 	public String getInputDirectory() {
@@ -53,25 +50,11 @@ public abstract class RecommendationAlgorithm {
 		this.outputDirectory = outputDirectory;
 	}
 
-	protected void readConfiguration(String fileLocation, boolean useConfig) {
-		if (useConfig) {
-			try {
-				config.load(new FileInputStream(fileLocation + "config.properties"));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else {
-
-			/* cf configuration */
-			config.setProperty("cf.type", "UserBased");
-			config.setProperty("cf.similarity", "PEARSON_CORRELATION");
-			config.setProperty("cf.neighborhood.type", "NearestNUserNeighborhood");
-			config.setProperty("cf.neighborhood.param", "10");
-			config.setProperty("cf.recommendItems", "10");
-
-			/* cb configuration */
-
-			/* hb configuration */
+	protected void readConfiguration(String fileLocation) {
+		try {
+			config.load(new FileInputStream(fileLocation + "config.properties"));
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }

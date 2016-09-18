@@ -84,7 +84,6 @@ public class HomeController {
 	task.setType("rec");
 	task.setTimeCreate(new Timestamp(new Date().getTime()));
 	task.setUserId(SecurityUtil.getInstance().getUserId());
-	task.setUseConfig(!config.isEmpty());
 	taskBO.addTask(task);		
 
 	/* Save config file*/
@@ -109,7 +108,7 @@ public class HomeController {
 	}
 	
 	/* execute algorithm */
-	executeAlgorithm(task.getAlgorithm(), task.isUseConfig(),
+	executeAlgorithm(task.getAlgorithm(),
 			path + "input\\",
 			path + "output\\" + taskId + "_" + taskName
 			+ File.separator + task.getAlgorithm() + "\\", 
@@ -132,7 +131,7 @@ public class HomeController {
 	model.addAttribute("listTask", taskBO.getAllRecommendationTasks());
     }
 
-    private void executeAlgorithm(String algorithm, boolean useConfig, String input,
+    private void executeAlgorithm(String algorithm, String input,
 				  String output, int taskId) {
 	try {
 	    
@@ -149,8 +148,8 @@ public class HomeController {
 	    }
 	    FileWriter fw = new FileWriter(commandFile.getAbsoluteFile());
 	    BufferedWriter bw = new BufferedWriter(fw);
-	    bw.write("java -jar " + jRACLocation + " rec " + algorithm + " " + useConfig 
-			    + " " + input + " " + output + " " + taskId);
+	    bw.write("java -jar " + jRACLocation + " rec " + algorithm + " " 
+			    	  + input + " " + output + " " + taskId);
 	    bw.write("\n exit");
 	    bw.close();
 	    fw.close();

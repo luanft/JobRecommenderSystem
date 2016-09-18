@@ -33,7 +33,6 @@ public class TaskBean {
     @NotEmpty
     String evaluationType;
     Properties config;
-    boolean useConfig;
     int testSize;
     int testFold;
 
@@ -115,14 +114,6 @@ public class TaskBean {
 
     public void setConfig(Properties config) {
 	this.config = config;
-    }
-
-    public boolean isUseConfig() {
-	return useConfig;
-    }
-
-    public void setUseConfig(boolean useConfig) {
-	this.useConfig = useConfig;
     }
 
     public int getEvaluationParam() {

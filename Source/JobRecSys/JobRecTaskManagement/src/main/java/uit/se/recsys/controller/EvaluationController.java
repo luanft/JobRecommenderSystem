@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import uit.se.recsys.bean.TaskBean;
-import uit.se.recsys.bo.MetricBO;
 import uit.se.recsys.bo.TaskBO;
 import uit.se.recsys.bo.UserBO;
 import uit.se.recsys.utils.DatasetUtil;
@@ -44,8 +43,6 @@ public class EvaluationController {
     UserBO userService;
     @Autowired
     TaskBO taskBO;
-    @Autowired
-    MetricBO metricBO;
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
@@ -82,7 +79,6 @@ public class EvaluationController {
 	task.setType("eval");
 	task.setTimeCreate(new Timestamp(new Date().getTime()));
 	task.setUserId(SecurityUtil.getInstance().getUserId());
-	task.setUseConfig(!config.isEmpty());
 
 	switch (task.getEvaluationType()) {
 	case "partitioning":
@@ -108,7 +104,7 @@ public class EvaluationController {
 	    saveUploadFile(path+ "evaluation\\" + taskId + "_" + taskName + File.separator + "testing\\", "Score.txt", test);
 
 	/* execute algorithm */
-	 executeAlgorithm(task.getAlgorithm(), task.isUseConfig(), task.getEvaluationType(), task.getEvaluationParam(),
+	 executeAlgorithm(task.getAlgorithm(), task.getEvaluationType(), task.getEvaluationParam(),
 	 path + "input\\",
 	 path + "evaluation\\" + taskId + "_"
 	 + taskName + File.separator,
@@ -146,12 +142,10 @@ public class EvaluationController {
 			ROOT_PATH + SecurityUtil.getInstance().getUserId()));
 
 	/* Binding list of task to view */
-	model.addAttribute("listTask", taskBO.getAllEvaluationTasks());
-	/* Binding list of metric to view */
-	model.addAttribute("listMetric", metricBO.getAllMetrics());
+	model.addAttribute("listTask", taskBO.getAllEvaluationTasks());	
     }
 
-    private void executeAlgorithm(String algorithm, boolean useConfig, String evalType, int evalParam, String input, String output,
+    private void executeAlgorithm(String algorithm, String evalType, int evalParam, String input, String output,
 				  int taskId) {
 	try {
 
@@ -169,7 +163,7 @@ public class EvaluationController {
 	    FileWriter fw = new FileWriter(commandFile.getAbsoluteFile());
 	    BufferedWriter bw = new BufferedWriter(fw);
 	    bw.write("java -jar " + jRACLocation + " eval " + algorithm + " "
-			    + useConfig + " " + evalType + " " + evalParam + " " + input + " "
+			    + evalType + " " + evalParam + " " + input + " "
 			    + output + " " + taskId);
 	    bw.write("\n exit");
 	    bw.close();

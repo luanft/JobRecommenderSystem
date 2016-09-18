@@ -1,3 +1,6 @@
+<%@page import="java.util.Enumeration"%>
+<%@page import="java.util.Properties"%>
+<%@page import="java.util.ResourceBundle"%>
 <%@page import="uit.se.recsys.bean.TaskBean"%>
 <%@page import="uit.se.recsys.bean.RecommendedItem"%>
 <%@page import="uit.se.recsys.bean.UserBean"%>
@@ -7,6 +10,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ page session="true"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -59,7 +63,7 @@
 				<div class="panel panel-primary">
 					<div class="panel-heading" data-toggle="collapse"
 						data-target="#panel-content2">
-						<label class="text-uppercase">Kết quả thực nghiệm thuật
+						<label class="text-uppercase"> Kết quả thực nghiệm thuật
 							toán</label>
 					</div>
 					<div id="panel-content2" class="panel-collapse collapse in">
@@ -68,37 +72,39 @@
 								<div class="col-md-6">
 									<table class="table table-striped table-bordered table-hover ">
 										<tbody>
+											<%
+												ResourceBundle bundle = ResourceBundle.getBundle("config/experimentType");
+												TaskBean task = (TaskBean) request.getAttribute("task");
+											%>
 											<tr>
 												<td>
 													<p style="font-weight: bold;">Tên task:</p>
 												</td>
-												<td><p>${task.taskName }</p></td>
+												<td><p><%=task.getTaskName()%></p></td>
 											</tr>
 											<tr>
 												<td><p style="font-weight: bold;">Ngày tạo:</p></td>
-												<td><p>${task.timeCreate }</p></td>
+												<td><p><%=task.getTimeCreate()%></p></td>
 											</tr>
 											<tr>
 												<td><p style="font-weight: bold;">Thuật toán:</p></td>
-												<td><p>${task.algorithm }</p></td>
+												<td><p><%=bundle.getString(task.getAlgorithm())%></p></td>
 											</tr>
 											<%
-												TaskBean task = (TaskBean) request.getAttribute("task");
-												for (String key : task.getConfig().stringPropertyNames()) {
+												Properties configProperties = task.getConfig();
+												Enumeration keys = configProperties.keys();
+												while (keys.hasMoreElements()) {
+													String key = (String) keys.nextElement();
 													out.write("<tr>");
 													out.write("<td>");
-													out.println(key);
+													out.write(bundle.getString(key));
 													out.write("</td>");
 													out.write("<td>");
-													out.println(task.getConfig().getProperty(key));
+													out.println(configProperties.getProperty(key));
 													out.write("</td>");
 													out.write("</tr>");
 												}
 											%>
-											<tr>
-												<td></td>
-												<td></td>
-											</tr>
 											<tr>
 												<td><p style="font-weight: bold;">Dataset:</p></td>
 												<td><p>${task.dataset }</p></td>
@@ -110,7 +116,7 @@
 											<tr>
 												<td><p style="font-weight: bold;">Kết quả:</p></td>
 												<td><a
-													href="<%=request.getContextPath() %>/ket-qua.tai-ve?task=${task.taskId }">result.txt</a>
+													href="<%=request.getContextPath() %>/ket-qua-thuat-toan.tai-ve?task=${task.taskId }">result.txt</a>
 												</td>
 											</tr>
 										</tbody>
@@ -138,7 +144,7 @@
 														out.write("<td>" + item.getScore() + "</td>");
 														out.write("</tr>");
 													}
-												%>											
+												%>
 											</tbody>
 										</table>
 									</div>

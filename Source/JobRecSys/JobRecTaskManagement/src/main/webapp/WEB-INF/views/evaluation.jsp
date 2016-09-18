@@ -84,15 +84,7 @@
 										<th>Thuật toán</th>
 										<th>Dataset</th>
 										<th>Cách test</th>
-										<th>Trạng thái</th>
-										<%
-											List<MetricBean> listMetric = (List<MetricBean>) request.getAttribute("listMetric");
-											for (MetricBean metric : listMetric) {
-												out.write("<th>");
-												out.write(metric.getName());
-												out.write("</th>");
-											}
-										%>
+										<th>Trạng thái</th>										
 									</tr>
 								</thead>
 								<tbody>
@@ -102,7 +94,8 @@
 										for (TaskBean task : listTask) {
 											out.write("<tr>");
 											out.write("<td>" + count++ + "</td>");
-											out.write("<td>" + task.getTaskName() + "</td>");
+											out.write("<td><a href='" + request.getContextPath() + "/ket-qua-danh-gia?taskid= " + task.getTaskId() + "'>"
+													+ task.getTaskName() + "</a></td>");
 											out.write("<td>" + task.getTimeCreate() + "</td>");
 											String tooltip = "";
 											for (String key : task.getConfig().stringPropertyNames()) {
@@ -159,7 +152,8 @@
 												href="<%=request.getContextPath()%>/quan-ly-dataset">nhập</a>
 												dataset
 											</label>
-											<form:select class="form-control" id="dataset" path="dataset">
+											<form:select class="form-control" id="dataset"
+												required="required" path="dataset">
 												<%
 													String[] datasets = (String[]) request.getAttribute("datasets");
 															if (datasets != null) {
@@ -171,31 +165,31 @@
 											</form:select>
 										</div>
 										<div class="form-group">
-											<label for="db">Chọn File cấu hình cho thuật toán</label> <input
+											<label for="db">Chọn file cấu hình cho thuật toán</label> <input
 												type="file" class="filestyle form-control"
-												data-buttonName="btn-primary" name="config"
-												data-buttonText="Chọn file" data-buttonBefore="true"
-												id="config">
+												required="required" data-buttonName="btn-primary"
+												name="config" data-buttonText="Chọn file"
+												data-buttonBefore="true" id="config">
 										</div>
 										<div class="form-group">
-											<label for="evaluationType">Chọn hình thức test</label>
+											<label for="evaluationType">Chọn kiểu test</label>
 											<form:select class="form-control" id="evaluationType"
 												onchange="changeEvalType()" path="evaluationType">
-												<option value="partitioning">Partitioning Input</option>
+												<option value="partitioning">Test/Train percentage
+													split</option>
 												<option value="cross">Cross Validation</option>
-												<option value="custom">Use Train & Test Set
-													Available</option>
+												<option value="custom">Custom test file</option>
 											</form:select>
 										</div>
 										<div class="form-group" id="evaluationParamG">
 											<label for="evaluationParam">Tỉ lệ % tập test</label>
 											<form:input type="number" required="required"
-												class="form-control" path="testSize" id = "testSize"/>
+												class="form-control" path="testSize" id="testSize" />
 										</div>
 										<div class="form-group" id="evaluationParamG1" hidden="true">
 											<label for='evaluationParam'>Số fold</label>
 											<form:input type='number' required='required'
-												class='form-control' path='testFold' id = "testFold"/>
+												class='form-control' path='testFold' id="testFold" />
 										</div>
 										<div class="form-group" id="evaluationParamG2" hidden="true">
 											<label for='evaluationParam'>Chọn file test</label> <input

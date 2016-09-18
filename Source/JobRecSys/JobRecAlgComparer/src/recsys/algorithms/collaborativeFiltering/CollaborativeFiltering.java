@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.mahout.cf.taste.common.TasteException;
+import org.apache.mahout.cf.taste.common.Weighting;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
@@ -19,6 +21,7 @@ import org.apache.mahout.cf.taste.impl.similarity.SpearmanCorrelationSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.TanimotoCoefficientSimilarity;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
+import org.apache.mahout.cf.taste.recommender.IDRescorer;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.ItemSimilarity;
@@ -36,10 +39,10 @@ public class CollaborativeFiltering extends RecommendationAlgorithm {
 	UserNeighborhood userNeighborhood;
 	List<Integer> listUserIds;
 
-	public CollaborativeFiltering(String inputDir, String outputDir, boolean useConfig) {
+	public CollaborativeFiltering(String inputDir, String outputDir) {
 
 		/* prepare configuration */
-		super(inputDir, outputDir, useConfig);
+		super(inputDir, outputDir);
 
 		/* learn model */
 		initModel();
@@ -47,11 +50,11 @@ public class CollaborativeFiltering extends RecommendationAlgorithm {
 		/* List users will be recommended */
 		listUserIds = new CollaborativeFilteringDataPreparer(this.inputDirectory).getListUserId();
 	}
-	
-	public CollaborativeFiltering(String evaluationDir, boolean useConfig) {
+
+	public CollaborativeFiltering(String evaluationDir, Properties config) {
 
 		/* prepare configuration */
-		super(evaluationDir, useConfig);
+		super(evaluationDir, config);
 
 		/* learn model */
 		initModel();
@@ -63,33 +66,33 @@ public class CollaborativeFiltering extends RecommendationAlgorithm {
 	private void initModel() {
 
 		/* read configuration */
-		readConfiguration(configDirectory, useConfig);
+		readConfiguration(configDirectory);
 
 		/* init data model */
 		try {
 			dataModel = new FileDataModel(new File(inputDirectory + "Score.txt"));
 		} catch (IOException e) {
 			e.printStackTrace();
-		}		
-		
+		}
+
 		if (config.getProperty("cf.type").equals("UserBased")) {
 			try {
 				/* init user similarity measure */
-				initUserSimilaritymeasure(config.getProperty("cf.similarity"));				
-				
+				initUserSimilaritymeasure(config.getProperty("cf.similarity"));
+
 				/* init user neighborhood */
 				initUserNeighborhood(config.getProperty("cf.neighborhood.type"),
 						config.getProperty("cf.neighborhood.param"));
 			} catch (TasteException e) {
 				e.printStackTrace();
 			}
-		}else{
+		} else {
 			/* init item similarity measure */
 			try {
 				initItemSimilaritymeasure(config.getProperty("cf.similarity"));
 			} catch (TasteException e) {
 				e.printStackTrace();
-			}		
+			}
 		}
 	}
 
@@ -117,8 +120,18 @@ public class CollaborativeFiltering extends RecommendationAlgorithm {
 		// initialize recommender
 		recommender = new GenericUserBasedRecommender(dataModel, userNeighborhood, userSimilarity);
 		try {
-			writeOutput(userIDToRecommend,
-					recommender.recommend(userIDToRecommend, Integer.valueOf(config.getProperty("cf.recommendItems"))));
+			writeOutput(userIDToRecommend, recommender.recommend(userIDToRecommend,
+					Integer.valueOf(config.getProperty("cf.recommendItems")), new IDRescorer() {
+						@Override
+						public double rescore(long userid, double originalSocre) {
+							return originalSocre;
+						}
+
+						@Override
+						public boolean isFiltered(long itemId) {
+							return false;
+						}
+					}, false));
 		} catch (TasteException e) {
 			e.printStackTrace();
 		}
@@ -131,8 +144,18 @@ public class CollaborativeFiltering extends RecommendationAlgorithm {
 		// initialize recommender
 		recommender = new GenericItemBasedRecommender(dataModel, itemSimilarity);
 		try {
-			writeOutput(userIDToRecommend,
-					recommender.recommend(userIDToRecommend, Integer.valueOf(config.getProperty("cf.recommendItems"))));
+			writeOutput(userIDToRecommend, recommender.recommend(userIDToRecommend,
+					Integer.valueOf(config.getProperty("cf.recommendItems")), new IDRescorer() {
+						@Override
+						public double rescore(long userid, double originalSocre) {
+							return originalSocre;
+						}
+
+						@Override
+						public boolean isFiltered(long itemId) {
+							return false;
+						}
+					}, false));
 		} catch (TasteException e) {
 			e.printStackTrace();
 		}
@@ -147,10 +170,10 @@ public class CollaborativeFiltering extends RecommendationAlgorithm {
 			userSimilarity = new LogLikelihoodSimilarity(dataModel);
 			break;
 		case "EUCLIDEAN_DISTANCE":
-			userSimilarity = new EuclideanDistanceSimilarity(dataModel);
+			userSimilarity = new EuclideanDistanceSimilarity(dataModel, Weighting.WEIGHTED);
 			break;
 		case "PEARSON_CORRELATION":
-			userSimilarity = new PearsonCorrelationSimilarity(dataModel);
+			userSimilarity = new PearsonCorrelationSimilarity(dataModel, Weighting.WEIGHTED);
 			break;
 		case "SPEARMAN_CORRELATION":
 			userSimilarity = new SpearmanCorrelationSimilarity(dataModel);
@@ -162,17 +185,17 @@ public class CollaborativeFiltering extends RecommendationAlgorithm {
 			break;
 		}
 	}
-	
+
 	private void initItemSimilaritymeasure(String similarity) throws TasteException {
 		switch (similarity) {
 		case "LOGLIKELIHOOD_SIMILARITY":
 			itemSimilarity = new LogLikelihoodSimilarity(dataModel);
 			break;
 		case "EUCLIDEAN_DISTANCE":
-			itemSimilarity = new EuclideanDistanceSimilarity(dataModel);
+			itemSimilarity = new EuclideanDistanceSimilarity(dataModel, Weighting.WEIGHTED);
 			break;
 		case "PEARSON_CORRELATION":
-			itemSimilarity = new PearsonCorrelationSimilarity(dataModel);
+			itemSimilarity = new PearsonCorrelationSimilarity(dataModel, Weighting.WEIGHTED);
 			break;
 		case "SPEARMAN_CORRELATION":
 		case "TANIMOTO_COOFFICIENT":

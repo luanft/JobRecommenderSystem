@@ -1,14 +1,19 @@
 package recsys.evaluate;
 
-import dto.ScoreDTO;
 import recsys.algorithms.collaborativeFiltering.CollaborativeFiltering;
 import recsys.datapreparer.CollaborativeFilteringDataPreparer;
 import recsys.datapreparer.ContentBasedDataPreparer;
+import uit.se.evaluation.dtos.ScoreDTO;
+import uit.se.evaluation.metrics.*;
+import uit.se.evaluation.utils.DatasetUtil;
 import utils.DbConfig;
 import utils.MysqlDBConnection;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Created with IntelliJ IDEA. User: tuynguye Date: 8/12/16 Time: 9:47 AM To
@@ -18,56 +23,55 @@ public class Evaluation {
 	String evaluationType;
 	int evaluationParam;
 	String algorithm;
-	boolean useConfig;
+	int topN;
 	String inputDir;
 	String evaluationDir;
 	String taskId;
+	Properties config;
 
-	public Evaluation(String evalType, int evalParam, String algorithm, boolean useConfig, String input, String evalDir,
-			String taskId) {
+	public Evaluation(String evalType, int evalParam, String algorithm, String input, String evalDir, String taskId) {
 		this.algorithm = algorithm;
 		this.evaluationParam = evalParam;
 		this.evaluationType = evalType;
-		this.useConfig = useConfig;
 		this.inputDir = input;
 		this.evaluationDir = evalDir;
 		this.taskId = taskId;
+		this.config = new Properties();
+		try {
+			config.load(new FileInputStream(evalDir + "config.properties"));
+			topN = Integer.valueOf(config.getProperty("cf.recommendItems"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	private void partitioningValidation() {
+	private void percentageSplit() {
 		/**
 		 * First step: preparing data, split training and testing data set
 		 */
 		CollaborativeFilteringDataPreparer dataPreparer = new CollaborativeFilteringDataPreparer(inputDir);
-		dataPreparer.splitDataSet(evaluationParam, evaluationDir);
-		if (!algorithm.equals("cf")) {
-			ContentBasedDataPreparer cbDataPreparer = new ContentBasedDataPreparer(inputDir);
-			cbDataPreparer.splitDataSet(evaluationDir);
-		}
+		// dataPreparer.splitDataSet(evaluationParam, evaluationDir);
+		// if (!algorithm.equals("cf")) {
+		// ContentBasedDataPreparer cbDataPreparer = new
+		// ContentBasedDataPreparer(inputDir);
+		// cbDataPreparer.splitDataSet(evaluationDir);
+		// }
 
 		/**
 		 * Second step: call Algorithm execute on training data set
 		 */
-		training();
+		trainAlgorithm();
 
 		/**
 		 * Third step: convert result to boolean type
 		 */
-		List<ScoreDTO> testingList = dataPreparer.getAllEvaluateScores(evaluationDir + "testing\\");
-		List<ScoreDTO> resultList = dataPreparer.getAllEvaluateScores(evaluationDir + "result\\");
+		HashMap<Integer, List<ScoreDTO>> groundTruth = DatasetUtil.getScores(evaluationDir + "testing\\Score.txt");
+		HashMap<Integer, List<ScoreDTO>> rankList = DatasetUtil.getScores(evaluationDir + "result\\Score.txt");
 		/**
 		 * Four step: evaluation
 		 */
-		HashMap<String, Float> evaluationResult = new HashMap<>(evaluationParam);
-		EvaluationMetrics evalMetrics = new EvaluationMetrics(testingList, resultList);
-		float precision = evalMetrics.calculatePrecision();
-		float recall = evalMetrics.calculateRecall();
-		evaluationResult.put("precision", precision);
-		evaluationResult.put("recall", recall);
-		evaluationResult.put("f1", evalMetrics.calculateF1(precision, recall));
-		evaluationResult.put("mae", evalMetrics.calculateMAE());
-		evaluationResult.put("rmse", evalMetrics.calculateRMSE());
-		writeResult(taskId, evaluationResult);
+
+		computeEvaluation(rankList, groundTruth);
 	}
 
 	private void customValidation() {
@@ -84,35 +88,22 @@ public class Evaluation {
 		/**
 		 * Second step: call Algorithm execute on training data set
 		 */
-		training();
+		trainAlgorithm();
 
 		/**
 		 * Third step: convert result to boolean type
 		 */
-		List<ScoreDTO> testingList = dataPreparer.getAllEvaluateScores(evaluationDir + "testing\\");
-		List<ScoreDTO> resultList = dataPreparer.getAllEvaluateScores(evaluationDir + "result\\");
+		HashMap<Integer, List<ScoreDTO>> groundTruth = DatasetUtil.getScores(evaluationDir + "testing\\Score.txt");
+		HashMap<Integer, List<ScoreDTO>> rankList = DatasetUtil.getScores(evaluationDir + "result\\Score.txt");
+
 		/**
 		 * Four step: evaluation
 		 */
-		HashMap<String, Float> evaluationResult = new HashMap<>(evaluationParam);
-		EvaluationMetrics evalMetrics = new EvaluationMetrics(testingList, resultList);
-		float precision = evalMetrics.calculatePrecision();
-		float recall = evalMetrics.calculateRecall();
-		evaluationResult.put("precision", precision);
-		evaluationResult.put("recall", recall);
-		evaluationResult.put("f1", evalMetrics.calculateF1(precision, recall));
-		evaluationResult.put("mae", evalMetrics.calculateMAE());
-		evaluationResult.put("rmse", evalMetrics.calculateRMSE());
-		writeResult(taskId, evaluationResult);
+		computeEvaluation(rankList, groundTruth);
 	}
 
 	private void crossValidation() {
-		HashMap<String, Float> evaluationResult = new HashMap<>(evaluationParam);
-		evaluationResult.put("precision", 0.0f);
-		evaluationResult.put("recall", 0.0f);
-		evaluationResult.put("f1", 0.0f);
-		evaluationResult.put("mae", 0.0f);
-		evaluationResult.put("rmse", 0.0f);
+
 		CollaborativeFilteringDataPreparer dataPreparer = new CollaborativeFilteringDataPreparer(inputDir);
 		for (int i = 0; i < evaluationParam; i++) {
 			/**
@@ -127,34 +118,19 @@ public class Evaluation {
 			/**
 			 * Second step: call Algorithm execute on training data set
 			 */
-			training();
+			trainAlgorithm();
 
 			/**
 			 * Third step: convert result to boolean type
 			 */
-			List<ScoreDTO> testingList = dataPreparer.getAllEvaluateScores(evaluationDir + "testing\\");
-			List<ScoreDTO> resultList = dataPreparer.getAllEvaluateScores(evaluationDir + "result\\");
+			HashMap<Integer, List<ScoreDTO>> groundTruth = DatasetUtil.getScores(evaluationDir + "testing\\Score.txt");
+			HashMap<Integer, List<ScoreDTO>> rankList = DatasetUtil.getScores(evaluationDir + "result\\Score.txt");
 
 			/**
-			 * Four step: evaluation
+			 * Four step: compute evaluation
 			 */
-			EvaluationMetrics evalMetrics = new EvaluationMetrics(testingList, resultList);
-			float precision = evalMetrics.calculatePrecision();
-			float recall = evalMetrics.calculateRecall();
-			evaluationResult.put("precision", evaluationResult.get("precision") + precision);
-			evaluationResult.put("recall", evaluationResult.get("recall") + recall);
-			evaluationResult.put("f1", evaluationResult.get("f1") + evalMetrics.calculateF1(precision, recall));
-			evaluationResult.put("mae", evaluationResult.get("mae") + evalMetrics.calculateMAE());
-			evaluationResult.put("rmse", evaluationResult.get("rmse") + evalMetrics.calculateRMSE());
-
+			computeEvaluation(rankList, groundTruth);
 		}
-
-		evaluationResult.put("precision", evaluationResult.get("precision") / evaluationParam);
-		evaluationResult.put("recall", evaluationResult.get("recall") / evaluationParam);
-		evaluationResult.put("f1", evaluationResult.get("f1") / evaluationParam);
-		evaluationResult.put("mae", evaluationResult.get("mae") / evaluationParam);
-		evaluationResult.put("rmse", evaluationResult.get("rmse") / evaluationParam);
-		writeResult(taskId, evaluationResult);
 	}
 
 	public void evaluate() {
@@ -164,7 +140,7 @@ public class Evaluation {
 			crossValidation();
 			break;
 		case "partitioning":
-			partitioningValidation();
+			percentageSplit();
 			break;
 		default:
 			customValidation();
@@ -173,31 +149,101 @@ public class Evaluation {
 
 	}
 
-	private static void writeResult(String taskId, HashMap<String, Float> eval) {
+	private void computeEvaluation(HashMap<Integer, List<ScoreDTO>> rankList,
+			HashMap<Integer, List<ScoreDTO>> groundTruth) {
+		double preTopN = 0;
+		double precision = 0;
+		double recall = 0;
+		double recTopN = 0;
+		double f = 0;
+		double ndcgTopN = 0;
+		double rmse = 0;
+		double mrr = 0;
+		double map = 0;
+		for (Integer userId : rankList.keySet()) {
+			preTopN += Precision.computePrecisionTopN(rankList.get(userId), groundTruth.get(userId), topN);
+			precision += Precision.computePrecision(rankList.get(userId), groundTruth.get(userId));
+			recall += Recall.computeRecall(rankList.get(userId), groundTruth.get(userId));
+			recall += Recall.computeRecallTopN(rankList.get(userId), groundTruth.get(userId), topN);
+			f += FMeasure.computeF1(rankList.get(userId), groundTruth.get(userId));
+			try {
+				ndcgTopN += NDCG.computeNDCG(rankList.get(userId), groundTruth.get(userId), topN);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			rmse += RMSE.computeRMSE(rankList.get(userId), groundTruth.get(userId));
+			try {
+				mrr += ReciprocalRank.computeRR(rankList.get(userId), groundTruth.get(userId));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			map += AveragePrecision.computeAP(rankList.get(userId), groundTruth.get(userId));
+		}
+		int n = rankList.size();
+		preTopN /= n;
+		precision /= n;
+		recall /= n;
+		recTopN /= n;
+		f /= n;
+		ndcgTopN /= n;
+		rmse /= n;
+		mrr /= n;
+		map /= n;
+		System.out.println("P@" + topN + ": " + preTopN);
+		System.out.println("P:" + precision);
+		System.out.println("R:" + recall);
+		System.out.println("R@" + topN + ": " + recTopN);
+		System.out.println("F:" + f);
+		System.out.println("NDCG@" + topN + ": " + ndcgTopN);
+		System.out.println("RMSE:" + rmse);
+		System.out.println("MRR:" + mrr);
+		System.out.println("MAP:" + map);
 
-		MysqlDBConnection con = new MysqlDBConnection(DbConfig.load("config.txt"));
-		if (con.connect()) {
-			String sql = "INSERT INTO `evaluation`(`MetricId`, `TaskId`, `Score`) VALUES (1," + taskId + ","
-					+ eval.get("precision") + "),";
-			sql += "(2," + taskId + "," + eval.get("recall") + "),";
-			sql += "(3," + taskId + "," + eval.get("f1") + "),";
-			sql += "(4," + taskId + "," + eval.get("mae") + "),";
-			sql += "(5," + taskId + "," + eval.get("rmse") + ")";
-			con.write(sql);
-			con.close();
+		System.out.println("-----------");
+
+		HashMap<String, Double> evaluationResult = new HashMap<>(evaluationParam);
+		evaluationResult.put("Precision", precision);
+		evaluationResult.put("Recall", recall);
+		evaluationResult.put("P@" + topN, preTopN);
+		evaluationResult.put("R@" + topN, recTopN);
+		evaluationResult.put("F1", f);
+		evaluationResult.put("RMSE", rmse);
+		evaluationResult.put("NDCG@" + topN, ndcgTopN);
+		evaluationResult.put("MRR", mrr);
+		evaluationResult.put("MAP", map);
+
+		// write output to db
+		writeResult(taskId, evaluationResult);
+	}
+
+	private void writeResult(String taskId, HashMap<String, Double> evaluationResult) {
+		try {
+			MysqlDBConnection con = new MysqlDBConnection(DbConfig.load("config.properties"));
+			if (con.connect()) {
+				String sql = "INSERT INTO `evaluation`(`TaskId`, `Score`, `Metric`) VALUES ";
+				for (String key : evaluationResult.keySet()) {
+					sql += "(" + taskId + "," + evaluationResult.get(key) + ", '" + key + "'),";
+				}
+				con.write(sql.substring(0, sql.length() - 1));
+				con.close();
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
-	private void training() {
+	private void trainAlgorithm() {
 		switch (algorithm) {
 		case "cf":
-			trainingCF();
+			trainCF();
 			break;
 		case "cb":
-			trainingCB();
+			trainCB();
 			break;
 		case "hb":
-			trainingHB();
+			trainHB();
 			break;
 		default:
 			break;
@@ -205,16 +251,16 @@ public class Evaluation {
 
 	}
 
-	private void trainingHB() {
+	private void trainHB() {
 
 	}
 
-	private void trainingCB() {
+	private void trainCB() {
 
 	}
 
-	private void trainingCF() {
-		CollaborativeFiltering cf = new CollaborativeFiltering(evaluationDir, useConfig);
+	private void trainCF() {
+		CollaborativeFiltering cf = new CollaborativeFiltering(evaluationDir, config);
 		cf.recommend();
 	}
 }

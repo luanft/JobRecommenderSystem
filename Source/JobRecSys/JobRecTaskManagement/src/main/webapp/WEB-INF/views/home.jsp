@@ -43,7 +43,6 @@
 	});
 </script>
 <style>
-
 .ui-tooltip {
 	max-width: 500px;
 	white-space: pre-line;
@@ -93,7 +92,7 @@
 										for (TaskBean task : listTask) {
 											out.write("<tr>");
 											out.write("<td>" + count++ + "</td>");
-											out.write("<td><a href='" + request.getContextPath() + "/ket-qua?taskid= " + task.getTaskId() + "'>"
+											out.write("<td><a href='" + request.getContextPath() + "/ket-qua-thuat-toan?taskid= " + task.getTaskId() + "'>"
 													+ task.getTaskName() + "</a></td>");
 											out.write("<td>" + task.getTimeCreate() + "</td>");
 											String tooltip = "";
@@ -144,7 +143,8 @@
 												href="<%=request.getContextPath()%>/quan-ly-dataset">nhập</a>
 												dataset
 											</label>
-											<form:select class="form-control" id="dataset" path="dataset">
+											<form:select class="form-control" required="required"
+												id="dataset" path="dataset">
 												<%
 													String[] datasets = (String[]) request.getAttribute("datasets");
 															if (datasets != null) {
@@ -159,8 +159,8 @@
 											<label for="db">Chọn File cấu hình cho thuật toán</label> <input
 												type="file" class="filestyle form-control"
 												data-buttonName="btn-primary" name="config"
-												data-buttonText="Chọn file" data-buttonBefore="true"
-												id="config">
+												required="required" data-buttonText="Chọn file"
+												data-buttonBefore="true" id="config">
 										</div>
 										<button type="submit" class="btn btn-primary">Xử lý</button>
 									</form:form>

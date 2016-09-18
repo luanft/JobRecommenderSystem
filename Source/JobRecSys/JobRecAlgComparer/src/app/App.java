@@ -24,13 +24,13 @@ public class App {
 	private static void recommend(String[] args){
 		switch (args[1]) {
 		case "cf":
-			collaborativeFiltering(args[3], args[4], Boolean.valueOf(args[2]));
+			collaborativeFiltering(args[2], args[3]);
 			break;
 		case "cb":
-			contentBase(args[3], args[4]);
+			contentBase(args[2], args[3]);
 			break;
 		case "hb":
-			hybrid(args[3], args[4]);
+			hybrid(args[2], args[3]);
 			break;			
 		default:
 			break;
@@ -38,7 +38,7 @@ public class App {
 	}
 	
 	private static void evaluate(String[] args){
-		Evaluation eval = new Evaluation(args[3], Integer.valueOf(args[4]), args[1], Boolean.valueOf(args[2]), args[5], args[6], args[7]);
+		Evaluation eval = new Evaluation(args[2], Integer.valueOf(args[3]), args[1], args[4], args[5], args[6]);
 		eval.evaluate();
 	}
 		
@@ -52,16 +52,16 @@ public class App {
 	}
 
 	private static void contentBase(String input, String output) {
-		ContentBasedRecommender CBRec = new ContentBasedRecommender();
-		CBRec.setInputDirectory(input);
-		CBRec.setOutputDirectory(output);
-		CBRec.init();
-		CBRec.contentBasedFiltering();
+//		ContentBasedRecommender CBRec = new ContentBasedRecommender();
+//		CBRec.setInputDirectory(input);
+//		CBRec.setOutputDirectory(output);
+//		CBRec.init();
+//		CBRec.contentBasedFiltering();
 
 	}
 
-	private static void collaborativeFiltering(String input, String output, boolean useConfig) {
-		CollaborativeFiltering cf = new CollaborativeFiltering(input, output, useConfig);
+	private static void collaborativeFiltering(String input, String output) {
+		CollaborativeFiltering cf = new CollaborativeFiltering(input, output);
 		cf.recommend();
 	}
 }
