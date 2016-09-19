@@ -26,7 +26,7 @@ public class DocumentSimilarityTFIDF {
 
 
     public static final String CONTENT = "Content";
-    public static final int N = 2;//Total number of documents
+    public static final int N = 4;//Total number of documents
     protected Directory _directory;
     protected Object lock = new Object();
 

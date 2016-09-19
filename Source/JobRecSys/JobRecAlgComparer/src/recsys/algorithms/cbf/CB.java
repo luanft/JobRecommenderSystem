@@ -43,12 +43,7 @@ public class CB extends RecommendationAlgorithm {
 		System.out.println("Build item profile");
 		JobDTO dto = null;
 		int count = 0;
-		int xx = 0;
-		while ((dto = dataSetReader.nextJob()) != null) {			
-			if(xx++ > 1000)
-			{
-				break;
-			}
+		while ((dto = dataSetReader.nextJob()) != null) {						
 			System.out.println("ItemId: " +count++ );
 			String itemId = dto.getJobId() + "";
 			String content = dto.getJobName() + ". ";

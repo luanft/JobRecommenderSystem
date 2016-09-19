@@ -3,6 +3,7 @@ package app;
 import java.io.IOException;
 
 import recsys.algorithms.cbf.CB;
+import recsys.algorithms.cbf.DocumentProcesser;
 import recsys.algorithms.cbf.DocumentSimilarityTFIDF;
 import recsys.algorithms.collaborativeFiltering.CFAlgorithm;
 import recsys.algorithms.collaborativeFiltering.CollaborativeFiltering;
@@ -17,6 +18,9 @@ import vn.hus.nlp.tokenizer.VietTokenizer;
 public class App {
 
 	public static void main(String[] args) throws IOException {
+
+		
+
 
 		if (args[0].equals("rec")) {
 			if (args[1].equals("cf")) {
