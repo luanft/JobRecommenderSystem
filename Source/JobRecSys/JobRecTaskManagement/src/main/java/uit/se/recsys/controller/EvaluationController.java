@@ -46,7 +46,7 @@ public class EvaluationController {
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
-	binder.setAllowedFields(new String[] { "taskName", "algorithm",
+	binder.setAllowedFields(new String[] { "algorithm",
 			"dataset", "evaluationType", "testSize", "testFold" });
     }
 
@@ -74,10 +74,11 @@ public class EvaluationController {
 	    return "redirect:/dang-nhap";
 	}
 
-	/* Set task info and save it */
+	/* Set task info and save it */	
 	task.setStatus("running");
 	task.setType("eval");
 	task.setTimeCreate(new Timestamp(new Date().getTime()));
+	task.setTaskName(task.getAlgorithm() + "-" + task.getDataset() + "-" + task.getTimeCreate().getHours() + "-" + task.getTimeCreate().getMinutes());
 	task.setUserId(SecurityUtil.getInstance().getUserId());
 
 	switch (task.getEvaluationType()) {
@@ -153,6 +154,19 @@ public class EvaluationController {
 	    File dOut = new File(output);
 	    if (!dOut.exists()) {
 		dOut.mkdirs();
+	    }
+	    
+	    File dOut_test = new File(output + "testing");
+	    if (!dOut_test.exists()) {
+		dOut_test.mkdirs();
+	    }
+	    File dOut_train = new File(output + "training");
+	    if (!dOut_train.exists()) {
+		dOut_train.mkdirs();
+	    }
+	    File dOut_result = new File(output + "result");
+	    if (!dOut_result.exists()) {
+		dOut_result.mkdirs();
 	    }
 
 	    /* Create command file to execute .jar file */

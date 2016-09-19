@@ -25,6 +25,7 @@ public class UserDAO {
 	    stm.setString(2, user.getEmail());
 	    stm.setString(3, user.getPassword());
 	    stm.executeUpdate();
+	    stm.close();
 	} catch (SQLException e) {
 	    e.printStackTrace();
 	    return false;
@@ -48,6 +49,8 @@ public class UserDAO {
 		user.setUserId(rs.getInt("UserId"));
 		user.setChangePasswordCode(rs.getInt("ChangePasswordCode"));
 	    }
+	    rs.close();
+	    stm.close();
 	} catch (SQLException e) {
 	    e.printStackTrace();
 	}
@@ -70,6 +73,8 @@ public class UserDAO {
 		user.setUserId(rs.getInt("UserId"));
 		user.setChangePasswordCode(rs.getInt("ChangePasswordCode"));
 	    }
+	    rs.close();
+	    stm.close();
 	} catch (SQLException e) {
 	    e.printStackTrace();
 	}

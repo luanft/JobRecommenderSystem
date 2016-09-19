@@ -17,7 +17,6 @@
 <fullyQualifiedTypeName name="MRecommend"/>
 <fullyQualifiedTypeName name="java.util.Properties"/>
 <fullyQualifiedTypeName name="recsys.evaluate.Evaluation"/>
-<fullyQualifiedTypeName name="java.io.FileInputStream"/>
 <fullyQualifiedTypeName name="java.util.Comparator"/>
 <fullyQualifiedTypeName name="java.util.ArrayList"/>
 <fullyQualifiedTypeName name="org.apache.mahout.cf.taste.common.Weighting"/>
@@ -33,7 +32,6 @@
 <fullyQualifiedTypeName name="java.lang.Math"/>
 <fullyQualifiedTypeName name="recsys.evaluate.ReciprocalRank"/>
 <fullyQualifiedTypeName name="javax.print.attribute.HashAttributeSet"/>
-<fullyQualifiedTypeName name="java.util.HashMap"/>
 <fullyQualifiedTypeName name="recsys.evaluate.AveragePrecision"/>
 <fullyQualifiedTypeName name="java.lang.Boolean"/>
 <fullyQualifiedTypeName name="uit.se.evaluation.utils.DatasetReaderUtil"/>
@@ -41,6 +39,10 @@
 <fullyQualifiedTypeName name="uit.se.evaluation.dtos.ScoreDTO"/>
 <fullyQualifiedTypeName name="uit.se.evaluation.utils.DatasetUtil"/>
 <fullyQualifiedTypeName name="utils.MysqlDBConnection"/>
-<fullyQualifiedTypeName name="utils.DbConfig"/>
 <fullyQualifiedTypeName name="java.lang.Exception"/>
+<fullyQualifiedTypeName name="java.io.InputStream"/>
+<fullyQualifiedTypeName name="java.io.FileInputStream"/>
+<fullyQualifiedTypeName name="utils.DbConfig"/>
+<fullyQualifiedTypeName name="recsys.algorithms.cbf.CB"/>
+<fullyQualifiedTypeName name="java.util.HashMap"/>
 </qualifiedTypeNameHistroy>

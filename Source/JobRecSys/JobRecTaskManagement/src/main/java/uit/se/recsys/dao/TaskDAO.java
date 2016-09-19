@@ -39,8 +39,10 @@ public class TaskDAO {
 	    statement.setString(7, task.getType());
 	    statement.setString(8, task.getEvaluationType());
 	    statement.setInt(9, task.getEvaluationParam());
-	    if (statement.executeUpdate() > 0)
+	    if (statement.executeUpdate() > 0){
+		statement.close();
 		return true;
+	    }		
 	} catch (SQLException e) {
 	    e.printStackTrace();
 	}
@@ -67,6 +69,8 @@ public class TaskDAO {
 		task.setConfig(readConfig(task));
 		taskBeans.add(task);
 	    }
+	    rs.close();
+	    statement.close();
 	} catch (SQLException e) {
 	    e.printStackTrace();
 	}
@@ -108,6 +112,8 @@ public class TaskDAO {
 		task.setConfig(readConfig(task));
 		taskBeans.add(task);
 	    }
+	    rs.close();
+	    statement.close();
 	} catch (SQLException e) {
 	    e.printStackTrace();
 	}
@@ -130,7 +136,7 @@ public class TaskDAO {
 		metrics.add(metric);
 	    }
 	    rs.close();
-	    stm.close();
+	    stm.close();	    
 	} catch (SQLException e) {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
@@ -158,6 +164,8 @@ public class TaskDAO {
 		task.setConfig(readConfig(task));
 		task.setMetrics(getMetricOfTask(task.getTaskId()));
 	    }
+	    rs.close();
+	    statement.close();
 	} catch (SQLException e) {
 	    e.printStackTrace();
 	}

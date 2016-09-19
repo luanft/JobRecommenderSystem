@@ -105,12 +105,7 @@
 											out.write("' data-toggle='tooltip'>" + task.getAlgorithm() + "</a></td>");
 											out.write("<td>" + task.getDataset() + "</td>");
 											out.write("<td>" + task.getEvaluationType() + "</td>");
-											out.write("<td>" + task.getStatus() + "</td>");
-											for (MetricBean metric : task.getMetrics()) {
-												out.write("<td>");
-												out.write(String.valueOf(metric.getScore()));
-												out.write("</td>");
-											}
+											out.write("<td>" + task.getStatus() + "</td>");											
 										}
 									%>
 								</tbody>
@@ -132,12 +127,7 @@
 								<div class="col-md-6">
 									<form:form class="form" enctype="multipart/form-data"
 										action="danh-gia-thuat-toan" modelAttribute="task"
-										method="POST">
-										<div class="form-group">
-											<label for="task">Tên task</label>
-											<form:input type="text" required="required"
-												class="form-control" path="taskName" id="taskName" />
-										</div>
+										method="POST">										
 										<div class="form-group">
 											<label for="algorithm">Chọn thuật toán</label>
 											<form:select class="form-control" id="algorithm"

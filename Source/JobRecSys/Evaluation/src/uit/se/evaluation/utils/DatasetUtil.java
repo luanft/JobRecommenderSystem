@@ -9,10 +9,11 @@ import uit.se.evaluation.dtos.ScoreDTO;
 
 /**
  * This utility class is using for binding dataset file into list objects
+ * 
  * @author tuyen
  *
  */
-public class DatasetUtil {	
+public class DatasetUtil {
 
 	/**
 	 * get sorted list scores from specific location
@@ -20,17 +21,19 @@ public class DatasetUtil {
 	 * @param source
 	 * @return
 	 */
-	public static HashMap<Integer, List<ScoreDTO>> getScores(String source) {
+	public static HashMap<Integer, List<ScoreDTO>> getScores(String source, int truthRank) {
 		List<ScoreDTO> scoreDTOList = new ArrayList<ScoreDTO>();
-		ScoreDTO dto = null;		
+		ScoreDTO dto = null;
 		DatasetReaderUtil.openFile(source);
 		while ((dto = DatasetReaderUtil.nextScore()) != null) {
-			/*
-			 * convert rating score from numeric score into boolean score
-			 * 
-			 * if (dto.getScore() <= 3) { dto.setRelevant(false); } else {
-			 * dto.setRelevant(true); }
-			 */
+			// convert rating score from numeric score into boolean score
+
+			if (dto.getScore() <= truthRank) {
+				dto.setRelevant(false);
+			} else {
+				dto.setRelevant(true);
+			}
+
 			scoreDTOList.add(dto);
 		}
 		return getSortedScores(scoreDTOList, -1);
@@ -45,7 +48,7 @@ public class DatasetUtil {
 	 */
 	public static HashMap<Integer, List<ScoreDTO>> getTopNScores(String source, int topN) {
 		List<ScoreDTO> scoreDTOList = new ArrayList<ScoreDTO>();
-		ScoreDTO dto = null;		
+		ScoreDTO dto = null;
 		DatasetReaderUtil.openFile(source);
 		while ((dto = DatasetReaderUtil.nextScore()) != null) {
 			/*

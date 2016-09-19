@@ -123,12 +123,7 @@
 								<div class="col-md-3"></div>
 								<div class="col-md-6">
 									<form:form class="form" enctype="multipart/form-data"
-										action="trang-chu" modelAttribute="task" method="POST">
-										<div class="form-group">
-											<label for="task">Tên task</label>
-											<form:input type="text" required="required"
-												class="form-control" path="taskName" id="taskName" />
-										</div>
+										action="trang-chu" modelAttribute="task" method="POST">										
 										<div class="form-group">
 											<label for="algorithm">Chọn thuật toán</label>
 											<form:select class="form-control" id="algorithm"

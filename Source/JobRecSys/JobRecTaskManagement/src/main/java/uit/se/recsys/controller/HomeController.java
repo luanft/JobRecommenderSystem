@@ -83,6 +83,7 @@ public class HomeController {
 	task.setStatus("running");
 	task.setType("rec");
 	task.setTimeCreate(new Timestamp(new Date().getTime()));
+	task.setTaskName(task.getAlgorithm() + "-" + task.getDataset() + "-" + task.getTimeCreate().getHours() + "-" + task.getTimeCreate().getMinutes());
 	task.setUserId(SecurityUtil.getInstance().getUserId());
 	taskBO.addTask(task);		
 

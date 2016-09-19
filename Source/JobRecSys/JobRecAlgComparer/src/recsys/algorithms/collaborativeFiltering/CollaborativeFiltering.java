@@ -81,8 +81,12 @@ public class CollaborativeFiltering extends RecommendationAlgorithm {
 				initUserSimilaritymeasure(config.getProperty("cf.similarity"));
 
 				/* init user neighborhood */
+				String param = config.getProperty("cf.neighborhood.param.topn");
+				if(param == null || param == "" ){
+					param = config.getProperty("cf.neighborhood.param.threshold");
+				}
 				initUserNeighborhood(config.getProperty("cf.neighborhood.type"),
-						config.getProperty("cf.neighborhood.param"));
+						param);
 			} catch (TasteException e) {
 				e.printStackTrace();
 			}
@@ -131,7 +135,7 @@ public class CollaborativeFiltering extends RecommendationAlgorithm {
 						public boolean isFiltered(long itemId) {
 							return false;
 						}
-					}, false));
+					}));
 		} catch (TasteException e) {
 			e.printStackTrace();
 		}
@@ -155,7 +159,7 @@ public class CollaborativeFiltering extends RecommendationAlgorithm {
 						public boolean isFiltered(long itemId) {
 							return false;
 						}
-					}, false));
+					}));
 		} catch (TasteException e) {
 			e.printStackTrace();
 		}

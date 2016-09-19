@@ -14,34 +14,38 @@ public class TfIdf {
 	 * @return tf(term frequency) of term termToCheck
 	 */
 	public double tfCalculator(String[] totalterms, String termToCheck) {
-		double count = 0; // to count the overall occurrence of the term
-							// termToCheck
+		double count = 0;
 		for (String s : totalterms) {
-			if (s.equalsIgnoreCase(termToCheck)) {
+			if (s.equals(termToCheck)) {
 				count++;
 			}
-		}
-		return count / totalterms.length;
+		}					
+		return count;
+		//return Math.log10(count + 1);
 	}
 
 	/**
 	 * Calculates idf of term termToCheck
 	 * 
-	 * @param allTerms
+	 * @param profileSet
 	 *            : all the terms of all the documents
 	 * @param termToCheck
 	 * @return idf(inverse document frequency) score
 	 */
-	public double idfCalculator(List<String[]> allTerms, String termToCheck) {
-		double count = 0;
-		for (String[] ss : allTerms) {
-			for (String s : ss) {
-				if (s.equalsIgnoreCase(termToCheck)) {
+	public double idfCalculator(List<String[]>  documentSet, String termToCheck) {
+		double count = 0.0d;		
+		for(String[] doc : documentSet)
+		{
+			for(String term : doc)
+			{
+				if(term.equals(termToCheck))
+				{
 					count++;
 					break;
 				}
 			}
-		}
-		return 1 + Math.log(allTerms.size() / count);
+		}		
+		double val = ((documentSet.size() + 1)) / (count + 1);
+		return Math.log10(val);
 	}
 }

@@ -1,7 +1,7 @@
 package app;
 
+import recsys.algorithms.cbf.CB;
 import recsys.algorithms.collaborativeFiltering.CollaborativeFiltering;
-import recsys.algorithms.contentBased.ContentBasedRecommender;
 import recsys.algorithms.hybird.HybirdRecommeder;
 import recsys.evaluate.Evaluation;
 
@@ -41,7 +41,12 @@ public class App {
 		Evaluation eval = new Evaluation(args[2], Integer.valueOf(args[3]), args[1], args[4], args[5], args[6]);
 		eval.evaluate();
 	}
-		
+
+	private static void collaborativeFiltering(String input, String output) {
+		CollaborativeFiltering cf = new CollaborativeFiltering(input, output);
+		cf.recommend();
+	}
+
 	private static void hybrid(String input, String output) {
 		HybirdRecommeder hybridRecommender = new HybirdRecommeder();
 		hybridRecommender.setInputDirectory(input);
@@ -52,16 +57,13 @@ public class App {
 	}
 
 	private static void contentBase(String input, String output) {
-//		ContentBasedRecommender CBRec = new ContentBasedRecommender();
-//		CBRec.setInputDirectory(input);
-//		CBRec.setOutputDirectory(output);
-//		CBRec.init();
-//		CBRec.contentBasedFiltering();
 
-	}
-
-	private static void collaborativeFiltering(String input, String output) {
-		CollaborativeFiltering cf = new CollaborativeFiltering(input, output);
-		cf.recommend();
+		CB cb = new CB();
+		cb.setInputDirectory(input);
+		cb.setOutputDirectory(output);
+		try {
+			cb.run();
+		} catch (Exception ex) {
+		}
 	}
 }
