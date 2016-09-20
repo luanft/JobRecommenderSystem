@@ -1,0 +1,97 @@
+package recsys.algorithms.cbf;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.core.SimpleAnalyzer;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.util.Version;
+
+public class DocumentProcesser extends DocumentSimilarityTFIDF {
+
+	public DocumentProcesser()
+	{
+		_directory = new RAMDirectory();
+	}
+	private HashMap<String,ArrayList<String>> rating = new  HashMap<String,ArrayList<String>>();
+//	private ArrayList<Integer> user = new ArrayList<Integer>();
+//	private ArrayList<Integer> job = new ArrayList<Integer>();
+	private HashMap<String, Integer>  users = new HashMap<String, Integer>();
+	private HashMap<String, Integer>  jobs = new HashMap<String, Integer>();
+	private int currentIndex = 0;
+
+	public void addRating(String user, String job)
+	{
+		if(rating.containsKey(user))
+		{					
+			ArrayList<String> userLike = rating.get(user);
+			userLike.add(job);
+			rating.put(user, userLike);
+		}
+		else					
+		{
+											
+			ArrayList<String> userLike = new ArrayList<Integer>();
+			userLike.add(job);
+			rating.put(user, userLike);
+		}
+	}
+	
+	public void addJob(String jobId,String content) {		
+		Analyzer analyzer = new SimpleAnalyzer(Version.LUCENE_CURRENT);
+		IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_CURRENT, analyzer);
+		System.out.println("======START INDEX ALL DOCUMENTS=====");
+		try {
+			IndexWriter writer = new IndexWriter(_directory, iwc);
+			addDocument(writer, content);
+			//job.add(currentIndex);
+			jobs.put(jobId, currentIndex);
+			currentIndex +=1;
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("====== End INDEX ALL =====");
+	}
+
+	public void addCv(String userId,String content) {
+		
+		Analyzer analyzer = new SimpleAnalyzer(Version.LUCENE_CURRENT);
+		IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_CURRENT, analyzer);
+		//System.out.println("======START INDEX DOCUMENT=====");
+		try {
+			IndexWriter writer = new IndexWriter(_directory, iwc);
+			addDocument(writer, content);
+			users.put(userId,currentIndex);
+			currentIndex +=1;
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//System.out.println("====== End INDEX =====");
+	}
+
+	public void PrintCosine()
+	{
+		for(String userId : users.keySet())
+		{
+			int userDoc = users.get(userId);
+			for(String jobid : jobs.keySet())
+			{
+				int itemDoc = jobs.get(jobid);
+				try {
+					//getCosineSimilarityWithUserRating
+					System.out.println("UserId: " + userId +" , JobId " + jobid  + " = "+(1.0d + getCosineSimilarityWhenIndexAllDocument(userDoc,itemDoc) * 4.0d));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+}

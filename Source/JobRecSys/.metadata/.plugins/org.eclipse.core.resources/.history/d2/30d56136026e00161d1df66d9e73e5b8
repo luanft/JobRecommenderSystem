@@ -1,0 +1,332 @@
+package recsys.algorithms.contentBased;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.hdfs.server.namenode.nn_005fbrowsedfscontent_jsp;
+
+import vn.hus.nlp.tokenizer.VietTokenizer;
+
+public class MemoryDocumentProcessor {
+
+	public MemoryDocumentProcessor () {
+		strip_accent = new StripAccent()
+	}
+	private double[] addVectorN(double[] v1, double v2[]) {
+		double[] v3 = new double[v1.length];
+		for (int i = 0; i < v1.length; i++) {
+			v3[1] = v1[i] + v2[i];
+		}
+		return v3;
+	}
+
+	// This variable will hold all terms of each document in an array(Item).
+	// to hold all terms
+	private VietTokenizer vietTokenizer = new VietTokenizer();
+
+	public VietTokenizer getVietTokenizer() {
+		return vietTokenizer;
+	}
+
+	public void createTokenizer() {
+		this.vietTokenizer = new VietTokenizer();
+	}
+
+	private List<String> allTerms = new ArrayList<String>();
+	private double[] idf_all_term = null;
+	private List<String[]> documentSet = new ArrayList<String[]>();
+	private HashMap<String, String[]> items = new HashMap<String, String[]>();
+	private HashMap<String, String[]> users = new HashMap<String, String[]>();
+	private HashMap<String, double[]> itemsTermVector = new HashMap<String, double[]>();
+	private HashMap<String, double[]> usersTermVector = new HashMap<String, double[]>();
+	/**
+	 * Tách từ từ chuổi input
+	 * 
+	 * @param input
+	 * @return
+	 */
+	private StripAccent strip_accent = new StripAccent();
+
+	public void addHistory(String userId, String jobId) {
+		double[] v1 = itemsTermVector.get(jobId.trim());
+		double[] v2 = usersTermVector.get(userId.trim());
+		if (v1 != null && v2 != null) {
+			usersTermVector.put(userId, addVectorN(v1, v2));
+		}
+	}
+
+	private String[] extractWords(String input) {
+		System.out.println("Remove stop words");
+		input = strip_accent.removeStopWord(input);
+		input = StringUtils.replace(input, "c#", "csharp");
+		input = StringUtils.replace(input, "c++", "cplus");
+		input = StringUtils.replace(input, "asp.net", "aspdotnet");
+		String[] copus = null;
+		synchronized (vietTokenizer) {
+			System.out.println("VietTokenizer");
+			copus = vietTokenizer.tokenize(input);	
+		}
+		
+		System.out.println("Tokenizer document");
+		String rs = "";
+		for (int i = 0; i < copus.length; i++) {
+			rs += strip_accent.convert(copus[i].trim()) + " ";
+		}
+		while (rs.indexOf("  ") != -1) {
+			rs = StringUtils.replace(rs, "  ", " ");
+		}
+		System.out.println("Split");
+		return StringUtils.split(rs, ' ');
+	}
+
+	/**
+	 * Đọc dữ liệu từ file. sau đó tiến hành tính toán term vector
+	 * 
+	 * @param filePath
+	 *            : source file path
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void addItemContent(String itemId, String itemContent) {
+		System.out.println("Build item profile : " + itemId);
+		String[] copus = extractWords(itemContent.toString());
+		System.out.println("Extract words for item : " + itemId);
+		for (int i = 0; i < copus.length; i++) {
+			String word = copus[i].trim();
+			if (word.length() < 2 || isNumber(word) || word.length() > 20)
+				continue;
+			synchronized (allTerms) {
+				if (!allTerms.contains(word)) { // avoid duplicate entry
+					allTerms.add(word);
+				}
+			}
+		}
+		System.out.println("Added profile : " + itemId);
+		items.put(itemId, copus);
+		documentSet.add(copus);
+	}
+
+	/**
+	 * Thêm cv
+	 * 
+	 * @param filePath
+	 *            : source file path
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void addUserProfile(String userId, String userProfile) {
+		System.out.println("Build user profile : " + userId);
+		String[] copus = extractWords(userProfile.toString());
+		for (int i = 0; i < copus.length; i++) {
+			String word = copus[i].trim();
+			if (word.length() < 2 || isNumber(word))
+				continue;
+
+			if (!allTerms.contains(word)) { // avoid duplicate entry
+				allTerms.add(word);
+			}
+		}
+		users.put(userId, copus);
+		documentSet.add(copus);
+	}
+
+	private TfIdf tfidfCal = new TfIdf();
+
+	private boolean isNumber(String str) {
+		try {
+			Integer.parseInt(str);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	
+
+	public void idfCalulator() {
+		idf_all_term = new double[allTerms.size()];
+		int size = allTerms.size();
+		int i = 0;
+		for (String term : allTerms) {
+			idf_all_term[i++] = tfidfCal.idfCalculator(documentSet, term);
+			System.out.println("Calcualated idf for term " + term + " remain: " + (size--));
+		}
+	}
+
+	/**
+	 * Tính toán termvector theo TF-IDF Score.
+	 */
+	public void tfIdfCalculatorForUser() {
+		double tf = 0; // term frequency
+		double idf = 0; // inverse document frequency
+		double tfidf = 0; // term requency inverse document frequency
+		int dimension = allTerms.size();
+		// calcualate user tf-idf vector
+		Set<String> keyset = users.keySet();
+		for (String key : keyset) {
+			// String rs = "[";
+			double[] tfidfvectors = new double[dimension];
+			int count = 0;
+			for (String terms : allTerms) {
+				String[] content = users.get(key);
+				tf = tfidfCal.tfCalculator(content, terms);
+				tfidf = 0.0d;
+				if (tf > 0.0d) {
+					idf = this.idf_all_term[count];
+					tfidf = tf * idf;
+				}
+				tfidfvectors[count] = tfidf;
+				// rs += tfidf + " ";
+				count++;
+			}
+			// rs += "]";
+			usersTermVector.put(key, tfidfvectors); // storing document vectors;
+			System.out.println("Calcualte tf-idf vector for user: " + key);
+		}
+	}
+
+	/**
+	 * Tính toán termvector theo TF-IDF Score.
+	 */
+	public void tfIdfCalculatorForItem() {
+		double tf = 0; // term frequency
+		double idf = 0; // inverse document frequency
+		double tfidf = 0; // term requency inverse document frequency
+		int dimension = allTerms.size();
+		// calcualate item tf-idf vector
+		Set<String> keyset = items.keySet();
+		for (String key : keyset) {
+			double[] tfidfvectors = new double[dimension];
+			// String rs = "[";
+			long start = System.currentTimeMillis();
+			int count = 0;
+			for (String terms : allTerms) {
+				String[] content = items.get(key);
+				tfidf = 0;
+				tf = tfidfCal.tfCalculator(content, terms);
+				if (tf > 0.0d) {
+					idf = this.idf_all_term[count];
+					// idf = tfidfCal.idfCalculator(documentSet, terms);
+					tfidf = tf * idf;
+				}
+				// rs += tfidf + " ";
+				tfidfvectors[count] = tfidf;
+				count++;
+			}
+			// rs += "]";
+			itemsTermVector.put(key, tfidfvectors); // storing document
+			System.out.println(
+					"Calcualte tf-idf vector for item: " + key + " Time: " + ((System.currentTimeMillis() - start)));
+			// System.out.println(rs);
+
+		}
+	}
+
+	public void tfIdfCalculator() {
+		double tf = 0; // term frequency
+		double idf = 0; // inverse document frequency
+		double tfidf = 0; // term requency inverse document frequency
+		int dimension = allTerms.size();
+		// calcualate item tf-idf vector
+		Set<String> keyset = items.keySet();
+		for (String key : keyset) {
+			System.out.println("Create Array");
+			double[] tfidfvectors = new double[dimension];
+			// String rs = "[";
+			int count = 0;
+			for (String terms : allTerms) {
+				String[] content = items.get(key);
+				tf = tfidfCal.tfCalculator(content, terms);
+				// need to improve performance
+				// do it tomorrow :D
+				idf = tfidfCal.idfCalculator(documentSet, terms);
+				tfidf = tf * idf;
+				// rs += tfidf + " ";
+				tfidfvectors[count] = tfidf;
+				count++;
+			}
+			// rs += "]";
+			itemsTermVector.put(key, tfidfvectors); // storing document
+			System.out.println("Calcualte tf-idf vector for item: " + key);
+		}
+		// calcualate user tf-idf vector
+		keyset = users.keySet();
+		for (String key : keyset) {
+			// String rs = "[";
+			double[] tfidfvectors = new double[dimension];
+			int count = 0;
+			for (String terms : allTerms) {
+				String[] content = users.get(key);
+				tf = tfidfCal.tfCalculator(content, terms);
+				idf = tfidfCal.idfCalculator(documentSet, terms);
+				tfidf = tf * idf;
+				tfidfvectors[count] = tfidf;
+				// rs += tfidf + " ";
+				count++;
+			}
+			// rs += "]";
+			usersTermVector.put(key, tfidfvectors); // storing document vectors;
+			System.out.println("Calcualte tf-idf vector for user: " + key);
+		}
+	}
+
+	/**
+	 * Có thể là hàm recommend.
+	 */
+	public void getCosineSimilarity() {
+		CosineSimilarity sim = new CosineSimilarity();
+		Set<String> userKey = usersTermVector.keySet();
+		Set<String> itemKey = itemsTermVector.keySet();
+		for (String userId : userKey) {
+			for (String itemId : itemKey) {
+				System.out.println("between " + userId + " and " + itemId + "  =  "
+						+ sim.cosineSimilarity(this.usersTermVector.get(userId), this.itemsTermVector.get(itemId)));
+			}
+		}
+	}
+
+	public void getCosineSimilarity(String output) {
+		CosineSimilarity sim = new CosineSimilarity();
+		Set<String> userKey = usersTermVector.keySet();
+		Set<String> itemKey = itemsTermVector.keySet();
+		FileWriter fwr;
+		try {
+			File out = new File(output);
+			if (!out.exists()) {
+				out.mkdirs();
+			}
+			File fileOut = new File(out.getAbsolutePath() + File.separator + "Score.txt");
+			if (!fileOut.exists()) {
+				fileOut.createNewFile();
+			}
+			fwr = new FileWriter(fileOut, true);
+			BufferedWriter wr = new BufferedWriter(fwr);
+			System.out.println("start writing data");
+			for (String userId : userKey) {
+				for (String itemId : itemKey) {
+					try {
+						double rsult = sim.cosineSimilarity(this.usersTermVector.get(userId),
+								this.itemsTermVector.get(itemId));
+						System.out.println("between " + userId + " and " + itemId + "  =  " + rsult);
+						wr.write(userId + "\t" + itemId + "\t" + rsult);
+						wr.newLine();
+					} catch (Exception ex) {
+
+					}
+				}
+			}
+			wr.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+}

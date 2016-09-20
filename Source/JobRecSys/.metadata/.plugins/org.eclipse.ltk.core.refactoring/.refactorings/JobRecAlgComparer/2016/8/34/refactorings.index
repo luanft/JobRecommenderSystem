@@ -1,0 +1,10 @@
+1471626699406	Rename field 'termsDocsArray'
+1471626708186	Rename field 'tfidfDocsVector'
+1471626813767	Rename method 'parseFiles'
+1471664274221	Rename local variable 'allTerms'
+1471664335171	Delete element
+1471665215278	Rename local variable 'docSet'
+1471680445153	Rename local variable 'itemContent'
+1471680921842	Rename field 'profiles'
+1471682367752	Rename local variable 'items'
+1471707410372	Rename local variable '_removal'
