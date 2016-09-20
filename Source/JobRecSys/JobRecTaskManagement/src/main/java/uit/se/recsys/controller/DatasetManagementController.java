@@ -19,7 +19,6 @@ import uit.se.recsys.utils.DatasetUtil;
 import uit.se.recsys.utils.SecurityUtil;
 
 @Controller
-@PropertySource("classpath:/config/datasetLocation.properties")
 public class DatasetManagementController {
     @Value("${Dataset.Location}")
     private String ROOT_PATH;
@@ -29,7 +28,7 @@ public class DatasetManagementController {
 	if (!SecurityUtil.getInstance().haveUserLoggedIn(session)) {
 	    return "redirect:/dang-nhap";
 	} else {
-	    model.addAttribute("datasets", DatasetUtil.getInstance().getDatasets(ROOT_PATH + SecurityUtil.getInstance().getUserId()));
+	    model.addAttribute("datasets", new DatasetUtil().getDatasets(ROOT_PATH + SecurityUtil.getInstance().getUserId()));
 	    return "datasetManagement";
 	}
     }
@@ -43,7 +42,7 @@ public class DatasetManagementController {
 	    return "redirect:/dang-nhap";
 	} else {
 	    model.addAttribute("message", saveDataset(files, datasetName));
-	    model.addAttribute("datasets", DatasetUtil.getInstance().getDatasets(ROOT_PATH + SecurityUtil.getInstance().getUserId()));
+	    model.addAttribute("datasets", new DatasetUtil().getDatasets(ROOT_PATH + SecurityUtil.getInstance().getUserId()));
 	    return "datasetManagement";
 	}
     }

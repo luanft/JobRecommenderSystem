@@ -30,9 +30,11 @@ public class ExperimentResult {
     TaskBO taskBO;
     @Value("${Dataset.Location}")
     String ROOT_PATH;
+    @Autowired
+    DatasetUtil dsUtil;
 
-    @RequestMapping(value = "/ket-qua", method = RequestMethod.GET)
-    public String init(HttpSession session, @RequestParam("taskid") int taskId,
+    @RequestMapping(value = "/ket-qua-thuat-toan", method = RequestMethod.GET)
+    public String bindingExperimentResult(HttpSession session, @RequestParam("taskid") int taskId,
 		       Model model) {
 
 	/* Check log in */
@@ -42,21 +44,36 @@ public class ExperimentResult {
 
 	/* Variables */
 	TaskBean task = taskBO.getTaskById(taskId);
-	String dirPath = ROOT_PATH + SecurityUtil.getInstance().getUserId()
-			+ File.separator + task.getDataset() + "\\output\\"
-			+ task.getAlgorithm() + "\\Score.txt";
 
 	/* Binding task into view */
 	model.addAttribute("task", task);
 
 	/* Biding result into view */
-	model.addAttribute("recommendedItems", DatasetUtil.getInstance()
-			.getRecommendedItems(dirPath));
+	model.addAttribute("recommendedItems", 
+			dsUtil.getRecommendedItems(dsUtil.getOutputLocation(task)+ "Score.txt"));
 
 	return "experimentResult";
     }
+    
+    @RequestMapping(value = "/ket-qua-danh-gia", method = RequestMethod.GET)
+    public String bindingEvaluationResult(HttpSession session, @RequestParam("taskid") int taskId,
+		       Model model) {
 
-    @RequestMapping(value = "/ket-qua.tai-ve", method = RequestMethod.GET)
+	/* Check log in */
+	if (!SecurityUtil.getInstance().haveUserLoggedIn(session)) {
+	    return "redirect:/dang-nhap";
+	}
+
+	/* Variables */
+	TaskBean task = taskBO.getTaskById(taskId);
+
+	/* Binding task into view */
+	model.addAttribute("task", task);
+
+	return "evaluationResult";
+    }
+
+    @RequestMapping(value = "/ket-qua-thuat-toan.tai-ve", method = RequestMethod.GET)
     public String download(HttpServletResponse response, HttpSession session,
 			   @RequestParam("task") int taskId) {
 
@@ -67,11 +84,7 @@ public class ExperimentResult {
 
 	/* Find file location */
 	TaskBean task = taskBO.getTaskById(taskId);
-	String dirPath = ROOT_PATH + SecurityUtil.getInstance().getUserId()
-			+ File.separator + task.getDataset() + "\\output\\"
-			+ task.getAlgorithm() + "\\Score.txt";
-
-	File downloadFile = new File(dirPath);
+	File downloadFile = new File(dsUtil.getOutputLocation(task) + "Score.txt");
 	try {
 	    FileInputStream inputStream = new FileInputStream(downloadFile);
 

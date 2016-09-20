@@ -21,12 +21,33 @@
 <script type="text/javascript"
 	src="resources/libs/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
 
+<!-- bootstrap upload file style -->
+<script type="text/javascript"
+	src="resources/js/bootstrap-filestyle.min.js"></script>
+
 <!-- custom css -->
 <link rel="stylesheet" href="resources/css/main.css">
 
 <!-- custom query -->
 <script type="text/javascript" src="resources/js/home.js"></script>
 
+<!-- jquery ui -->
+<link rel="stylesheet"
+	href="resources/libs/jquery-ui-1.12.0/jquery-ui.css">
+<script type="text/javascript"
+	src="resources/libs/jquery-ui-1.12.0/jquery-ui.js"></script>
+
+<script>
+	$(function() {
+		$(document).tooltip();
+	});
+</script>
+<style>
+.ui-tooltip {
+	max-width: 500px;
+	white-space: pre-line;
+}
+</style>
 </head>
 <body>
 
@@ -71,12 +92,17 @@
 										for (TaskBean task : listTask) {
 											out.write("<tr>");
 											out.write("<td>" + count++ + "</td>");
-											out.write("<td><a href='" + request.getContextPath() + "/ket-qua?taskid= " + task.getTaskId() + "'>"
+											out.write("<td><a href='" + request.getContextPath() + "/ket-qua-thuat-toan?taskid= " + task.getTaskId() + "'>"
 													+ task.getTaskName() + "</a></td>");
 											out.write("<td>" + task.getTimeCreate() + "</td>");
-											out.write("<td>" + task.getAlgorithm() + "</td>");
+											String tooltip = "";
+											for (String key : task.getConfig().stringPropertyNames()) {
+												tooltip += key + "=" + task.getConfig().getProperty(key) + "\n";
+											}
+											out.write("<td><a href='#' title='" + tooltip);
+											out.write("' data-toggle='tooltip'>" + task.getAlgorithm() + "</a></td>");
 											out.write("<td>" + task.getDataset() + "</td>");
-											out.write("<td>" + task.getStatus() + "</td>");
+											out.write("<td class='status' id='t" + task.getTaskId() + "'>" + task.getStatus() + "</td>");
 										}
 									%>
 								</tbody>
@@ -96,12 +122,8 @@
 							<div class="row">
 								<div class="col-md-3"></div>
 								<div class="col-md-6">
-									<form:form class="form" action="trang-chu" modelAttribute="task" method="POST">
-										<div class="form-group">
-											<label for="task">Tên task</label>
-											<form:input type="text" required="required"
-												class="form-control" path="taskName" id="taskName" />
-										</div>
+									<form:form class="form" enctype="multipart/form-data"
+										action="trang-chu" modelAttribute="task" method="POST">										
 										<div class="form-group">
 											<label for="algorithm">Chọn thuật toán</label>
 											<form:select class="form-control" id="algorithm"
@@ -116,7 +138,8 @@
 												href="<%=request.getContextPath()%>/quan-ly-dataset">nhập</a>
 												dataset
 											</label>
-											<form:select class="form-control" id="dataset" path="dataset">
+											<form:select class="form-control" required="required"
+												id="dataset" path="dataset">
 												<%
 													String[] datasets = (String[]) request.getAttribute("datasets");
 															if (datasets != null) {
@@ -126,6 +149,13 @@
 															}
 												%>
 											</form:select>
+										</div>
+										<div class="form-group">
+											<label for="db">Chọn File cấu hình cho thuật toán</label> <input
+												type="file" class="filestyle form-control"
+												data-buttonName="btn-primary" name="config"
+												required="required" data-buttonText="Chọn file"
+												data-buttonBefore="true" id="config">
 										</div>
 										<button type="submit" class="btn btn-primary">Xử lý</button>
 									</form:form>

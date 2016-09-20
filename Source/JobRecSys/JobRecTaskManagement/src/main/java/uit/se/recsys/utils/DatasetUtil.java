@@ -9,13 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import uit.se.recsys.bean.RecommendedItem;
+import uit.se.recsys.bean.TaskBean;
 
+@Configuration
 public class DatasetUtil {
-    private static DatasetUtil instance = new DatasetUtil();
 
-    public static DatasetUtil getInstance() {
-	return instance;
+    public DatasetUtil() {
+
     }
 
     /**
@@ -60,8 +65,11 @@ public class DatasetUtil {
     }
 
     /**
-     * This function to read line by line in result file and return a list of RecommendedItem
-     * @param path {@link String}: Full path to result file
+     * This function to read line by line in result file and return a list of
+     * RecommendedItem
+     * 
+     * @param path
+     *            {@link String}: Full path to result file
      * @return recommendedItems {@link List<RecommendedItem>}
      */
     public List<RecommendedItem> getRecommendedItems(String path) {
@@ -88,7 +96,9 @@ public class DatasetUtil {
 
     /**
      * Parse an value of string type into integer type
-     * @param data {@link String}
+     * 
+     * @param data
+     *            {@link String}
      * @return valueOfData {@link Integer}
      */
     public int toInt(String data) {
@@ -101,7 +111,9 @@ public class DatasetUtil {
 
     /**
      * Parse an value of string type into float type
-     * @param data {@link String}
+     * 
+     * @param data
+     *            {@link String}
      * @return valueOfData {@link Float}
      */
     public float toFloat(String data) {
@@ -110,5 +122,29 @@ public class DatasetUtil {
 	} catch (Exception e) {
 	    return -1.0f;
 	}
+    }
+
+    @Value("${Dataset.Location}")
+    String root;
+
+    public String getOutputLocation(TaskBean task) {
+	String path = root + task.getUserId() + File.separator
+			+ task.getDataset() + File.separator;
+	if (task.getType().equals("rec")) {
+	    path += "output\\" + task.getTaskId() + "_"
+			    + new StripAccentUtil().convert(task.getTaskName())
+					    .replaceAll(" ", "-")
+			    + File.separator + task.getAlgorithm()
+			    + File.separator;
+	} else {
+	    path += "evaluation\\" + task.getTaskId() + "_"
+		+ new StripAccentUtil().convert(task.getTaskName()).replaceAll(" ", "-") + File.separator;
+	}
+	return path;
+    }
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
+	return new PropertySourcesPlaceholderConfigurer();
     }
 }

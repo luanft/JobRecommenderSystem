@@ -1,81 +1,311 @@
 package recsys.evaluate;
 
-import dto.ScoreDTO;
-import recsys.algorithms.collaborativeFiltering.CFAlgorithm;
+import recsys.algorithms.cbf.CB;
 import recsys.algorithms.collaborativeFiltering.CollaborativeFiltering;
-import recsys.algorithms.collaborativeFiltering.SimilarityMeasure;
+import recsys.algorithms.hybird.HybirdRecommeder;
 import recsys.datapreparer.CollaborativeFilteringDataPreparer;
 import recsys.datapreparer.ContentBasedDataPreparer;
+import uit.se.evaluation.dtos.ScoreDTO;
+import uit.se.evaluation.metrics.*;
+import uit.se.evaluation.utils.DatasetUtil;
 import utils.DbConfig;
 import utils.MysqlDBConnection;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Created with IntelliJ IDEA. User: tuynguye Date: 8/12/16 Time: 9:47 AM To
  * change this template use File | Settings | File Templates.
  */
 public class Evaluation {
+	String evaluationType;
+	int evaluationParam;
+	String algorithm;
+	int topN;
+	String inputDir;
+	String evaluationDir;
+	String taskId;
+	Properties config;
+	int truthRank = 3;
 
-	public static void evaluate(int proportionOfTest, String algorithm,
-			String input, String output, String taskId) {
+	public Evaluation(String evalType, int evalParam, String algorithm, String input, String evalDir, String taskId) {
+		this.algorithm = algorithm;
+		this.evaluationParam = evalParam;
+		this.evaluationType = evalType;
+		this.inputDir = input;
+		this.evaluationDir = evalDir;
+		this.taskId = taskId;
+		this.config = new Properties();
+		try {
+			config.load(new FileInputStream(evalDir + "config.properties"));
+			topN = Integer.valueOf(config.getProperty("cf.recommendItems"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
+	private void percentageSplit() {
 		/**
 		 * First step: preparing data, split training and testing data set
 		 */
-		CollaborativeFilteringDataPreparer dataPreparer = new CollaborativeFilteringDataPreparer(
-				input);
-		dataPreparer.splitDataSet(proportionOfTest, output + "cf\\");
-		ContentBasedDataPreparer cbDataPreparer = new ContentBasedDataPreparer(
-				input);
-		cbDataPreparer.splitDataSet(output + "cf\\testing\\", output + "cb\\");
+		CollaborativeFilteringDataPreparer dataPreparer = new CollaborativeFilteringDataPreparer(inputDir);
+		dataPreparer.splitDataSet(evaluationParam, evaluationDir);
+		if (!algorithm.equals("cf")) {
+			ContentBasedDataPreparer cbDataPreparer = new ContentBasedDataPreparer(inputDir);
+			cbDataPreparer.splitDataSet(evaluationDir);
+		}
 
 		/**
-		 * Second step: call to CF Algorithm execute on training data set
+		 * Second step: call Algorithm execute on training data set
 		 */
-		training(algorithm, output);
+		trainAlgorithm();
 
 		/**
 		 * Third step: convert result to boolean type
 		 */
-		List<ScoreDTO> testingList = dataPreparer.getAllEvaluateScores(output
-				+ "cf\\testing\\");
-		List<ScoreDTO> resultList = dataPreparer.getAllEvaluateScores(output
-				+ "cf\\result\\");
+		HashMap<Integer, List<ScoreDTO>> groundTruth = DatasetUtil.getScores(evaluationDir + "testing\\Score.txt",
+				truthRank);
+		HashMap<Integer, List<ScoreDTO>> rankList = DatasetUtil.getScores(evaluationDir + "result\\Score.txt",
+				truthRank);
+
 		/**
 		 * Four step: evaluation
 		 */
-		writeResult(taskId, new EvaluationMetrics(testingList, resultList));
+		HashMap<String, Double> evaluationResult = computeEvaluation(rankList, groundTruth);
+
+		/**
+		 * Fifth step: write result to DB
+		 */
+		writeResult(taskId, evaluationResult, true);
 	}
 
-	private static void writeResult(String taskId, EvaluationMetrics eval) {
-		MysqlDBConnection con = new MysqlDBConnection(
-				DbConfig.load("config.txt"));
-		if (con.connect()) {
-			float recall = eval.calculateRecall();
-			float precision = eval.calculatePrecision();
-			String sql = "INSERT INTO `evaluation`(`MetricId`, `TaskId`, `Score`) VALUES (1,"
-					+ taskId + "," + precision + "),";
-			sql += "(2," + taskId + "," + recall + "),";
-			sql += "(3," + taskId + "," + eval.calculateF1(precision, recall)
-					+ "),";
-			sql += "(4," + taskId + "," + eval.calculateMAE() + "),";
-			sql += "(5," + taskId + "," + eval.calculateRMSE() + ")";
-			con.write(sql);
-			con.close();
+	private void customValidation() {
+		/**
+		 * First step: preparing data, split training and testing data set
+		 */
+		CollaborativeFilteringDataPreparer dataPreparer = new CollaborativeFilteringDataPreparer(inputDir);
+		dataPreparer.copyFileTo(inputDir + "Score.txt", evaluationDir + "training\\Score.txt");
+		if (!algorithm.equals("cf")) {
+			ContentBasedDataPreparer cbDataPreparer = new ContentBasedDataPreparer(inputDir);
+			cbDataPreparer.copyFileTo(inputDir, evaluationDir + "training\\");
+		}
+
+		/**
+		 * Second step: call Algorithm execute on training data set
+		 */
+		trainAlgorithm();
+
+		/**
+		 * Third step: convert result to boolean type
+		 */
+		HashMap<Integer, List<ScoreDTO>> groundTruth = DatasetUtil.getScores(evaluationDir + "testing\\Score.txt",
+				truthRank);
+		HashMap<Integer, List<ScoreDTO>> rankList = DatasetUtil.getScores(evaluationDir + "result\\Score.txt",
+				truthRank);
+
+		/**
+		 * Fourth step: evaluation
+		 */
+		HashMap<String, Double> evaluationResult = computeEvaluation(rankList, groundTruth);
+
+		/**
+		 * Fifth step: write result to DB
+		 */
+		writeResult(taskId, evaluationResult,true);
+	}
+
+	private void crossValidation() {
+
+		CollaborativeFilteringDataPreparer dataPreparer = new CollaborativeFilteringDataPreparer(inputDir);
+		HashMap<String, Double> evaluationResult = null;
+		for (int i = 0; i < evaluationParam; i++) {
+			/**
+			 * First step: preparing data, split training and testing data set
+			 */
+			dataPreparer.splitDataSet(i, evaluationParam, inputDir, evaluationDir);
+			if (!algorithm.equals("cf")) {
+				ContentBasedDataPreparer cbDataPreparer = new ContentBasedDataPreparer(inputDir);
+				cbDataPreparer.splitDataSet(evaluationDir);
+			}
+
+			/**
+			 * Second step: call Algorithm execute on training data set
+			 */
+			trainAlgorithm();
+
+			/**
+			 * Third step: convert result to boolean type
+			 */
+			HashMap<Integer, List<ScoreDTO>> groundTruth = DatasetUtil.getScores(evaluationDir + "testing\\Score.txt",
+					truthRank);
+			HashMap<Integer, List<ScoreDTO>> rankList = DatasetUtil.getScores(evaluationDir + "result\\Score.txt",
+					truthRank);
+
+			/**
+			 * Four step: compute evaluation
+			 */
+			evaluationResult = updateEvaluationResult(evaluationResult, computeEvaluation(rankList, groundTruth));					
+		}
+		
+		/**
+		 * Fifth step: write result to DB
+		 */	
+		for (String key : evaluationResult.keySet()) {
+			evaluationResult.put(key, evaluationResult.get(key)/evaluationParam);
+		}
+		writeResult(taskId, evaluationResult,true);
+	}
+
+	private HashMap<String, Double> updateEvaluationResult(HashMap<String, Double> oldResult,
+			HashMap<String, Double> newResult) {
+		if (oldResult == null)
+			return newResult;
+		for (String key : newResult.keySet()) {
+			newResult.put(key, newResult.get(key) + oldResult.get(key));
+		}
+		return newResult;
+	}
+
+	public void evaluate() {
+
+		switch (evaluationType) {
+		case "cross":
+			crossValidation();
+			break;
+		case "partitioning":
+			percentageSplit();
+			break;
+		default:
+			customValidation();
+			break;
+		}
+
+	}
+
+	private HashMap<String, Double> computeEvaluation(HashMap<Integer, List<ScoreDTO>> rankList,
+			HashMap<Integer, List<ScoreDTO>> groundTruth) {
+		double preTopN = 0;
+		double precision = 0;
+		double recall = 0;
+		double recTopN = 0;
+		double f = 0;
+		double ndcgTopN = 0;
+		double rmse = 0;
+		double mrr = 0;
+		double map = 0;
+		for (Integer userId : rankList.keySet()) {
+			preTopN += Precision.computePrecisionTopN(rankList.get(userId), groundTruth.get(userId), topN);
+			precision += Precision.computePrecision(rankList.get(userId), groundTruth.get(userId));
+			recall += Recall.computeRecall(rankList.get(userId), groundTruth.get(userId));
+			recall += Recall.computeRecallTopN(rankList.get(userId), groundTruth.get(userId), topN);
+			f += FMeasure.computeF1(rankList.get(userId), groundTruth.get(userId));
+			try {
+				ndcgTopN += NDCG.computeNDCG(rankList.get(userId), groundTruth.get(userId), topN);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			rmse += RMSE.computeRMSE(rankList.get(userId), groundTruth.get(userId));
+			try {
+				mrr += ReciprocalRank.computeRR(rankList.get(userId), groundTruth.get(userId));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			map += AveragePrecision.computeAP(rankList.get(userId), groundTruth.get(userId));
+		}
+		int n = rankList.size();
+		preTopN /= n;
+		precision /= n;
+		recall /= n;
+		recTopN /= n;
+		f /= n;
+		ndcgTopN /= n;
+		rmse /= n;
+		mrr /= n;
+		map /= n;
+		System.out.println("P@" + topN + ": " + preTopN);
+		System.out.println("P:" + precision);
+		System.out.println("R:" + recall);
+		System.out.println("R@" + topN + ": " + recTopN);
+		System.out.println("F:" + f);
+		System.out.println("NDCG@" + topN + ": " + ndcgTopN);
+		System.out.println("RMSE:" + rmse);
+		System.out.println("MRR:" + mrr);
+		System.out.println("MAP:" + map);
+
+		System.out.println("-----------");
+
+		HashMap<String, Double> evaluationResult = new HashMap<>(evaluationParam);
+		evaluationResult.put("Precision", precision);
+		evaluationResult.put("Recall", recall);
+		evaluationResult.put("P@" + topN, preTopN);
+		evaluationResult.put("R@" + topN, recTopN);
+		evaluationResult.put("F1", f);
+		evaluationResult.put("RMSE", rmse);
+		evaluationResult.put("NDCG@" + topN, ndcgTopN);
+		evaluationResult.put("MRR", mrr);
+		evaluationResult.put("MAP", map);
+
+		return evaluationResult;
+
+	}
+
+	private void writeResult(String taskId, HashMap<String, Double> evaluationResult, boolean writeToFile) {
+		if (writeToFile) {
+			/* Create file */
+			File commandFile = new File(evaluationDir + "evaluationResult.txt");
+			if (!commandFile.exists()) {
+				try {
+					commandFile.createNewFile();
+					FileWriter fw = new FileWriter(commandFile.getAbsoluteFile());
+					BufferedWriter bw = new BufferedWriter(fw);
+					for (String key : evaluationResult.keySet()) {
+						bw.write(key + "\t" + evaluationResult.get(key) + "\n");
+					}
+					bw.close();
+					fw.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+
+		try {
+			MysqlDBConnection con = new MysqlDBConnection(DbConfig.load("config.properties"));
+			if (con.connect()) {
+				String sql = "INSERT INTO `evaluation`(`TaskId`, `Score`, `Metric`) VALUES ";
+				for (String key : evaluationResult.keySet()) {
+					sql += "(" + taskId + "," + evaluationResult.get(key) + ", '" + key + "'),";
+				}
+				sql = sql.substring(0, sql.length() - 1);
+				sql += ";update task set Status = 'done' where TaskId = " + taskId + ";";
+				con.write(sql.substring(0, sql.length() - 1));
+				con.close();
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
-	private static void training(String algorithm, String output) {
+	private void trainAlgorithm() {
 		switch (algorithm) {
 		case "cf":
-			cf(output);
+			trainCF();
 			break;
 		case "cb":
-			cb(output);
+			trainCB();
 			break;
 		case "hb":
-			hb(output);
+			trainHB();
 			break;
 		default:
 			break;
@@ -83,19 +313,26 @@ public class Evaluation {
 
 	}
 
-	private static void hb(String output) {
-
+	private void trainHB() {
+		HybirdRecommeder hybridRecommender = new HybirdRecommeder();
+		hybridRecommender.setInputDirectory(evaluationDir + "training\\");
+		hybridRecommender.setOutputDirectory(evaluationDir + "result\\");
+		hybridRecommender.init();
+		hybridRecommender.hibridRecommend();
 	}
 
-	private static void cb(String output) {
-
+	private void trainCB() {
+		CB cb = new CB();
+		cb.setInputDirectory(evaluationDir + "training\\");
+		cb.setOutputDirectory(evaluationDir + "result\\");
+		try {
+			cb.run();
+		} catch (Exception ex) {
+		}
 	}
 
-	private static void cf(String output) {
-		CollaborativeFiltering cf = new CollaborativeFiltering(output
-				+ "cf\\training\\", output + "cf\\result\\", output
-				+ "cf\\testing\\");
-		cf.recommend(CFAlgorithm.UserBase,
-				SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, 5, 10);
+	private void trainCF() {
+		CollaborativeFiltering cf = new CollaborativeFiltering(evaluationDir, config);
+		cf.recommend();
 	}
 }

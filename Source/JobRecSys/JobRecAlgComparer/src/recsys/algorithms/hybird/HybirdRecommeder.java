@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -20,9 +21,6 @@ import org.apache.lucene.util.Version;
 import dto.CvDTO;
 import dto.ScoreDTO;
 import recsys.algorithms.RecommendationAlgorithm;
-import recsys.algorithms.collaborativeFiltering.CFAlgorithm;
-import recsys.algorithms.collaborativeFiltering.CollaborativeFiltering;
-import recsys.algorithms.collaborativeFiltering.SimilarityMeasure;
 import recsys.datapreparer.DataSetReader;
 import recsys.datapreparer.DataSetType;
 import recsys.datapreparer.HybirdRecommenderDataPreparer;
@@ -193,8 +191,10 @@ public class HybirdRecommeder extends RecommendationAlgorithm {
 	HybirdRecommenderDataPreparer dataPreparation;
 	//ham CF
 	private void collaborativeFiltering(String input, String output) {
-		CollaborativeFiltering cf = new CollaborativeFiltering(input, output);
-		cf.recommend(CFAlgorithm.UserBase, SimilarityMeasure.LOGLIKELIHOOD_SIMILARITY, 0.8f, 10);
+//		CollaborativeFiltering cf = new CollaborativeFiltering(output
+//				+ "cf\\training\\", output + "cf\\result\\", output
+//				+ "cf\\testing\\", useConfig);
+//		cf.recommend();
 	}
 	
 	public void hibridRecommend() {
